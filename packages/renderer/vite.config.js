@@ -40,7 +40,7 @@ export default defineConfig({
   },
   plugins: [tailwindcss(), svelte({ configFile: '../../svelte.config.js', hot: !process.env.VITEST }), svelteTesting()],
   optimizeDeps: {
-    exclude: ['tinro', '@podman-desktop/api'],
+    exclude: ['tinro', '@kortex-app/api'],
   },
   test: {
     retry: 3, // Retries failing tests up to 3 times

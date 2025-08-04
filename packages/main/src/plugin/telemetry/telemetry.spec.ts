@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { TelemetrySender } from '@podman-desktop/api';
+import type { TelemetrySender } from '@kortex-app/api';
 import type { MockInstance } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -397,7 +397,7 @@ describe('aggregateTrack', () => {
   test('should return telemetry messages with default product name', async () => {
     const messages = telemetry.getTelemetryMessages();
     expect(messages.acceptMessage).toBe(
-      'Help improve Podman Desktop by allowing Red Hat to collect anonymous usage data.',
+      'Help improve Kortex by allowing Red Hat to collect anonymous usage data.',
     );
     expect(messages.infoLink).toBe('Read our privacy statement');
     expect(messages.infoURL).toBe('https://developers.redhat.com/article/tool-data-collection');

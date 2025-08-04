@@ -38,7 +38,7 @@ import type {
   ProviderUpdate,
   VmProviderConnection,
   VmProviderConnectionFactory,
-} from '@podman-desktop/api';
+} from '@kortex-app/api';
 
 import type { IDisposable } from '/@api/disposable.js';
 

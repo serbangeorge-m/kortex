@@ -1,115 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <component type="desktop-application">
-  <id>io.podman_desktop.PodmanDesktop</id>
-  <name>Podman Desktop</name>
+  <id>dev.kortex_hub.Kortex</id>
+  <name>Kortex</name>
   <project_license>Apache-2.0</project_license>
   <developer id="com.redhat">
     <name>Red Hat, Inc.</name>
   </developer>
-  <summary>Manage Podman and other container engines from a single UI</summary>
+  <summary>Kortex</summary>
   <metadata_license>CC0-1.0</metadata_license>
-  <url type="homepage">https://podman-desktop.io/</url>
-  <url type="bugtracker">https://github.com/containers/podman-desktop/issues</url>
-  <url type="help">https://podman-desktop.io/docs/intro</url>
+  <url type="homepage">https://TODO</url>
+  <url type="bugtracker">https://TODO</url>
+  <url type="help">https://TODO</url>
   <description>
-    <p>Podman Desktop is an open source graphical tool enabling you to seamlessly work with containers and Kubernetes from your local environment.</p>
-    <p>Build, run and manage containers:</p>
-    <ul>
-      <li>Build images from Containerfile or Dockerfile.</li>
-      <li>Pull images from remote registries.</li>
-      <li>Start, Stop, Restart containers and pods.</li>
-      <li>Easily get a terminal in your container.</li>
-      <li>Inspect container logs.</li>
-      <li>Push images to OCI registries.</li>
-      <li>Deploy and test images on Kubernetes.</li>
-    </ul>
-    <p>Multiple configuration options</p>
-    <ul>
-      <li>Manage OCI registries; add, edit, or delete registries.</li>
-      <li>Configure your proxy settings (work in progress.)</li>
-      <li>Configure CPU, memory, and disk of Podman machines (work in progress.)</li>
-      <li>Handle multiple container engines at the same time (Podman, Docker, Lima...)</li>
-    </ul>
-    <p>You can also bring new features with Podman Desktop plug-ins or Docker Desktop extensions.</p>
   </description>
-  <launchable type="desktop-id">io.podman_desktop.PodmanDesktop.desktop</launchable>
+  <launchable type="desktop-id">dev.kortex_hub.Kortex</launchable>
   <screenshots>
-    <!-- Dashboard -->
-    <screenshot type="default" environment="gnome">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/light/dashboard.png</image>
-      <caption>Main dashboard</caption>
-    </screenshot>
-    <screenshot environment="gnome:dark">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/dark/dashboard.png</image>
-      <caption>Main dashboard</caption>
-    </screenshot>
-    <!-- Containers -->
-    <screenshot environment="gnome">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/light/containers.png</image>
-      <caption>List view of running containers</caption>
-    </screenshot>
-    <screenshot environment="gnome:dark">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/dark/containers.png</image>
-      <caption>List view of running containers</caption>
-    </screenshot>
-    <!-- Pods -->
-    <screenshot environment="gnome">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/light/pods.png</image>
-      <caption>List view of running pods</caption>
-    </screenshot>
-    <screenshot environment="gnome:dark">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/dark/pods.png</image>
-      <caption>List view of running pods</caption>
-    </screenshot>
-    <!-- Images -->
-    <screenshot environment="gnome">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/light/images.png</image>
-      <caption>List view of downloaded images</caption>
-    </screenshot>
-    <screenshot environment="gnome:dark">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/dark/images.png</image>
-      <caption>List view of downloaded images</caption>
-    </screenshot>
-    <!-- Volumes -->
-    <screenshot environment="gnome">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/light/volumes.png</image>
-      <caption>List view of existing volumes</caption>
-    </screenshot>
-    <screenshot environment="gnome:dark">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/dark/volumes.png</image>
-      <caption>List view of existing volumes</caption>
-    </screenshot>
-    <!-- Kubernetes -->
-    <screenshot environment="gnome">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/light/kubernetes.png</image>
-      <caption>Overview of Kubernetes clusters</caption>
-    </screenshot>
-    <screenshot environment="gnome:dark">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/dark/kubernetes.png</image>
-      <caption>Overview of Kubernetes clusters</caption>
-    </screenshot>
-    <!-- Extensions -->
-    <screenshot environment="gnome">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/light/extensions.png</image>
-      <caption>List of supported extensions</caption>
-    </screenshot>
-    <screenshot environment="gnome:dark">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/dark/extensions.png</image>
-      <caption>List of supported extensions</caption>
-    </screenshot>
-    <!-- Settings -->
-    <screenshot environment="gnome">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/light/settings.png</image>
-      <caption>Overview of supported customizations</caption>
-    </screenshot>
-    <screenshot environment="gnome:dark">
-      <image type="source">https://raw.githubusercontent.com/containers/podman-desktop-media/8786db2a59e62d7bebbe4602c0475a1cadf2f54c/screenshots/linux/dark/settings.png</image>
-      <caption>Overview of supported customizations</caption>
-    </screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />
   <update_contact>fbenoit_at_redhat_com</update_contact>
   <releases>
+<<<<<<< HEAD
     <release version="1.25.0" date="2026-01-19"/>
     <release version="1.24.0" date="2025-12-08"/>
     <release version="1.23.0" date="2025-11-12"/>
@@ -154,6 +64,8 @@
     <release version="0.0.3" date="2022-05-09" />
     <release version="0.0.2" date="2022-04-14" />
     <release version="0.0.1" date="2022-03-17" />
+=======
+>>>>>>> 71610c07aea (chore: change to kortex)
   </releases>
 
 </component>

@@ -94,11 +94,11 @@ describe('getFeedbackMessages', () => {
     const feedbackHandler = new FeedbackHandler(extensionLoaderMock);
     const messages = feedbackHandler.getFeedbackMessages();
 
-    expect(messages.experienceLabel).toBe('How was your experience with Podman Desktop');
+    expect(messages.experienceLabel).toBe('How was your experience with Kortex');
     expect(messages.thankYouMessage).toBe(
-      'Your input is valuable in helping us better understand and tailor Podman Desktop.',
+      'Your input is valuable in helping us better understand and tailor Kortex.',
     );
-    expect(messages.gitHubStarsMessage).toBe('Like Podman Desktop? Give us a star on GitHub');
+    expect(messages.gitHubStarsMessage).toBe('Like Kortex? Give us a star on GitHub');
   });
 
   test('should return feedback messages with custom product name', () => {

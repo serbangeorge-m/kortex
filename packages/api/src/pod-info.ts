@@ -21,7 +21,7 @@ import type {
   HostConfigPortBinding,
   PodContainerInfo,
   PodCreatePortOptions,
-} from '@podman-desktop/api';
+} from '@kortex-app/api';
 
 import type { ProviderContainerConnectionInfo } from './provider-info.js';
 

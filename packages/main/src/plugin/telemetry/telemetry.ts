@@ -24,7 +24,7 @@ import type {
   TelemetryLoggerOptions,
   TelemetrySender,
   TelemetryTrustedValue,
-} from '@podman-desktop/api';
+} from '@kortex-app/api';
 import type { EventProperties } from '@segment/analytics-core';
 import { Analytics, type UserTraits } from '@segment/analytics-node';
 import { app } from 'electron';

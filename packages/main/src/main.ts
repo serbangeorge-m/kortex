@@ -32,7 +32,7 @@ export type AdditionalData = {
 };
 
 /**
- * The main Podman Desktop entry point
+ * The main Kortex entry point
  */
 export class Main implements IDisposable {
   // TODO: should be renamed to #app

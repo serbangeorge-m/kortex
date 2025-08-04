@@ -1,26 +1,26 @@
 {
   "_comment": "This file is used to define product specific properties. Do not import it directly in renderer package. Only main package should import it.",
-  "name": "Podman Desktop",
-  "appId": "io.podman_desktop.PodmanDesktop",
-  "artifactName": "podman-desktop",
-  "urlProtocol": "podman-desktop",
+  "name": "Kortex",
+  "appId": "dev.kortex_hub.Kortex",
+  "artifactName": "kortex",
+  "urlProtocol": "kortex",
   "paths": {
-    "config": "containers/podman-desktop",
+    "config": "kortex",
     "managed": {
-      "macOS": "/Library/Application Support/io.podman_desktop.PodmanDesktop",
-      "windows": "%PROGRAMDATA%\\Podman Desktop",
-      "linux": "/usr/share/podman-desktop",
-      "flatpak": "/run/host/usr/share/podman-desktop"
+      "macOS": "/Library/Application Support/dev.kortex_hub.Kortex",
+      "windows": "%PROGRAMDATA%\\Kortex",
+      "linux": "/usr/share/kortex",
+      "flatpak": "/run/host/usr/share/kortex"
     }
   },
   "telemetry": {
-    "key": "Mhl7GXADk5M1vG6r9FXztbCqWRQY8XPy",
-    "acceptMessage": "Help improve Podman Desktop by allowing Red Hat to collect anonymous usage data.",
+    "key": "bM9vFhjiVszj9rvZGyUwYUAh9CmKGU4z",
+    "acceptMessage": "Help improve Kortex by allowing Red Hat to collect anonymous usage data.",
     "infoLink": "Read our privacy statement",
     "infoURL": "https://developers.redhat.com/article/tool-data-collection"
   },
   "catalog": {
-    "default": "https://registry.podman-desktop.io/api/extensions.json"
+    "default": "https://gist.githubusercontent.com/benoitf/63df9e7193c6cabcd8fc0052e3e0cc4c/raw/6ed37b4e24975f54a4583a3dca998fbd3218777e/extensions.json"
   },
   "extensions": {
     "remote": []
@@ -28,46 +28,22 @@
   "helpMenu": {
     "items": [
       {
-        "title": "Getting Started",
-        "icon": "fas fa-external-link-alt",
-        "link": "https://www.podman-desktop.io/docs/intro"
-      },
-      {
         "title": "Troubleshooting",
+        "tooltip": "Troubleshooting guide to help you resolve common issues",
         "icon": "fas fa-lightbulb",
         "command": "troubleshooting"
       },
       {
         "title": "Report a Bug",
+        "tooltip": "Report a bug to help us improve Kortex",
         "icon": "fas fa-exclamation-triangle",
-        "link": "https://github.com/podman-desktop/podman-desktop/issues/new/choose"
+        "link": "https://github.com/kortex/kortex/issues/new/choose"
       },
       {
         "title": "Share Your Feedback",
+        "tooltip": "Share your feedback to help us improve Kortex",
         "icon": "far fa-comment",
         "command": "feedback"
-      },
-      {
-        "title": "Community",
-        "icon": "fas fa-list-ul"
-      },
-      {
-        "title": "#podman-desktop",
-        "tooltip": "Join Discord #podman-desktop channel",
-        "icon": "fab fa-discord",
-        "link": "https://discord.com/invite/x5GzFF6QH4"
-      },
-      {
-        "title": "#podman-desktop",
-        "tooltip": "Join Slack #podman-desktop channel",
-        "icon": "fab fa-slack",
-        "link": "https://slack.k8s.io"
-      },
-      {
-        "title": "@podman-desktop",
-        "tooltip": "Follow Podman Desktop LinkedIn account",
-        "icon": "fab fa-linkedin",
-        "link": "https://www.linkedin.com/company/podman-desktop/"
       }
     ]
   },

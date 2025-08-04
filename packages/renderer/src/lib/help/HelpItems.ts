@@ -16,30 +16,44 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Disposable, Event } from '@kortex-app/api';
+import { faComment } from '@fortawesome/free-regular-svg-icons';
+import { faLightbulb, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
-import type { TaskState, TaskStatus } from '/@api/taskInfo.js';
-
-export interface TaskAction {
-  name: string;
-  execute: (task: Task) => void;
+export enum ActionKind {
+  LINK,
+  COMMAND,
 }
 
-export interface TaskUpdateEvent {
-  action: 'update' | 'delete';
-  task: Task;
+export interface ItemAction {
+  kind: ActionKind;
+  parameter: string;
 }
 
-export interface Task extends Disposable {
-  readonly id: string;
-  name: string;
-  readonly started: number;
-  state: TaskState;
-  status: TaskStatus;
-  error?: string;
-  progress?: number;
-  action?: TaskAction;
-  cancellable: boolean;
-  cancellationTokenSourceId?: number;
-  readonly onUpdate: Event<TaskUpdateEvent>;
+export interface ItemInfo {
+  title: string;
+  tooltip?: string;
+  icon: IconDefinition;
+  enabled: boolean;
+  action?: ItemAction;
 }
+
+export const Items: readonly ItemInfo[] = [
+  {
+    title: 'Troubleshooting',
+    icon: faLightbulb,
+    enabled: true,
+    action: {
+      kind: ActionKind.COMMAND,
+      parameter: 'troubleshooting',
+    },
+  },
+  {
+    title: 'Share Your Feedback',
+    icon: faComment,
+    enabled: true,
+    action: {
+      kind: ActionKind.COMMAND,
+      parameter: 'feedback',
+    },
+  },
+];
