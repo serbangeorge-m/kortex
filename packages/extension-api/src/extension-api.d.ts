@@ -890,9 +890,11 @@ declare module '@kortex-app/api' {
 
   export interface RegisterMCPConnectionEvent {
     providerId: string;
+    connection: MCPProviderConnection;
   }
   export interface UnregisterMCPConnectionEvent {
     providerId: string;
+    connectionName: string;
   }
 
   export interface RegisterContainerConnectionEvent {
