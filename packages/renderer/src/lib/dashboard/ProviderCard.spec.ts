@@ -49,6 +49,12 @@ test('Expect provider region', async () => {
     images: {} as ProviderImages,
     installationSupport: false,
     cleanupSupport: false,
+    inferenceConnections: [],
+    mcpConnections: [],
+    inferenceProviderConnectionCreation: false,
+    inferenceProviderConnectionInitialization: false,
+    mcpProviderConnectionCreation: false,
+    mcpProviderConnectionInitialization: false,
   };
   render(ProviderCard, { provider });
 
@@ -78,6 +84,12 @@ test('Expect provider name', async () => {
     images: {} as ProviderImages,
     installationSupport: false,
     cleanupSupport: false,
+    inferenceConnections: [],
+    mcpConnections: [],
+    inferenceProviderConnectionCreation: false,
+    inferenceProviderConnectionInitialization: false,
+    mcpProviderConnectionCreation: false,
+    mcpProviderConnectionInitialization: false,
   };
   render(ProviderCard, { provider });
 
@@ -108,6 +120,12 @@ test('Expect provider icon', async () => {
     images: { icon: 'test.png' } as ProviderImages,
     installationSupport: false,
     cleanupSupport: false,
+    inferenceConnections: [],
+    mcpConnections: [],
+    inferenceProviderConnectionCreation: false,
+    inferenceProviderConnectionInitialization: false,
+    mcpProviderConnectionCreation: false,
+    mcpProviderConnectionInitialization: false,
   };
 
   render(ProviderCard, { provider });
@@ -142,7 +160,12 @@ test('Expect no provider version', async () => {
     images: {} as ProviderImages,
     installationSupport: false,
     cleanupSupport: false,
-    // no version
+    inferenceConnections: [],
+    mcpConnections: [],
+    inferenceProviderConnectionCreation: false,
+    inferenceProviderConnectionInitialization: false,
+    mcpProviderConnectionCreation: false,
+    mcpProviderConnectionInitialization: false,
   };
   render(ProviderCard, { provider });
 
@@ -173,6 +196,12 @@ test('Expect provider version', async () => {
     installationSupport: false,
     version: '1.2.3',
     cleanupSupport: false,
+    inferenceConnections: [],
+    mcpConnections: [],
+    inferenceProviderConnectionCreation: false,
+    inferenceProviderConnectionInitialization: false,
+    mcpProviderConnectionCreation: false,
+    mcpProviderConnectionInitialization: false,
   };
   render(ProviderCard, { provider });
 
@@ -203,6 +232,12 @@ test('Expect provider state', async () => {
     images: {} as ProviderImages,
     installationSupport: false,
     cleanupSupport: false,
+    inferenceConnections: [],
+    mcpConnections: [],
+    inferenceProviderConnectionCreation: false,
+    inferenceProviderConnectionInitialization: false,
+    mcpProviderConnectionCreation: false,
+    mcpProviderConnectionInitialization: false,
   };
   render(ProviderCard, { provider });
 

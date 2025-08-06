@@ -33,6 +33,8 @@ const PROVIDER_MOCK = {
   containerConnections: [],
   kubernetesConnections: [],
   vmConnections: [],
+  inferenceConnections: [],
+  mcpConnections: [],
   status: 'ready' as ProviderStatus,
   images: {
     icon: 'my-nice-icon',

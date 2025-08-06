@@ -689,6 +689,16 @@ $effect(() => {
             </PreferencesConnectionActions>
           </div>
         {/each}
+        {#each provider.inferenceConnections as inferenceConnection, index (index)}
+          <div class="px-5 py-2 w-[240px]" role="region" aria-label={inferenceConnection.name}>
+            <span>{inferenceConnection.name} (Inference)</span>
+          </div>
+        {/each}
+          {#each provider.mcpConnections as mcpConnection, index (index)}
+            <div class="px-5 py-2 w-[240px]" role="region" aria-label={mcpConnection.name}>
+              <span>{mcpConnection.name} (MCP)</span>
+            </div>
+          {/each}
         </div>
       </div>
     {/each}

@@ -63,6 +63,12 @@ const providerInfo: ProviderInfo = {
   kubernetesProviderConnectionInitialization: false,
   extensionId: 'id',
   cleanupSupport: false,
+  inferenceConnections: [],
+  mcpConnections: [],
+  inferenceProviderConnectionCreation: false,
+  inferenceProviderConnectionInitialization: false,
+  mcpProviderConnectionCreation: false,
+  mcpProviderConnectionInitialization: false,
 };
 
 async function waitRender(customProperties: object): Promise<void> {

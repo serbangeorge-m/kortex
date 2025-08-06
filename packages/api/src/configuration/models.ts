@@ -83,6 +83,8 @@ export type ConfigurationScope =
   | 'KubernetesConnection'
   | 'VmConnection'
   | 'ContainerProviderConnectionFactory'
+  | 'InferenceProviderConnectionFactory'
+  | 'MCPProviderConnectionFactory'
   | 'KubernetesProviderConnectionFactory'
   | 'VmProviderConnectionFactory'
   | 'DockerCompatibility'

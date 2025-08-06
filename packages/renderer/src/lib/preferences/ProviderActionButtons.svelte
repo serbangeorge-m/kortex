@@ -43,7 +43,11 @@ const providerDisplayName = $derived(
       ? provider.kubernetesProviderConnectionCreationDisplayName
       : provider.vmProviderConnectionCreation
         ? provider.vmProviderConnectionCreationDisplayName
-        : undefined) ?? provider.name,
+        : provider.inferenceProviderConnectionCreation
+          ? provider.inferenceProviderConnectionCreationDisplayName
+          : provider.mcpProviderConnectionCreation
+            ? provider.mcpProviderConnectionCreationDisplayName
+            : undefined) ?? provider.name,
 );
 
 const buttonTitle = $derived(
@@ -53,13 +57,19 @@ const buttonTitle = $derived(
       ? provider.kubernetesProviderConnectionCreationButtonTitle
       : provider.vmProviderConnectionCreation
         ? provider.vmProviderConnectionCreationButtonTitle
-        : undefined) ?? 'Create new',
+        : provider.inferenceProviderConnectionCreation
+          ? provider.inferenceProviderConnectionCreationButtonTitle
+          : provider.mcpProviderConnectionCreation
+            ? provider.mcpProviderConnectionCreationButtonTitle
+            : undefined) ?? 'Create new',
 );
 
 const showCreateNewButton = $derived(
   provider.containerProviderConnectionCreation ||
     provider.kubernetesProviderConnectionCreation ||
-    provider.vmProviderConnectionCreation,
+    provider.vmProviderConnectionCreation ||
+    provider.inferenceProviderConnectionCreation ||
+    provider.mcpProviderConnectionCreation,
 );
 
 const showSetupButton = $derived(

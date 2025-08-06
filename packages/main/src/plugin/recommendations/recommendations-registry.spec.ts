@@ -81,9 +81,7 @@ beforeEach(() => {
 
   vi.setSystemTime(fakeNow);
 
-  recommendationsRegistry = new RecommendationsRegistry(
-    configurationRegistryMock,
-  );
+  recommendationsRegistry = new RecommendationsRegistry(configurationRegistryMock);
 });
 
 afterEach(() => {
@@ -317,8 +315,8 @@ describe('getExtensionBanners', () => {
 
       const banners = await recommendationsRegistry.getExtensionBanners(1);
       expect(banners.length).toBe(0);
-  }
-});
+    }
+  });
 });
 
 describe('getRegistries', () => {

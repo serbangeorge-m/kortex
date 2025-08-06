@@ -24,6 +24,7 @@ import { createExtensionBanners } from './dashboard-page-registry-extension-bann
 import { createLearningCenter } from './dashboard-page-registry-learning-center.svelte';
 import { createProviders } from './dashboard-page-registry-providers.svelte';
 import { createReleaseNotesBox } from './dashboard-page-registry-release-notes.svelte';
+import { createChat } from '/@/stores/dashboard/dashboard-page-registry-chatform';
 
 export interface DashboardPageRegistryEntry {
   id: string;
@@ -36,11 +37,14 @@ export const dashboardPageRegistry = $state<{ entries: DashboardPageRegistryEntr
 
 function getDashboardPageRegistry(): DashboardPageRegistryEntry[] {
   return [
+    createChat(),
     createReleaseNotesBox(),
+    /*
     createExtensionBanners(),
     createExploreFeatures(),
     createLearningCenter(),
     createProviders(),
+    */
   ];
 }
 

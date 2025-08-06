@@ -72,6 +72,12 @@ const provider: ProviderInfo = {
   warnings: [],
   extensionId: '',
   cleanupSupport: false,
+  inferenceConnections: [],
+  mcpConnections: [],
+  inferenceProviderConnectionCreation: false,
+  inferenceProviderConnectionInitialization: false,
+  mcpProviderConnectionCreation: false,
+  mcpProviderConnectionInitialization: false,
 };
 
 const pod1: PodInfo = {

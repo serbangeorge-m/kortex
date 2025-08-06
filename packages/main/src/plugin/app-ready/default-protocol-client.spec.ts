@@ -72,8 +72,5 @@ test('on windows ElectronApp#setAsDefaultProtocolClient should be called with pr
   await plugin.onReady();
 
   expect(ELECTRON_APP_MOCK.setAsDefaultProtocolClient).toHaveBeenCalledOnce();
-  expect(ELECTRON_APP_MOCK.setAsDefaultProtocolClient).toHaveBeenCalledWith('kortex', '/foo/bar', [
-    'foo',
-    'bar',
-  ]);
+  expect(ELECTRON_APP_MOCK.setAsDefaultProtocolClient).toHaveBeenCalledWith('kortex', '/foo/bar', ['foo', 'bar']);
 });

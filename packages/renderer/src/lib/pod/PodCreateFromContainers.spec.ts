@@ -64,6 +64,12 @@ const providerInfo: ProviderInfo = {
   vmConnections: [],
   vmProviderConnectionCreation: false,
   vmProviderConnectionInitialization: false,
+  inferenceConnections: [],
+  mcpConnections: [],
+  inferenceProviderConnectionCreation: false,
+  inferenceProviderConnectionInitialization: false,
+  mcpProviderConnectionCreation: false,
+  mcpProviderConnectionInitialization: false,
 };
 
 const podCreation: PodCreation = {

@@ -19,10 +19,7 @@
 import { inject, injectable } from 'inversify';
 
 import { type IConfigurationNode, IConfigurationRegistry } from '/@api/configuration/models.js';
-import type {
-  ExtensionBanner,
-  RecommendedRegistry,
-} from '/@api/recommendations/recommendations.js';
+import type { ExtensionBanner, RecommendedRegistry } from '/@api/recommendations/recommendations.js';
 import { RecommendationsSettings } from '/@api/recommendations/recommendations-settings.js';
 
 @injectable()
@@ -47,7 +44,7 @@ export class RecommendationsRegistry {
   }
 
   async getRegistries(): Promise<RecommendedRegistry[]> {
-      return [];
+    return [];
   }
 
   /**
@@ -55,7 +52,7 @@ export class RecommendationsRegistry {
    * @param limit the maximum number of extension banners returned. Default 1, use -1 for no limit
    */
   async getExtensionBanners(_limit = 5): Promise<ExtensionBanner[]> {
-          return [];
+    return [];
   }
 
   init(): void {

@@ -57,6 +57,12 @@ const EMPTY_PROVIDER_MOCK: ProviderInfo = {
   kubernetesProviderConnectionInitialization: false,
   extensionId: '',
   cleanupSupport: false,
+  inferenceConnections: [],
+  mcpConnections: [],
+  inferenceProviderConnectionCreation: false,
+  inferenceProviderConnectionInitialization: false,
+  mcpProviderConnectionCreation: false,
+  mcpProviderConnectionInitialization: false,
 };
 
 test('Expect that the right machine is displayed', async () => {

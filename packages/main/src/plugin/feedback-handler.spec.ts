@@ -95,9 +95,7 @@ describe('getFeedbackMessages', () => {
     const messages = feedbackHandler.getFeedbackMessages();
 
     expect(messages.experienceLabel).toBe('How was your experience with Kortex');
-    expect(messages.thankYouMessage).toBe(
-      'Your input is valuable in helping us better understand and tailor Kortex.',
-    );
+    expect(messages.thankYouMessage).toBe('Your input is valuable in helping us better understand and tailor Kortex.');
     expect(messages.gitHubStarsMessage).toBe('Like Kortex? Give us a star on GitHub');
   });
 

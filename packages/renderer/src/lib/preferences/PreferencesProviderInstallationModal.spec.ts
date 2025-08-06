@@ -62,6 +62,12 @@ const providerInfo: ProviderInfo = {
   kubernetesProviderConnectionInitialization: false,
   extensionId: '',
   cleanupSupport: false,
+  inferenceConnections: [],
+  mcpConnections: [],
+  inferenceProviderConnectionCreation: false,
+  inferenceProviderConnectionInitialization: false,
+  mcpProviderConnectionCreation: false,
+  mcpProviderConnectionInitialization: false,
 };
 
 const closeCallback = vi.fn();
