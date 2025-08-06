@@ -89,6 +89,7 @@ import PreferencesNavigation from './PreferencesNavigation.svelte';
 import Route from './Route.svelte';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 import SubmenuNavigation from './SubmenuNavigation.svelte';
+  import CustomChat from './lib/chat/route/CustomChat.svelte';
 
 router.mode.memory();
 
@@ -400,6 +401,10 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         </Route>
         <Route path="/extensions/details/:id/*" breadcrumb="Extension Details" let:meta navigationHint="details">
           <ExtensionDetails extensionId={meta.params.id} />
+        </Route>
+
+        <Route path="/chat/*" breadcrumb="Chat">
+          <CustomChat />
         </Route>
       </div>
     </div>

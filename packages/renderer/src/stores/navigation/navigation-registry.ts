@@ -25,6 +25,7 @@ import { configurationProperties } from '/@/stores/configurationProperties';
 import { EventStore } from '/@/stores/event-store';
 
 import { createNavigationContainerEntry } from './navigation-registry-container.svelte';
+import { createNavigationChatEntry } from './navigation-registry-chat.svelte';
 import { createNavigationExtensionEntry, createNavigationExtensionGroup } from './navigation-registry-extension.svelte';
 import { createNavigationImageEntry } from './navigation-registry-image.svelte';
 import { createNavigationKubernetesGroup } from './navigation-registry-kubernetes.svelte';
@@ -69,6 +70,7 @@ const init = (): void => {
   values.push(createNavigationVolumeEntry());
   values.push(createNavigationNetworkEntry());
   values.push(createNavigationKubernetesGroup());
+  values.push(createNavigationChatEntry());
   values.push(createNavigationExtensionEntry());
   values.push(createNavigationExtensionGroup());
   hideItems().catch((err: unknown) => console.error('Error hiding navigation items', err));
