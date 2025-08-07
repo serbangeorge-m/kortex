@@ -8,6 +8,7 @@ import type { Chat as DbChat, User } from '../../../../../main/src/chat/db/schem
 import Messages from './messages.svelte';
 import MultimodalInput from './multimodal-input.svelte';
 import { untrack } from 'svelte';
+import { IPCChatTransport } from './ipc-chat-transport';
 
 let {
   user,
@@ -26,6 +27,7 @@ const chatHistory = ChatHistory.fromContext();
 const chatClient = $derived(
   new Chat({
     id: chat?.id,
+    transport: new IPCChatTransport(),
     // This way, the client is only recreated when the ID changes, allowing us to fully manage messages
     // clientside while still SSRing them on initial load or when we navigate to a different chat.
     messages: untrack(() => initialMessages),
