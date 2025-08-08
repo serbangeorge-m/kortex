@@ -50,7 +50,6 @@ import {
   TextStreamPart,
   type ToolSet,
   UIMessage,
-  UIMessageChunk,
 } from 'ai';
 import checkDiskSpacePkg from 'check-disk-space';
 import type Dockerode from 'dockerode';
