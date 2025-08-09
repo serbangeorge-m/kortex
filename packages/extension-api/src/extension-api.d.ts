@@ -550,6 +550,10 @@ declare module '@kortex-app/api' {
     sdk: AISDKInferenceProvider;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
+    // list of models
+    models: Array<{
+      label: string;
+    }>
   };
 
   export type ProviderConnection =

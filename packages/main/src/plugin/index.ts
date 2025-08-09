@@ -1374,8 +1374,15 @@ export class PluginSystem {
 
     this.ipcHandle(
       'inference:streamText',
-      async (_listener, modelId: string, messages: UIMessage[], onDataId: number): Promise<number> => {
-        const sdk = providerRegistry.getFirstInferenceSDK('gemini');
+      async (
+        _listener,
+        internalProviderId: string,
+        connectionName: string,
+        modelId: string,
+        messages: UIMessage[],
+        onDataId: number
+      ): Promise<number> => {
+        const sdk = providerRegistry.getInferenceSDK(internalProviderId, connectionName);
         const languageModel = sdk.languageModel(modelId);
 
         const userMessage = getMostRecentUserMessage(messages);

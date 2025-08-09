@@ -1172,6 +1172,8 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld(
     'inferenceStreamText',
     async (
+      internalProviderId: string,
+      connectionName: string,
       modelId: string,
       messages: UIMessage[],
       onChunk: (data: UIMessageChunk) => void,
@@ -1180,7 +1182,13 @@ export function initExposure(): void {
     ): Promise<number> => {
       onDataCallbacksStreamTextId++;
       onDataCallbacksStreamText.set(onDataCallbacksStreamTextId, { onChunk, onError, onEnd });
-      return ipcInvoke('inference:streamText', modelId, messages, onDataCallbacksStreamTextId);
+      return ipcInvoke('inference:streamText',
+        internalProviderId,
+        connectionName,
+        modelId,
+        messages,
+        onDataCallbacksStreamTextId
+      );
     },
   );
 
