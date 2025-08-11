@@ -23,7 +23,7 @@ import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import { inject, injectable } from 'inversify';
 
-import { ApiSenderType } from '../api.js';
+import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import { Certificates } from '../certificates.js';
 import { Emitter } from '../events/emitter.js';
 import { Proxy } from '../proxy.js';

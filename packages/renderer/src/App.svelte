@@ -16,6 +16,7 @@ import type { NavigationRequest } from '/@api/navigation-request';
 import AppNavigation from './AppNavigation.svelte';
 import { navigateTo } from './kubernetesNavigation';
 import Appearance from './lib/appearance/Appearance.svelte';
+import CustomChat from './lib/chat/route/CustomChat.svelte';
 import ComposeDetails from './lib/compose/ComposeDetails.svelte';
 import ConfigMapDetails from './lib/configmaps-secrets/ConfigMapDetails.svelte';
 import ConfigMapSecretList from './lib/configmaps-secrets/ConfigMapSecretList.svelte';
@@ -27,7 +28,6 @@ import CreateContainerFromExistingImage from './lib/container/CreateContainerFro
 import ContextKey from './lib/context/ContextKey.svelte';
 import CronJobDetails from './lib/cronjob/CronJobDetails.svelte';
 import CronJobList from './lib/cronjob/CronJobList.svelte';
-import DashboardPage from './lib/dashboard/DashboardPage.svelte';
 import DeploymentDetails from './lib/deployments/DeploymentDetails.svelte';
 import DeploymentsList from './lib/deployments/DeploymentsList.svelte';
 import CustomPick from './lib/dialogs/CustomPick.svelte';
@@ -89,7 +89,6 @@ import PreferencesNavigation from './PreferencesNavigation.svelte';
 import Route from './Route.svelte';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 import SubmenuNavigation from './SubmenuNavigation.svelte';
-import CustomChat from './lib/chat/route/CustomChat.svelte';
 
 router.mode.memory();
 
@@ -157,8 +156,11 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         <SendFeedback />
         <ToastHandler />
         <ToastTaskNotifications />
-        <Route path="/" breadcrumb="Dashboard Page" navigationHint="root">
-          <DashboardPage />
+        <Route path="/" breadcrumb="Chat" navigationHint="root">
+          <CustomChat />
+        </Route>
+        <Route path="/chat/*" breadcrumb="Chat">
+          <CustomChat />
         </Route>
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm={meta.query.filter ?? ''} />
@@ -401,10 +403,6 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         </Route>
         <Route path="/extensions/details/:id/*" breadcrumb="Extension Details" let:meta navigationHint="details">
           <ExtensionDetails extensionId={meta.params.id} />
-        </Route>
-
-        <Route path="/chat/*" breadcrumb="Chat">
-          <CustomChat />
         </Route>
       </div>
     </div>
