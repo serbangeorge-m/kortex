@@ -9,6 +9,8 @@ import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants';
 import { DockerCompatibilitySettings } from '/@api/docker-compatibility-info';
 
 import { configurationProperties } from './stores/configurationProperties';
+  import ProxyIcon from '/@/lib/images/ProxyIcon.svelte';
+  import ResourcesIcon from '/@/lib/images/ResourcesIcon.svelte';
 
 interface Props {
   meta: TinroRouteMeta;
@@ -92,7 +94,7 @@ onMount(() => {
     </div>
   </div>
   <div class="h-full overflow-y-auto" style="margin-bottom:auto">
-    {#each settingsNavigationItems as navItem, index (index)}
+    {#each [{ title: 'Proxy', href: '/preferences/proxies', visible: true,  icon: ProxyIcon }, { title: 'MCP Registries', href: '/preferences/mcp-registries', visible: true,  icon: ResourcesIcon }] as navItem, index (index)}
       {#if navItem.visible}
         <SettingsNavItem 
           title={navItem.title} 

@@ -96,6 +96,7 @@ import { ViewRegistry } from '../view-registry.js';
 import { type AnalyzedExtension, ExtensionAnalyzer, ExtensionAnalyzerOptions } from './extension-analyzer.js';
 import { ExtensionDevelopmentFolders } from './extension-development-folders.js';
 import { ExtensionWatcher } from './extension-watcher.js';
+import { MCPRegistry } from '../mcp/mcp-registry.js';
 
 export interface ActivatedExtension {
   id: string;
@@ -223,6 +224,9 @@ export class ExtensionLoader implements IAsyncDisposable {
     private extensionApiVersion: ExtensionApiVersion,
     @inject(FeatureRegistry)
     private featureRegistry: FeatureRegistry,
+    @inject(MCPRegistry)
+    private mcpRegistry: MCPRegistry,
+
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -1055,6 +1059,39 @@ export class ExtensionLoader implements IAsyncDisposable {
       },
     };
 
+    const mcpRegistryInstance = this.mcpRegistry;
+    const mcpRegistry: typeof containerDesktopAPI.mcpRegistry = {
+
+      registerRegistry: (registry: containerDesktopAPI.MCPRegistry): Disposable => {
+        return mcpRegistryInstance.registerMCPRegistry(registry);
+      },
+
+      suggestRegistry: (registry: containerDesktopAPI.MCPRegistrySuggestedProvider): Disposable => {
+        return mcpRegistryInstance.suggestMCPRegistry(registry);
+      },
+
+      unregisterRegistry: (registry: containerDesktopAPI.MCPRegistry): void => {
+        mcpRegistryInstance.unregisterMCPRegistry(registry);
+      },
+
+      onDidUpdateRegistry: (listener, thisArg, disposables) => {
+        return mcpRegistryInstance.onDidUpdateRegistry(listener, thisArg, disposables);
+      },
+
+      onDidRegisterRegistry: (listener, thisArg, disposables) => {
+        return mcpRegistryInstance.onDidRegisterRegistry(listener, thisArg, disposables);
+      },
+
+      onDidUnregisterRegistry: (listener, thisArg, disposables) => {
+        return mcpRegistryInstance.onDidUnregisterRegistry(listener, thisArg, disposables);
+      },
+      registerRegistryProvider: (registryProvider: containerDesktopAPI.MCPRegistryProvider): Disposable => {
+        const registration = mcpRegistryInstance.registerMCPRegistryProvider(registryProvider);
+        disposables.push(registration);
+        return registration;
+      },
+    };
+
     const messageBox = this.messageBox;
     const progress = this.progress;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
@@ -1667,6 +1704,7 @@ export class ExtensionLoader implements IAsyncDisposable {
       navigation,
       RepositoryInfoParser,
       net,
+      mcpRegistry,
     };
   }
 

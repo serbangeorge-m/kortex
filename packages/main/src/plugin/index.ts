@@ -206,6 +206,7 @@ import { downloadGuideList } from './learning-center/learning-center.js';
 import { LearningCenterInit } from './learning-center-init.js';
 import { LibpodApiInit } from './libpod-api-enable/libpod-api-init.js';
 import { ListOrganizerRegistry } from './list-organizer.js';
+import { MCPRegistry } from './mcp/mcp-registry.js';
 import { MessageBox } from './message-box.js';
 import { NavigationItemsInit } from './navigation-items-init.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
@@ -553,6 +554,7 @@ export class PluginSystem {
     container.bind<MenuRegistry>(MenuRegistry).toSelf().inSingletonScope();
     container.bind<KubeGeneratorRegistry>(KubeGeneratorRegistry).toSelf().inSingletonScope();
     container.bind<ImageRegistry>(ImageRegistry).toSelf().inSingletonScope();
+    container.bind<MCPRegistry>(MCPRegistry).toSelf().inSingletonScope();
     container.bind<ViewRegistry>(ViewRegistry).toSelf().inSingletonScope();
     container.bind<Context>(Context).toSelf().inSingletonScope();
     container.bind<ContainerProviderRegistry>(ContainerProviderRegistry).toSelf().inSingletonScope();
@@ -827,6 +829,7 @@ export class PluginSystem {
       ExperimentalFeatureFeedbackHandler,
     );
     await experimentalFeatureFeedbackHandler.init();
+    const mcpRegistry = container.get<MCPRegistry>(MCPRegistry);
 
     await this.setupSecurityRestrictionsOnLinks(messageBox);
 
@@ -2226,6 +2229,35 @@ export class PluginSystem {
         await imageRegistry.createRegistry(providerName, registryCreateOptions);
       },
     );
+
+    this.ipcHandle(
+      'mcp-registry:createMCPRegistry',
+      async (
+        _listener,
+        registryCreateOptions: containerDesktopAPI.MCPRegistryCreateOptions,
+      ): Promise<void> => {
+        await mcpRegistry.createRegistry(registryCreateOptions);
+      },
+    );
+
+        this.ipcHandle('mcp-registry:getMcpRegistries', async (): Promise<readonly containerDesktopAPI.MCPRegistry[]> => {
+      return mcpRegistry.getRegistries();
+    });
+
+    this.ipcHandle(
+      'mcp-registry:getMcpSuggestedRegistries',
+      async (): Promise<containerDesktopAPI.MCPRegistrySuggestedProvider[]> => {
+        return mcpRegistry.getSuggestedRegistries();
+      },
+    );
+
+        this.ipcHandle(
+      'mcp-registry:unregisterMCPRegistry',
+      async (_listener, registry: containerDesktopAPI.MCPRegistry): Promise<void> => {
+        return mcpRegistry.unregisterMCPRegistry(registry);
+      },
+    );
+
 
     this.ipcHandle(
       'image-registry:updateRegistry',
