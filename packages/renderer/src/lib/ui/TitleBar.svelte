@@ -10,7 +10,7 @@ import SearchButton from './SearchButton.svelte';
 
 let platform: string = $state('');
 
-const title = 'Podman Desktop';
+const title = 'Kortex';
 let commandPaletteVisible = $state(false);
 
 onMount(async () => {
