@@ -136,8 +136,8 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "ai": "5.0.2",
-    "@modelcontextprotocol/sdk": "^1.17.1",
+    "ai": "5.0.11",
+    "@modelcontextprotocol/sdk": "^1.17.2",
     "@docker/extension-api-client-types": "0.4.2",
     "@expo/sudo-prompt": "^9.3.2",
     "@kubernetes/client-node": "^1.4.0",
