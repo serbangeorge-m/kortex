@@ -64,6 +64,7 @@ import { ExtensionApiVersion } from '/@/plugin/extension/extension-api-version.j
 import { ExtensionLoader } from '/@/plugin/extension/extension-loader.js';
 import { ExtensionWatcher } from '/@/plugin/extension/extension-watcher.js';
 import { FeatureRegistry } from '/@/plugin/feature-registry.js';
+import { FlowManager } from '/@/plugin/flow/flow-manager.js';
 import { KubeGeneratorRegistry } from '/@/plugin/kubernetes/kube-generator-registry.js';
 import { LockedConfiguration } from '/@/plugin/locked-configuration.js';
 import { MCPManager } from '/@/plugin/mcp/mcp-manager.js';
@@ -103,6 +104,7 @@ import type { ExtensionDevelopmentFolderInfo } from '/@api/extension-development
 import type { ExtensionInfo } from '/@api/extension-info.js';
 import type { FeaturedExtension } from '/@api/featured/featured-api.js';
 import type { FeedbackMessages, FeedbackProperties, GitHubIssue } from '/@api/feedback.js';
+import type { FlowInfo } from '/@api/flow-info.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
 import type { ImageCheckerInfo } from '/@api/image-checker-info.js';
@@ -562,6 +564,7 @@ export class PluginSystem {
 
     container.bind<ProviderRegistry>(ProviderRegistry).toSelf().inSingletonScope();
     container.bind<MCPManager>(MCPManager).toSelf().inSingletonScope();
+    container.bind<FlowManager>(FlowManager).toSelf().inSingletonScope();
     container.bind<TrayMenuRegistry>(TrayMenuRegistry).toSelf().inSingletonScope();
     container.bind<InputQuickPickRegistry>(InputQuickPickRegistry).toSelf().inSingletonScope();
     container.bind<FilesystemMonitoring>(FilesystemMonitoring).toSelf().inSingletonScope();
@@ -639,6 +642,9 @@ export class PluginSystem {
 
     const mcpManager = container.get<MCPManager>(MCPManager);
     mcpManager.init();
+
+    const flowManager = container.get<FlowManager>(FlowManager);
+    flowManager.init();
 
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
       if (name === 'provider:update-status') {
@@ -868,6 +874,15 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listPods', async (): Promise<PodInfo[]> => {
       return containerProviderRegistry.listPods();
     });
+
+    this.ipcHandle('flows:list', async (): Promise<Array<FlowInfo>> => {
+      return flowManager.all();
+    });
+
+    this.ipcHandle('flows:refresh', async (): Promise<void> => {
+      return flowManager.refresh();
+    });
+
     this.ipcHandle('container-provider-registry:listNetworks', async (): Promise<NetworkInspectInfo[]> => {
       return containerProviderRegistry.listNetworks();
     });
@@ -1384,7 +1399,7 @@ export class PluginSystem {
         modelId: string,
         mcp: Array<string>,
         messages: UIMessage[],
-        onDataId: number
+        onDataId: number,
       ): Promise<number> => {
         const sdk = providerRegistry.getInferenceSDK(internalProviderId, connectionName);
         const languageModel = sdk.languageModel(modelId);
@@ -1417,13 +1432,13 @@ export class PluginSystem {
               // add missing text-start if any
               const chunkId = chunk.id;
               if (!currentIds.has(chunkId)) {
-              this.getWebContentsSender().send('inference:streamText-onChunk', onDataId, {
-                type: 'text-start',
-                id: chunk.id,
-              });
+                this.getWebContentsSender().send('inference:streamText-onChunk', onDataId, {
+                  type: 'text-start',
+                  id: chunk.id,
+                });
 
-              currentIds.add(chunkId);
-            }
+                currentIds.add(chunkId);
+              }
               // text-delta is expected to have delta field, not text
               this.getWebContentsSender().send('inference:streamText-onChunk', onDataId, {
                 ...chunk,
@@ -2232,15 +2247,12 @@ export class PluginSystem {
 
     this.ipcHandle(
       'mcp-registry:createMCPRegistry',
-      async (
-        _listener,
-        registryCreateOptions: containerDesktopAPI.MCPRegistryCreateOptions,
-      ): Promise<void> => {
+      async (_listener, registryCreateOptions: containerDesktopAPI.MCPRegistryCreateOptions): Promise<void> => {
         await mcpRegistry.createRegistry(registryCreateOptions);
       },
     );
 
-        this.ipcHandle('mcp-registry:getMcpRegistries', async (): Promise<readonly containerDesktopAPI.MCPRegistry[]> => {
+    this.ipcHandle('mcp-registry:getMcpRegistries', async (): Promise<readonly containerDesktopAPI.MCPRegistry[]> => {
       return mcpRegistry.getRegistries();
     });
 
@@ -2251,13 +2263,12 @@ export class PluginSystem {
       },
     );
 
-        this.ipcHandle(
+    this.ipcHandle(
       'mcp-registry:unregisterMCPRegistry',
       async (_listener, registry: containerDesktopAPI.MCPRegistry): Promise<void> => {
         return mcpRegistry.unregisterMCPRegistry(registry);
       },
     );
-
 
     this.ipcHandle(
       'image-registry:updateRegistry',

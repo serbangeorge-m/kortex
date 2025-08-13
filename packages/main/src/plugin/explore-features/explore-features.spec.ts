@@ -134,6 +134,7 @@ const providerInfoMock: ProviderInfo = {
   images: {},
   installationSupport: false,
   cleanupSupport: false,
+  flowConnections: [],
 };
 
 const extensionInfoMock: ExtensionInfo = {

@@ -48,12 +48,9 @@ export class MCPRegistry {
   private readonly _onDidUpdateRegistry = new Emitter<kortexAPI.MCPRegistry>();
   private readonly _onDidUnregisterRegistry = new Emitter<kortexAPI.MCPRegistry>();
 
-  readonly onDidRegisterRegistry: kortexAPI.Event<kortexAPI.MCPRegistry> =
-    this._onDidRegisterRegistry.event;
-  readonly onDidUpdateRegistry: kortexAPI.Event<kortexAPI.MCPRegistry> =
-    this._onDidUpdateRegistry.event;
-  readonly onDidUnregisterRegistry: kortexAPI.Event<kortexAPI.MCPRegistry> =
-    this._onDidUnregisterRegistry.event;
+  readonly onDidRegisterRegistry: kortexAPI.Event<kortexAPI.MCPRegistry> = this._onDidRegisterRegistry.event;
+  readonly onDidUpdateRegistry: kortexAPI.Event<kortexAPI.MCPRegistry> = this._onDidUpdateRegistry.event;
+  readonly onDidUnregisterRegistry: kortexAPI.Event<kortexAPI.MCPRegistry> = this._onDidUnregisterRegistry.event;
 
   private proxySettings: kortexAPI.ProxySettings | undefined;
   private proxyEnabled: boolean;
@@ -82,16 +79,12 @@ export class MCPRegistry {
     }
   }
 
-
   getRegistryHash(registry: { serverUrl: string }): string {
     return crypto.createHash('sha512').update(registry.serverUrl).digest('hex');
   }
 
   registerMCPRegistry(registry: kortexAPI.MCPRegistry): Disposable {
-    const found = this.registries.find(
-      reg =>
-        reg.serverUrl === registry.serverUrl,
-    );
+    const found = this.registries.find(reg => reg.serverUrl === registry.serverUrl);
     if (found) {
       // Ignore and don't register - extension may register registries every time it is restarted
       console.log('Registry already registered, skipping registration');
@@ -139,9 +132,7 @@ export class MCPRegistry {
   }
 
   unregisterMCPRegistry(registry: kortexAPI.MCPRegistry): void {
-    const filtered = this.registries.filter(
-      registryItem => registryItem.serverUrl !== registry.serverUrl,
-    );
+    const filtered = this.registries.filter(registryItem => registryItem.serverUrl !== registry.serverUrl);
     if (filtered.length !== this.registries.length) {
       this._onDidUnregisterRegistry.fire(Object.freeze({ ...registry }));
       this.registries = filtered;
@@ -172,14 +163,10 @@ export class MCPRegistry {
     });
   }
 
-  async createRegistry(
-    registryCreateOptions: kortexAPI.MCPRegistryCreateOptions,
-  ): Promise<Disposable> {
+  async createRegistry(registryCreateOptions: kortexAPI.MCPRegistryCreateOptions): Promise<Disposable> {
     let telemetryOptions = {};
     try {
-      const exists = this.registries.find(
-        registry => registry.serverUrl === registryCreateOptions.serverUrl,
-      );
+      const exists = this.registries.find(registry => registry.serverUrl === registryCreateOptions.serverUrl);
       if (exists) {
         throw new Error(`Registry ${registryCreateOptions.serverUrl} already exists`);
       }
@@ -199,8 +186,7 @@ export class MCPRegistry {
 
   async updateMCPRegistry(registry: kortexAPI.MCPRegistry): Promise<void> {
     const matchingRegistry = this.registries.find(
-      existingRegistry =>
-        registry.serverUrl === existingRegistry.serverUrl,
+      existingRegistry => registry.serverUrl === existingRegistry.serverUrl,
     );
     if (!matchingRegistry) {
       throw new Error(`MCP Registry ${registry.serverUrl} was not found`);

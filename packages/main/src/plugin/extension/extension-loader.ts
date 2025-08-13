@@ -226,7 +226,6 @@ export class ExtensionLoader implements IAsyncDisposable {
     private featureRegistry: FeatureRegistry,
     @inject(MCPRegistry)
     private mcpRegistry: MCPRegistry,
-
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -1061,7 +1060,6 @@ export class ExtensionLoader implements IAsyncDisposable {
 
     const mcpRegistryInstance = this.mcpRegistry;
     const mcpRegistry: typeof containerDesktopAPI.mcpRegistry = {
-
       registerRegistry: (registry: containerDesktopAPI.MCPRegistry): Disposable => {
         return mcpRegistryInstance.registerMCPRegistry(registry);
       },

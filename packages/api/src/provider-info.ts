@@ -71,6 +71,13 @@ export interface ProviderMCPConnectionInfo {
   lifecycleMethods?: LifecycleMethod[];
 }
 
+export interface ProviderFlowConnectionInfo {
+  name: string;
+  status: ProviderConnectionStatus;
+  lifecycleMethods?: LifecycleMethod[];
+  connectionType: 'flow';
+}
+
 export interface ProviderInferenceConnectionInfo {
   connectionType: 'inference';
   name: string;
@@ -83,7 +90,8 @@ export type ProviderConnectionInfo =
   | ProviderKubernetesConnectionInfo
   | ProviderVmConnectionInfo
   | ProviderInferenceConnectionInfo
-  | ProviderMCPConnectionInfo;
+  | ProviderMCPConnectionInfo
+  | ProviderFlowConnectionInfo;
 
 export interface ProviderInfo {
   internalId: string;
@@ -97,6 +105,7 @@ export interface ProviderInfo {
   vmConnections: ProviderVmConnectionInfo[];
   inferenceConnections: ProviderInferenceConnectionInfo[];
   mcpConnections: ProviderMCPConnectionInfo[];
+  flowConnections: ProviderFlowConnectionInfo[];
 
   status: ProviderStatus;
   lifecycleMethods?: LifecycleMethod[];

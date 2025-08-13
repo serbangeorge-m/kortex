@@ -81,6 +81,7 @@ import type { ExtensionDevelopmentFolders } from './extension-development-folder
 import type { ActivatedExtension, AnalyzedExtensionWithApi, RequireCacheDict } from './extension-loader.js';
 import { ExtensionLoader } from './extension-loader.js';
 import type { ExtensionWatcher } from './extension-watcher.js';
+import { MCPRegistry } from '/@/plugin/mcp/mcp-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public override async setupScanningDirectory(): Promise<void> {
@@ -160,6 +161,8 @@ const imageRegistry: ImageRegistry = {
 const featureRegistry: FeatureRegistry = {
   registerFeatures: vi.fn(),
 } as unknown as FeatureRegistry;
+
+const mcpRegistry: MCPRegistry = {} as unknown as MCPRegistry;
 
 const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
 
@@ -388,6 +391,7 @@ beforeEach(() => {
     extensionAnalyzer,
     extensionApiVersion,
     featureRegistry,
+    mcpRegistry,
   );
 });
 

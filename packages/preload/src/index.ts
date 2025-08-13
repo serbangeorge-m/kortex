@@ -131,6 +131,7 @@ import type { ViewInfoUI } from '/@api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info';
 import type { WebviewInfo } from '/@api/webview-info';
 
+import { FlowInfo } from '/@api/flow-info';
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
 
@@ -296,6 +297,14 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listPods', async (): Promise<PodInfo[]> => {
     return ipcInvoke('container-provider-registry:listPods');
+  });
+
+  contextBridge.exposeInMainWorld('listFlows', async (): Promise<Array<FlowInfo>> => {
+    return ipcInvoke('flows:list');
+  });
+
+  contextBridge.exposeInMainWorld('refreshFlows', async (): Promise<void> => {
+    return ipcInvoke('flows:refresh');
   });
 
   contextBridge.exposeInMainWorld('reconnectContainerProviders', async (): Promise<PodInfo[]> => {
@@ -1183,13 +1192,14 @@ export function initExposure(): void {
     ): Promise<number> => {
       onDataCallbacksStreamTextId++;
       onDataCallbacksStreamText.set(onDataCallbacksStreamTextId, { onChunk, onError, onEnd });
-      return ipcInvoke('inference:streamText',
+      return ipcInvoke(
+        'inference:streamText',
         internalProviderId,
         connectionName,
         modelId,
         mcp,
         messages,
-        onDataCallbacksStreamTextId
+        onDataCallbacksStreamTextId,
       );
     },
   );
@@ -1657,7 +1667,6 @@ export function initExposure(): void {
     },
   );
 
-
   contextBridge.exposeInMainWorld(
     'searchImageInRegistry',
     async (options: ImageSearchOptions): Promise<ImageSearchResult[]> => {
@@ -1701,8 +1710,6 @@ export function initExposure(): void {
     },
   );
 
-
-
   contextBridge.exposeInMainWorld('getMcpRegistries', async (): Promise<readonly containerDesktopAPI.MCPRegistry[]> => {
     return ipcInvoke('mcp-registry:getMcpRegistries');
   });
@@ -1713,19 +1720,18 @@ export function initExposure(): void {
     },
   );
 
-    contextBridge.exposeInMainWorld(
+  contextBridge.exposeInMainWorld(
     'unregisterMCPRegistry',
     async (registry: containerDesktopAPI.MCPRegistry): Promise<void> => {
       return ipcInvoke('mcp-registry:unregisterMCPRegistry', registry);
     },
   );
-    contextBridge.exposeInMainWorld(
+  contextBridge.exposeInMainWorld(
     'createMCPRegistry',
     async (registryCreateOptions: containerDesktopAPI.MCPRegistryCreateOptions): Promise<void> => {
       return ipcInvoke('mcp-registry:createMCPRegistry', registryCreateOptions);
     },
   );
-
 
   // can't send configuration object as it is not serializable
   // https://www.electronjs.org/docs/latest/api/context-bridge#parameter--error--return-type-support

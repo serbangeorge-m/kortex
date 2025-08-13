@@ -409,6 +409,21 @@ declare module '@kortex-app/api' {
     vmTypeDisplayName?: string;
   }
 
+  export interface Flow {
+    path: string;
+  }
+
+  export interface FlowProviderConnection {
+    name: string;
+    displayName?: string;
+    status(): ProviderConnectionStatus;
+    lifecycle?: ProviderConnectionLifecycle;
+    flow: {
+      all(): Promise<Array<Flow>>;
+      onDidChange: Event<void>;
+    };
+  }
+
   export interface PodCreatePortOptions {
     host_ip: string;
     container_port: number;
@@ -553,7 +568,7 @@ declare module '@kortex-app/api' {
     // list of models
     models: Array<{
       label: string;
-    }>
+    }>;
   };
 
   export type ProviderConnection =
@@ -561,7 +576,8 @@ declare module '@kortex-app/api' {
     | KubernetesProviderConnection
     | VmProviderConnection
     | InferenceProviderConnection
-    | MCPProviderConnection;
+    | MCPProviderConnection
+    | FlowProviderConnection;
 
   // common set of options for creating a provider
   export interface ProviderConnectionFactory {
@@ -745,6 +761,8 @@ declare module '@kortex-app/api' {
     registerInferenceProviderConnection(connection: InferenceProviderConnection): Disposable;
     registerMCPProviderConnection(connection: MCPProviderConnection): Disposable;
 
+    registerFlowProviderConnection(connection: FlowProviderConnection): Disposable;
+
     registerLifecycle(lifecycle: ProviderLifecycle): Disposable;
 
     // register installation flow
@@ -897,6 +915,15 @@ declare module '@kortex-app/api' {
     connection: MCPProviderConnection;
   }
   export interface UnregisterMCPConnectionEvent {
+    providerId: string;
+    connectionName: string;
+  }
+
+  export interface RegisterFlowConnectionEvent {
+    providerId: string;
+    connection: FlowProviderConnection;
+  }
+  export interface UnregisterFlowConnectionEvent {
     providerId: string;
     connectionName: string;
   }
@@ -1271,8 +1298,6 @@ declare module '@kortex-app/api' {
     export const onDidUnregisterRegistry: Event<Registry>;
   }
 
-
-
   // An interface for "Default" registries that include the name, URL as well as an icon
   // This allows an extension to "suggest" a registry to the user that you may
   // login via a username & password.
@@ -1319,8 +1344,6 @@ declare module '@kortex-app/api' {
     export const onDidUpdateRegistry: Event<MCPRegistry>;
     export const onDidUnregisterRegistry: Event<MCPRegistry>;
   }
-
-
 
   export namespace tray {
     /**

@@ -2,8 +2,8 @@
 import { SvelteSet } from 'svelte/reactivity';
 import { faToolbox } from '@fortawesome/free-solid-svg-icons/faToolbox';
 
-import {providerInfos} from '/@/stores/providers';
-import type {ProviderMCPConnectionInfo} from '/@api/provider-info';
+import { providerInfos } from '/@/stores/providers';
+import type { ProviderMCPConnectionInfo } from '/@api/provider-info';
 import Fa from 'svelte-fa';
 import CheckCircleFillIcon from './icons/check-circle-fill.svelte';
 import ChevronDownIcon from './icons/chevron-down.svelte';
@@ -22,12 +22,12 @@ let {
   // selected under the form `${internalProviderId}:${connectionName}``
   selected = $bindable(new SvelteSet()),
 }: {
-  selected: Set<string>
+  selected: Set<string>;
 } = $props();
 
 let groups: Map<string, Array<ProviderMCPConnectionInfo>> = $derived(
   $providerInfos.reduce((accumulator, current) => {
-    if(current.mcpConnections.length > 0) {
+    if (current.mcpConnections.length > 0) {
       accumulator.set(current.internalId, current.mcpConnections);
     }
     return accumulator;
@@ -42,12 +42,11 @@ function key(internalProviderId: string, connectionName: string): string {
 
 function onSelect(key: string, event: Event): void {
   event.preventDefault(); // prevent dropdown to close itself
-  if(selected.has(key)) {
+  if (selected.has(key)) {
     selected.delete(key);
   } else {
     selected.add(key);
   }
-
 }
 </script>
 

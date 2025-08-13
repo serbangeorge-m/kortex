@@ -23,7 +23,6 @@ import product from './../../product.json' with { type: 'json' };
  * Mock the extension API for vitest.
  * This file is referenced from vitest.config.js file.
  */
-<<<<<<< HEAD
 
 const cli = {
   createCliTool: vi.fn(),
@@ -168,11 +167,4 @@ beforeEach(() => {
   eventEmitterListeners.length = 0;
 });
 
-=======
-const mcpRegistry = {
-      suggestRegistry: vi.fn(),
-    };
-
-const plugin = {mcpRegistry};
->>>>>>> b651097c38c (feat: display list of MCP registries)
 module.exports = plugin;

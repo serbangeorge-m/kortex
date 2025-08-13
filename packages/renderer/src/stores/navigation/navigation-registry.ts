@@ -23,6 +23,7 @@ import type { IconSize } from 'svelte-fa';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { EventStore } from '/@/stores/event-store';
+import { createNavigationFlowsEntry } from '/@/stores/navigation/navigation-registry-flows.svelte';
 
 import { createNavigationContainerEntry } from './navigation-registry-container.svelte';
 import { createNavigationExtensionEntry, createNavigationExtensionGroup } from './navigation-registry-extension.svelte';
@@ -70,6 +71,7 @@ const init = (): void => {
   values.push(createNavigationNetworkEntry());
   values.push(createNavigationKubernetesGroup());
   values.push(createNavigationExtensionEntry());
+  values.push(createNavigationFlowsEntry());
   values.push(createNavigationExtensionGroup());
   hideItems().catch((err: unknown) => console.error('Error hiding navigation items', err));
 };

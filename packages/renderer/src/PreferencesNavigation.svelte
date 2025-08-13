@@ -9,8 +9,9 @@ import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants';
 import { DockerCompatibilitySettings } from '/@api/docker-compatibility-info';
 
 import { configurationProperties } from './stores/configurationProperties';
-  import ProxyIcon from '/@/lib/images/ProxyIcon.svelte';
-  import ResourcesIcon from '/@/lib/images/ResourcesIcon.svelte';
+import ProxyIcon from '/@/lib/images/ProxyIcon.svelte';
+import ResourcesIcon from '/@/lib/images/ResourcesIcon.svelte';
+import CLIToolsIcon from '/@/lib/images/CLIToolsIcon.svelte';
 
 interface Props {
   meta: TinroRouteMeta;
@@ -94,13 +95,13 @@ onMount(() => {
     </div>
   </div>
   <div class="h-full overflow-y-auto" style="margin-bottom:auto">
-    {#each [{ title: 'Resources', href: '/preferences/resources', visible: true, icon: ResourcesIcon }, { title: 'Proxy', href: '/preferences/proxies', visible: true }, { title: 'MCP Registries', href: '/preferences/mcp-registries', visible: true }] as navItem, index (index)}
+    {#each [{ title: 'Resources', href: '/preferences/resources', visible: true }, { title: 'CLI', href: '/preferences/cli-tools', visible: true, icon: CLIToolsIcon }, { title: 'Proxy', href: '/preferences/proxies', visible: true }, { title: 'MCP Registries', href: '/preferences/mcp-registries', visible: true }] as navItem, index (index)}
       {#if navItem.visible}
-        <SettingsNavItem 
-          title={navItem.title} 
-          href={navItem.href} 
+        <SettingsNavItem
+          title={navItem.title}
+          href={navItem.href}
           icon={navItem.icon}
-          selected={meta.url === navItem.href} 
+          selected={meta.url === navItem.href}
         />
       {/if}
     {/each}

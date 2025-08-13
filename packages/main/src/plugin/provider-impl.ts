@@ -42,6 +42,7 @@ import type {
   ProviderUpdate,
   VmProviderConnection,
   VmProviderConnectionFactory,
+  FlowProviderConnection,
 } from '@kortex-app/api';
 
 import type { IDisposable } from '/@api/disposable.js';
@@ -58,6 +59,7 @@ export class ProviderImpl implements Provider, IDisposable {
   private vmProviderConnections: Set<VmProviderConnection>;
   private inferenceProviderConnections: Set<InferenceProviderConnection>;
   private mcpProviderConnections: Set<MCPProviderConnection>;
+  private flowProviderConnections: Set<FlowProviderConnection>;
 
   // optional factory
   private _containerProviderConnectionFactory: ContainerProviderConnectionFactory | undefined = undefined;
@@ -102,6 +104,7 @@ export class ProviderImpl implements Provider, IDisposable {
     this.vmProviderConnections = new Set();
     this.inferenceProviderConnections = new Set();
     this.mcpProviderConnections = new Set();
+    this.flowProviderConnections = new Set();
     this._status = providerOptions.status;
     this._version = providerOptions.version;
 
@@ -231,6 +234,10 @@ export class ProviderImpl implements Provider, IDisposable {
     return Array.from(this.mcpProviderConnections.values());
   }
 
+  get flowConnections(): FlowProviderConnection[] {
+    return Array.from(this.flowProviderConnections.values());
+  }
+
   dispose(): void {
     this.providerRegistry.disposeProvider(this);
   }
@@ -305,6 +312,17 @@ export class ProviderImpl implements Provider, IDisposable {
       this.mcpProviderConnections.delete(connection);
       disposable.dispose();
       this.providerRegistry.onDidUnregisterMCPConnectionCallback(this, connection);
+    });
+  }
+
+  registerFlowProviderConnection(connection: FlowProviderConnection): Disposable {
+    this.flowProviderConnections.add(connection);
+    const disposable = this.providerRegistry.registerFlowConnection(this, connection);
+    this.providerRegistry.onDidRegisterFlowConnectionCallback(this, connection);
+    return Disposable.create(() => {
+      this.flowProviderConnections.delete(connection);
+      disposable.dispose();
+      this.providerRegistry.onDidUnregisterFlowConnectionCallback(this, connection);
     });
   }
 

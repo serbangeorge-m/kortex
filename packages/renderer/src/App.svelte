@@ -7,6 +7,8 @@ import { router } from 'tinro';
 
 import { parseExtensionListRequest } from '/@/lib/extensions/extension-list';
 import KubernetesRoot from '/@/lib/kube/KubernetesRoot.svelte';
+import FlowDetails from '/@/lib/flows/FlowDetails.svelte';
+import FlowList from '/@/lib/flows/FlowList.svelte';
 import PinActions from '/@/lib/statusbar/PinActions.svelte';
 import { handleNavigation } from '/@/navigation';
 import { kubernetesNoCurrentContext } from '/@/stores/kubernetes-no-current-context';
@@ -162,6 +164,19 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         <Route path="/chat/*" breadcrumb="Chat">
           <CustomChat />
         </Route>
+
+        <Route path="/flows" breadcrumb="Flows">
+          <FlowList/>
+        </Route>
+
+        <Route path="/flows/:providerId/:connectionName/:flowId" let:meta breadcrumb="Flow Details">
+          <FlowDetails
+            providerId={meta.params.providerId}
+            connectionName={meta.params.connectionName}
+            flowId={meta.params.flowId}
+          />
+        </Route>
+
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm={meta.query.filter ?? ''} />
         </Route>
