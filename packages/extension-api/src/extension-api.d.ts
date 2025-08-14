@@ -586,9 +586,7 @@ declare module '@kortex-app/api' {
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     // list of models
-    models: Array<{
-      label: string;
-    }>;
+    models: Array<InferenceModel>;
   };
 
   export type ProviderConnection =
