@@ -32,6 +32,7 @@ import { createNavigationKubernetesGroup } from './navigation-registry-kubernete
 import { createNavigationNetworkEntry } from './navigation-registry-network.svelte';
 import { createNavigationPodEntry } from './navigation-registry-pod.svelte';
 import { createNavigationVolumeEntry } from './navigation-registry-volume.svelte';
+import { createNavigationMcpEntry } from './navigation-registry-mcp.svelte';
 
 export interface NavigationRegistryEntry {
   name: string;
@@ -70,6 +71,7 @@ const init = (): void => {
   values.push(createNavigationVolumeEntry());
   values.push(createNavigationNetworkEntry());
   values.push(createNavigationKubernetesGroup());
+  values.push(createNavigationMcpEntry());
   values.push(createNavigationExtensionEntry());
   values.push(createNavigationFlowsEntry());
   values.push(createNavigationExtensionGroup());

@@ -104,6 +104,8 @@ import type { Guide } from '/@api/learning-center/guide';
 import type { ContainerCreateOptions as PodmanContainerCreateOptions, PlayKubeInfo } from '/@api/libpod/libpod';
 import type { ListOrganizerItem } from '/@api/list-organizer';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info';
+import type { MCPRegistryServerDetail } from '/@api/mcp/mcp-registry-server-entry';
+import type { MCPRemoteServerInfo } from '/@api/mcp/mcp-server-info';
 import type { Menu } from '/@api/menu.js';
 import { NavigationPage } from '/@api/navigation-page';
 import type { NavigationRequest } from '/@api/navigation-request';
@@ -1738,6 +1740,20 @@ export function initExposure(): void {
       return ipcInvoke('mcp-registry:getMcpSuggestedRegistries');
     },
   );
+
+  contextBridge.exposeInMainWorld('getMcpRegistryServers', async (): Promise<MCPRegistryServerDetail[]> => {
+    return ipcInvoke('mcp-registry:getMcpRegistryServers');
+  });
+  contextBridge.exposeInMainWorld(
+    'createMCPServerFromRemoteRegistry',
+    async (serverId: string, remoteId: number, headersParams: { name: string; value: string }[]): Promise<void> => {
+      return ipcInvoke('mcp-registry:createMCPServerFromRemoteRegistry', serverId, remoteId, headersParams);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('fetchMcpRemoteServers', async (): Promise<MCPRemoteServerInfo[]> => {
+    return ipcInvoke('mcp-manager:fetchMcpRemoteServers');
+  });
 
   contextBridge.exposeInMainWorld(
     'unregisterMCPRegistry',

@@ -12,11 +12,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuGroupHeading,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { mcpRemoteServerInfos } from '/@/stores/mcp-remote-servers';
 
 let {
   // selected under the form `${internalProviderId}:${connectionName}``
@@ -35,10 +34,6 @@ let groups: Map<string, Array<ProviderMCPConnectionInfo>> = $derived(
 );
 
 let open = $state(false);
-
-function key(internalProviderId: string, connectionName: string): string {
-  return `${internalProviderId}:${connectionName}`;
-}
 
 function onSelect(key: string, event: Event): void {
   event.preventDefault(); // prevent dropdown to close itself
@@ -65,20 +60,23 @@ function onSelect(key: string, event: Event): void {
     {/snippet}
   </DropdownMenuTrigger>
   <DropdownMenuContent align="start" class="min-w-[300px]">
-    {#each groups.entries() as [internalProviderId, mcpConnections] (internalProviderId)}
-      <DropdownMenuGroup>
-        <DropdownMenuGroupHeading>
-          {$providerInfos.find(({ internalId}) => internalId === internalProviderId)?.name}
-        </DropdownMenuGroupHeading>
-        {#each mcpConnections as mcp (mcp.name)}
-          {@const mcpKey = key(internalProviderId, mcp.name)}
+    {#if $mcpRemoteServerInfos.length === 0}
           <DropdownMenuItem
-            onSelect={onSelect.bind(undefined, mcpKey)}
+            disabled
             class="group/item flex flex-row items-center justify-between gap-4"
-            data-active={selected.has(mcpKey)}
+          >
+          No MCP available
+          </DropdownMenuItem>
+    {/if}
+      <DropdownMenuGroup>
+        {#each $mcpRemoteServerInfos as mcpRemoteServerInfo (mcpRemoteServerInfo.id)}
+          <DropdownMenuItem
+            onSelect={onSelect.bind(undefined, mcpRemoteServerInfo.id)}
+            class="group/item flex flex-row items-center justify-between gap-4"
+            data-active={selected.has(mcpRemoteServerInfo.id)}
           >
             <div class="flex flex-col items-start gap-1">
-              <div>{mcp.name}</div>
+              <div>{mcpRemoteServerInfo.name}</div>
             </div>
 
             <div
@@ -88,8 +86,6 @@ function onSelect(key: string, event: Event): void {
             </div>
           </DropdownMenuItem>
         {/each}
-        <DropdownMenuSeparator/>
       </DropdownMenuGroup>
-    {/each}
   </DropdownMenuContent>
 </DropdownMenu>

@@ -19,16 +19,19 @@
 import * as crypto from 'node:crypto';
 
 import type * as kortexAPI from '@kortex-app/api';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import { inject, injectable } from 'inversify';
 
 import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
+import type { MCPRegistryServerDetail, MCPRegistryServerList } from '/@api/mcp/mcp-registry-server-entry.js';
 import { Certificates } from '../certificates.js';
 import { Emitter } from '../events/emitter.js';
 import { Proxy } from '../proxy.js';
 import { Telemetry } from '../telemetry/telemetry.js';
 import { Disposable } from '../types/disposable.js';
+import { MCPManager } from './mcp-manager.js';
 
 export interface RegistryAuthInfo {
   authUrl: string;
@@ -64,6 +67,8 @@ export class MCPRegistry {
     private certificates: Certificates,
     @inject(Proxy)
     private proxy: Proxy,
+    @inject(MCPManager)
+    private mcpManager: MCPManager,
   ) {
     this.proxy.onDidUpdateProxy(settings => {
       this.proxySettings = settings;
@@ -182,6 +187,82 @@ export class MCPRegistry {
         ...telemetryOptions,
       });
     }
+  }
+
+  async createMCPServerFromRemoteRegistry(
+    serverId: string,
+    remoteId: number,
+    headersParams: { name: string; value: string }[],
+  ): Promise<void> {
+    // create the mcp connection
+    const headers: { [key: string]: string } = {};
+    for (const header of headersParams) {
+      let keyValue = header.value;
+      let keyName = header.name;
+      if (header.name === 'Bearer') {
+        keyName = 'Authorization';
+        keyValue = `Bearer ${keyValue}`;
+      }
+      headers[keyName] = keyValue;
+    }
+
+    // get the remote from the server-id/remoteId
+
+    const serverDetails = await this.listMCPServersFromRegistries();
+    const serverDetail = serverDetails.find(server => server.id === serverId);
+    if (!serverDetail) {
+      throw new Error(`MCP server with id ${serverId} not found in remote registry`);
+    }
+    // remotes ?
+    const hasRemote = serverDetail.remotes && serverDetail.remotes.length >= remoteId;
+    if (!hasRemote) {
+      throw new Error(`MCP server with id ${serverId} does not have remote with id ${remoteId}`);
+    }
+    const remote = serverDetail?.remotes?.[remoteId];
+    if (!remote) {
+      throw new Error(`MCP server with id ${serverId} does not have remote with id ${remoteId}`);
+    }
+
+    const name = serverDetail.name;
+
+    // create transport
+    const transport = new StreamableHTTPClientTransport(new URL(remote.url), {
+      requestInit: {
+        headers,
+      },
+    });
+
+    await this.mcpManager.registerMCPClient('internal', name, transport, remote.url);
+  }
+
+  async listMCPServersFromRegistries(): Promise<MCPRegistryServerDetail[]> {
+    // connect to each registry and grab server details
+    const serverDetails: MCPRegistryServerDetail[] = [];
+
+    // merge all urls to inspect
+    const serverUrls: string[] = this.registries
+      .map(registry => registry.serverUrl)
+      .concat(this.suggestedRegistries.map(registry => registry.url));
+
+    for (const registryURL of serverUrls) {
+      // connect to ${registry.serverUrl}/v0/servers and grab the list of servers
+      // use fetch
+
+      const content = await fetch(`${registryURL}/v0/servers`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!content.ok) {
+        console.error(`Failed to fetch MCP servers from ${registryURL}: ${content.statusText}`);
+      }
+      const serverList: MCPRegistryServerList = await content.json();
+
+      // now, aggregate the servers from the list
+      serverDetails.push(...serverList.servers);
+    }
+    return serverDetails;
   }
 
   async updateMCPRegistry(registry: kortexAPI.MCPRegistry): Promise<void> {

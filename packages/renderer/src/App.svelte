@@ -91,6 +91,7 @@ import PreferencesNavigation from './PreferencesNavigation.svelte';
 import Route from './Route.svelte';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 import SubmenuNavigation from './SubmenuNavigation.svelte';
+import McpServerList from './lib/mcp/MCPServerList.svelte';
 
 router.mode.memory();
 
@@ -177,6 +178,9 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
           />
         </Route>
 
+        <Route path="/mcps/*" breadcrumb="MCPs">
+          <McpServerList />
+        </Route>
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm={meta.query.filter ?? ''} />
         </Route>
