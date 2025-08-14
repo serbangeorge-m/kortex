@@ -421,6 +421,7 @@ declare module '@kortex-app/api' {
     dryrun: boolean;
     provider: Provider;
     connection: InferenceProviderConnection;
+    hideSecrets: boolean;
     model: InferenceModel;
     namespace: string;
     flow: Flow;
@@ -583,6 +584,7 @@ declare module '@kortex-app/api' {
   export type InferenceProviderConnection = {
     name: string;
     sdk: AISDKInferenceProvider;
+    credentials(): Record<string, string>;
     lifecycle?: ProviderConnectionLifecycle;
     status(): ProviderConnectionStatus;
     // list of models
