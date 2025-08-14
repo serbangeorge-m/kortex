@@ -70,12 +70,14 @@ export interface ProviderMCPConnectionInfo {
   status: ProviderConnectionStatus;
   lifecycleMethods?: LifecycleMethod[];
 }
-
 export interface ProviderFlowConnectionInfo {
   name: string;
   status: ProviderConnectionStatus;
   lifecycleMethods?: LifecycleMethod[];
   connectionType: 'flow';
+  deploy: {
+    kubernetes: boolean;
+  };
 }
 
 export interface ProviderInferenceConnectionInfo {
@@ -83,6 +85,9 @@ export interface ProviderInferenceConnectionInfo {
   name: string;
   status: ProviderConnectionStatus;
   lifecycleMethods?: LifecycleMethod[];
+  models: Array<{
+    label: string;
+  }>;
 }
 
 export type ProviderConnectionInfo =

@@ -35,7 +35,7 @@ function getFirstModel(): ModelInfo | undefined {
   if (!connection) return undefined;
 
   return {
-    internalProviderId: inference.internalId,
+    providerId: inference.id,
     connectionName: connection.name,
     label: connection.models[0].label,
   };
@@ -51,7 +51,7 @@ let models: Array<ModelInfo> = $derived(
         for (const { name, models } of current.inferenceConnections) {
           accumulator.push(
             ...models.map(model => ({
-              internalProviderId: current.internalId,
+              providerId: current.id,
               connectionName: name,
               label: model.label,
             })),

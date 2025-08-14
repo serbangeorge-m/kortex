@@ -30,7 +30,7 @@ export class IPCChatTransport<T extends UIMessage> implements ChatTransport<T> {
 
     try {
       await window.inferenceStreamText(
-        model.internalProviderId,
+        model.providerId,
         model.connectionName,
         model.label,
         this.dependencies.getMCP(),

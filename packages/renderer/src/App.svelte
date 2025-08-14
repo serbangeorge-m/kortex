@@ -169,7 +169,7 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
           <FlowList/>
         </Route>
 
-        <Route path="/flows/:providerId/:connectionName/:flowId" let:meta breadcrumb="Flow Details">
+        <Route path="/flows/:providerId/:connectionName/:flowId/*" let:meta breadcrumb="Flow Details">
           <FlowDetails
             providerId={meta.params.providerId}
             connectionName={meta.params.connectionName}

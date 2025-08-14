@@ -778,6 +778,7 @@ export class ProviderRegistry {
       providerConnection = {
         connectionType: 'inference',
         name: connection.name,
+        models: connection.models,
         status: connection.status(),
       };
     } else if (this.isMCPConnection(connection)) {
@@ -791,6 +792,9 @@ export class ProviderRegistry {
         name: connection.name,
         status: connection.status(),
         connectionType: 'flow',
+        deploy: {
+          kubernetes: !!connection.deploy?.kubernetes,
+        },
       };
     } else {
       providerConnection = {
@@ -1043,12 +1047,18 @@ export class ProviderRegistry {
     return context;
   }
 
-  getMatchingProviderInternalId(providerId: string): string {
+  getProvider(providerId: string): ProviderImpl {
     // need to find the provider
     const provider = Array.from(this.providers.values()).find(prov => prov.id === providerId);
     if (!provider) {
       throw new Error(`no provider matching provider id ${providerId}`);
     }
+    return provider;
+  }
+
+  getMatchingProviderInternalId(providerId: string): string {
+    // need to find the provider
+    const provider = this.getProvider(providerId);
     return provider.internalId;
   }
 
