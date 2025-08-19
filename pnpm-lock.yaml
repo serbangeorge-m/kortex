@@ -43,7 +43,7 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(encoding@0.1.13)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.17.1
+        specifier: ^1.17.2
         version: 1.27.1(zod@4.3.6)
       '@oslojs/crypto':
         specifier: ^1.0.1
@@ -67,8 +67,8 @@ importers:
         specifier: ^0.5.16
         version: 0.5.16
       ai:
-        specifier: 5.0.2
-        version: 5.0.2(zod@4.3.6)
+        specifier: 5.0.11
+        version: 5.0.11(zod@4.3.6)
       bcrypt-ts:
         specifier: ^7.1.0
         version: 7.1.0
@@ -368,7 +368,7 @@ importers:
   extensions/gemini:
     dependencies:
       '@ai-sdk/google':
-        specifier: ^2.0.1
+        specifier: ^2.0.5
         version: 2.0.56(zod@4.3.6)
       '@kortex-app/api':
         specifier: workspace:*
@@ -378,13 +378,13 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       vite:
-        specifier: ^7.0.6
+        specifier: ^7.1.2
         version: 7.3.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.11.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(msw@2.12.10(@types/node@24.11.0)(typescript@5.9.3))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)
 
-  extensions/github-mcp:
+  extensions/goose:
     dependencies:
       '@kortex-app/api':
         specifier: workspace:*
@@ -392,7 +392,13 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.17.1
         version: 1.27.1(zod@4.3.6)
+      mustache:
+        specifier: ^4.2.0
+        version: 4.2.0
     devDependencies:
+      '@types/mustache':
+        specifier: ^4.2.6
+        version: 4.2.6
       mkdirp:
         specifier: ^3.0.1
         version: 3.0.1
@@ -415,8 +421,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       vite:
-        specifier: ^6.3.5
-        version: 6.4.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)
+        specifier: ^7.1.2
+        version: 7.3.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)
       vitest:
         specifier: ^3.1.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.11.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(msw@2.12.10(@types/node@24.11.0)(typescript@5.9.3))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)
@@ -424,7 +430,7 @@ importers:
   extensions/openai-compatible:
     dependencies:
       '@ai-sdk/openai-compatible':
-        specifier: ^1.0.3
+        specifier: ^1.0.6
         version: 1.0.33(zod@4.3.6)
       '@kortex-app/api':
         specifier: workspace:*
@@ -434,7 +440,7 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       vite:
-        specifier: ^7.0.6
+        specifier: ^7.1.2
         version: 7.3.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)
       vitest:
         specifier: ^3.2.4
@@ -446,7 +452,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.1
       '@modelcontextprotocol/sdk':
-        specifier: ^1.17.1
+        specifier: ^1.17.2
         version: 1.27.1(zod@4.3.6)
 
   packages/preload-webview:
@@ -464,14 +470,14 @@ importers:
   packages/renderer:
     dependencies:
       '@ai-sdk/svelte':
-        specifier: ^3.0.5
+        specifier: ^3.0.11
         version: 3.0.143(svelte@5.47.0)(zod@4.3.6)
       '@ai-sdk/ui-utils':
         specifier: ^1.2.11
         version: 1.2.11(zod@4.3.6)
       '@lucide/svelte':
-        specifier: ^0.511.0
-        version: 0.511.0(svelte@5.47.0)
+        specifier: ^0.539.0
+        version: 0.539.0(svelte@5.47.0)
       '@podman-desktop/ui-svelte':
         specifier: ^1.25.0
         version: 1.25.1(svelte-fa@4.0.4(svelte@5.47.0))(svelte@5.47.0)
@@ -482,7 +488,7 @@ importers:
         specifier: ^0.9.6
         version: 0.9.6(svelte@5.47.0)
       bits-ui:
-        specifier: ^2.4.1
+        specifier: ^2.9.2
         version: 2.16.2(@internationalized/date@3.11.0)(svelte@5.47.0)
       date-fns:
         specifier: ^4.1.0
@@ -497,7 +503,7 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.47.0)
       svelte-exmarkdown:
-        specifier: ^5.0.0
+        specifier: ^5.0.2
         version: 5.0.2(svelte@5.47.0)
       svelte-sonner:
         specifier: ^1.0.1
@@ -646,8 +652,8 @@ packages:
   '@adobe/css-tools@4.4.3':
     resolution: {integrity: sha512-VQKMkwriZbaOgVCby1UDY/LDk5fIjhQicCvVPFqfe+69fWaPWydbWJ3wRt59/YzIwda1I81loas3oCoHxnqvdA==}
 
-  '@ai-sdk/gateway@1.0.0':
-    resolution: {integrity: sha512-VEm87DyRx1yIPywbTy8ntoyh4jEDv1rJ88m+2I7zOm08jJI5BhFtAWh0OF6YzZu1Vu4NxhOWO4ssGdsqydDQ3A==}
+  '@ai-sdk/gateway@1.0.5':
+    resolution: {integrity: sha512-GOhxiHm2nfuS618Ia13AWxEIhCsj5+tFaw6sjSO7pvMZT03QgFAJyX4xBYj+3i3mfIvw+yJOvyhVu1fI+pAHQA==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -676,8 +682,8 @@ packages:
     peerDependencies:
       zod: ^3.23.8
 
-  '@ai-sdk/provider-utils@3.0.0':
-    resolution: {integrity: sha512-BoQZtGcBxkeSH1zK+SRYNDtJPIPpacTeiMZqnG4Rv6xXjEwM0FH4MGs9c+PlhyEWmQCzjRM2HAotEydFhD4dYw==}
+  '@ai-sdk/provider-utils@3.0.2':
+    resolution: {integrity: sha512-0a5a6VafkV6+0irdpqnub8WE6qzG2VMsDBpXb9NQIz8c4TG8fI+GSTFIL9sqrLEwXrHdiRj7fwJsrir4jClL0w==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -1391,8 +1397,8 @@ packages:
   '@kubernetes/client-node@1.4.0':
     resolution: {integrity: sha512-Zge3YvF7DJi264dU1b3wb/GmzR99JhUpqTvp+VGHfwZT+g7EOOYNScDJNZwXy9cszyIGPIs0VHr+kk8e95qqrA==}
 
-  '@lucide/svelte@0.511.0':
-    resolution: {integrity: sha512-aLCSPMUJmHlCuLXzXENXa4Z1NV2mN1iAZAFKk4bEbey+/MdsNlu+/DqwVkgW3Yvj6p8y8Vn5xZ2v9CLmPlA6Vw==}
+  '@lucide/svelte@0.539.0':
+    resolution: {integrity: sha512-OWhw4BhHO+owmOE/ijSNLnw/flbW2/DsLzMHAeM8oEjLsO0xE6glX0ADCDwxKItTs5ZJYssfyGNXxMXrea173w==}
     peerDependencies:
       svelte: ^5
 
@@ -1963,6 +1969,9 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
+  '@types/mustache@4.2.6':
+    resolution: {integrity: sha512-t+8/QWTAhOFlrF1IVZqKnMRJi84EgkIK5Kh0p2JV4OLywUvCwJPFxbJAl7XAow7DVIHsF+xW9f1MVzg0L6Szjw==}
+
   '@types/node-fetch@2.6.13':
     resolution: {integrity: sha512-QGpRVpzSaUs30JBSGPjOg4Uveu384erbHBoT1zeONvyCfwQxIkUshLAOqN/k9EjGviPRmWTTe6aH2qySWKTVSw==}
 
@@ -2422,17 +2431,17 @@ packages:
     resolution: {integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==}
     engines: {node: '>=8'}
 
+  ai@5.0.11:
+    resolution: {integrity: sha512-PtiQAnhlWuN3Y2z9PifM/9XIQ0HIoHjZqEu7zHffyGEXiqHLtrJpt4IiGVzUTAKxXM5JCtO9sD/hwGXDp7ZYsw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
   ai@5.0.143:
     resolution: {integrity: sha512-kThdoS70rwR7ilFZqm4BX5dEGz8frDR1TH0REdOVKlVCuO8PxzZ44eJ8kmIrbPdRiY2rx7hGE5jlLuD9j9zo2A==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
-
-  ai@5.0.2:
-    resolution: {integrity: sha512-Uk4lmwlr2b/4G9DUYCWYKcWz93xQ6p6AEeRZN+/AO9NbOyCm9axrDru26c83Ax8OB8IHUvoseA3CqaZkg9Z0Kg==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
 
   ajv-formats@3.0.1:
     resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
@@ -5293,6 +5302,10 @@ packages:
       typescript:
         optional: true
 
+  mustache@4.2.0:
+    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
+    hasBin: true
+
   mute-stream@2.0.0:
     resolution: {integrity: sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==}
     engines: {node: ^18.17.0 || >=20.5.0}
@@ -6742,46 +6755,6 @@ packages:
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
-  vite@6.4.1:
-    resolution: {integrity: sha512-+Oxm7q9hDoLMyJOYfUYBuHQo+dkAloi33apOPP56pzj+vsdJDzr+j1NISE5pyaAuKL4A3UD34qd0lx5+kfKp2g==}
-    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^18.0.0 || ^20.0.0 || >=22.0.0
-      jiti: '>=1.21.0'
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      sass-embedded: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
-        optional: true
-
   vite@7.3.1:
     resolution: {integrity: sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -7080,10 +7053,10 @@ snapshots:
 
   '@adobe/css-tools@4.4.3': {}
 
-  '@ai-sdk/gateway@1.0.0(zod@4.3.6)':
+  '@ai-sdk/gateway@1.0.5(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.0(zod@4.3.6)
+      '@ai-sdk/provider-utils': 3.0.2(zod@4.3.6)
       zod: 4.3.6
 
   '@ai-sdk/gateway@2.0.49(zod@4.3.6)':
@@ -7112,7 +7085,7 @@ snapshots:
       secure-json-parse: 2.7.0
       zod: 4.3.6
 
-  '@ai-sdk/provider-utils@3.0.0(zod@4.3.6)':
+  '@ai-sdk/provider-utils@3.0.2(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
@@ -7367,8 +7340,8 @@ snapshots:
 
   '@develar/schema-utils@2.6.5':
     dependencies:
-      ajv: 6.12.6
-      ajv-keywords: 3.5.2(ajv@6.12.6)
+      ajv: 6.14.0
+      ajv-keywords: 3.5.2(ajv@6.14.0)
 
   '@docker/extension-api-client-types@0.4.2': {}
 
@@ -7883,7 +7856,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@lucide/svelte@0.511.0(svelte@5.47.0)':
+  '@lucide/svelte@0.539.0(svelte@5.47.0)':
     dependencies:
       svelte: 5.47.0
 
@@ -8413,7 +8386,7 @@ snapshots:
 
   '@types/hast@3.0.4':
     dependencies:
-      '@types/unist': 2.0.11
+      '@types/unist': 3.0.3
 
   '@types/hosted-git-info@3.0.5': {}
 
@@ -8433,13 +8406,15 @@ snapshots:
 
   '@types/mdast@4.0.4':
     dependencies:
-      '@types/unist': 2.0.11
+      '@types/unist': 3.0.3
 
   '@types/mime@1.3.5': {}
 
   '@types/minimist@1.2.5': {}
 
   '@types/ms@2.1.0': {}
+
+  '@types/mustache@4.2.6': {}
 
   '@types/node-fetch@2.6.13':
     dependencies:
@@ -8965,6 +8940,14 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
+  ai@5.0.11(zod@4.3.6):
+    dependencies:
+      '@ai-sdk/gateway': 1.0.5(zod@4.3.6)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.2(zod@4.3.6)
+      '@opentelemetry/api': 1.9.0
+      zod: 4.3.6
+
   ai@5.0.143(zod@4.3.6):
     dependencies:
       '@ai-sdk/gateway': 2.0.49(zod@4.3.6)
@@ -8973,21 +8956,13 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       zod: 4.3.6
 
-  ai@5.0.2(zod@4.3.6):
-    dependencies:
-      '@ai-sdk/gateway': 1.0.0(zod@4.3.6)
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.0(zod@4.3.6)
-      '@opentelemetry/api': 1.9.0
-      zod: 4.3.6
-
   ajv-formats@3.0.1(ajv@8.17.1):
     optionalDependencies:
       ajv: 8.17.1
 
-  ajv-keywords@3.5.2(ajv@6.12.6):
+  ajv-keywords@3.5.2(ajv@6.14.0):
     dependencies:
-      ajv: 6.12.6
+      ajv: 6.14.0
 
   ajv@6.12.6:
     dependencies:
@@ -9387,7 +9362,7 @@ snapshots:
       bytes: 3.1.2
       content-type: 1.0.5
       debug: 4.4.3
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       iconv-lite: 0.7.2
       on-finished: 2.4.1
       qs: 6.15.0
@@ -10006,7 +9981,7 @@ snapshots:
     dependencies:
       '@types/plist': 3.0.5
       '@types/verror': 1.10.11
-      ajv: 6.12.6
+      ajv: 6.14.0
       crc: 3.8.0
       iconv-corefoundation: 1.1.7
       plist: 3.1.0
@@ -10701,7 +10676,7 @@ snapshots:
       etag: 1.8.1
       finalhandler: 2.1.1
       fresh: 2.0.0
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       merge-descriptors: 2.0.0
       mime-types: 3.0.2
       on-finished: 2.4.1
@@ -12345,6 +12320,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
     optional: true
+
+  mustache@4.2.0: {}
 
   mute-stream@2.0.0: {}
 
@@ -13992,23 +13969,6 @@ snapshots:
       - terser
       - tsx
       - yaml
-
-  vite@6.4.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2):
-    dependencies:
-      esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.46.2
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 24.11.0
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      lightningcss: 1.31.1
-      terser: 5.36.0
-      tsx: 4.20.3
-      yaml: 2.8.2
 
   vite@7.3.1(@types/node@24.1.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2):
     dependencies:
