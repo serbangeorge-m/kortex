@@ -410,6 +410,7 @@ declare module '@kortex-app/api' {
   }
 
   export interface Flow {
+    id: string;
     path: string;
   }
 
@@ -424,7 +425,7 @@ declare module '@kortex-app/api' {
     hideSecrets: boolean;
     model: InferenceModel;
     namespace: string;
-    flow: Flow;
+    flowId: string;
   }
 
   export interface FlowProviderConnection {
@@ -435,6 +436,14 @@ declare module '@kortex-app/api' {
     flow: {
       all(): Promise<Array<Flow>>;
       onDidChange: Event<void>;
+      /**
+       * @experimental expect change
+       */
+      read(flowId: string): Promise<string>;
+      /**
+       * @experimental expect change
+       */
+      write(flowId: string, content: string): Promise<void>;
     };
     deploy?: {
       kubernetes?(options: FlowDeployKubernetesOptions): Promise<FlowDeployKubernetesResult>;
