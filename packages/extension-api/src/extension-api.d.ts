@@ -579,6 +579,9 @@ declare module '@kortex-app/api' {
     status(): ProviderConnectionStatus;
   }
 
+  /**
+   * @deprecated
+   */
   export type MCPProviderConnection = {
     name: string;
     transport: MCPTransport;
@@ -779,6 +782,9 @@ declare module '@kortex-app/api' {
       connectionAuditor?: Auditor,
     ): Disposable;
 
+    /**
+     * @deprecated
+     */
     setMCPProviderConnectionFactory(
       providerProviderConnectionFactory: MCPProviderConnectionFactory,
       connectionAuditor?: Auditor,
@@ -788,6 +794,9 @@ declare module '@kortex-app/api' {
     registerKubernetesProviderConnection(connection: KubernetesProviderConnection): Disposable;
     registerVmProviderConnection(connection: VmProviderConnection): Disposable;
     registerInferenceProviderConnection(connection: InferenceProviderConnection): Disposable;
+    /**
+     * @deprecated
+     */
     registerMCPProviderConnection(connection: MCPProviderConnection): Disposable;
 
     registerFlowProviderConnection(connection: FlowProviderConnection): Disposable;
@@ -939,10 +948,17 @@ declare module '@kortex-app/api' {
     providerId: string;
   }
 
+  /**
+   * @deprecated
+   */
   export interface RegisterMCPConnectionEvent {
     providerId: string;
     connection: MCPProviderConnection;
   }
+
+  /**
+   * @deprecated
+   */
   export interface UnregisterMCPConnectionEvent {
     providerId: string;
     connectionName: string;
