@@ -1,9 +1,6 @@
 <script lang="ts">
 import { Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
-import { mcpRegistriesServerInfos } from '/@/stores/mcp-registry-servers';
 import McpIcon from '../images/MCPIcon.svelte';
-import type { MCPRegistryServerDetail } from '/@api/mcp/mcp-registry-server-entry';
-import McpServerListActions from './MCPServerRegistryListActions.svelte';
 import SimpleColumn from '@podman-desktop/ui-svelte/TableSimpleColumn';
 import MCPServerEmptyScreen from './MCPServerEmptyScreen.svelte';
 import type { MCPRemoteServerInfo } from '/@api/mcp/mcp-server-info';

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-import { Button, Checkbox,Tab } from '@podman-desktop/ui-svelte';
+import { onMount } from 'svelte';
+import { Button, Checkbox, Tab } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
 import type { ModelInfo } from '/@/lib/chat/components/model-info';
@@ -73,19 +73,18 @@ async function deployKubernetes(): Promise<void> {
     {
       hideSecrets: hideSecrets,
       namespace: 'default',
-    }
+    },
   );
   kubernetes = result;
 }
 
 onMount(() => {
-  window.readFlow(
-    providerId,
-  connectionName,
-  flowId,
-  ).then((content) => {
-    flowContent = content;
-  }).catch(console.error);
+  window
+    .readFlow(providerId, connectionName, flowId)
+    .then(content => {
+      flowContent = content;
+    })
+    .catch(console.error);
 });
 </script>
 

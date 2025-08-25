@@ -23,7 +23,7 @@ import { beforeAll, expect, test, vi } from 'vitest';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { providerInfos } from '/@/stores/providers';
-import type { ProviderInfo } from '/@api/provider-info';
+import { type ProviderInfo } from '/@api/provider-info';
 
 import OnboardingComponent from './OnboardingComponent.svelte';
 
@@ -65,6 +65,7 @@ const providerInfo: ProviderInfo = {
   cleanupSupport: false,
   inferenceConnections: [],
   mcpConnections: [],
+  flowConnections: [],
   inferenceProviderConnectionCreation: false,
   inferenceProviderConnectionInitialization: false,
   mcpProviderConnectionCreation: false,

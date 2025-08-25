@@ -59,6 +59,7 @@ const EMPTY_PROVIDER_MOCK: ProviderInfo = {
   cleanupSupport: false,
   inferenceConnections: [],
   mcpConnections: [],
+  flowConnections: [],
   inferenceProviderConnectionCreation: false,
   inferenceProviderConnectionInitialization: false,
   mcpProviderConnectionCreation: false,

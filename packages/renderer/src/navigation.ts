@@ -46,9 +46,7 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
       router.goto('/flows');
       break;
     case NavigationPage.FLOW_CREATE:
-      router.goto(
-        `/flows/create`,
-      );
+      router.goto(`/flows/create`);
       break;
     case NavigationPage.FLOW_DETAILS:
       router.goto(

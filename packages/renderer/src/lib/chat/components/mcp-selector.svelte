@@ -6,7 +6,7 @@ import { providerInfos } from '/@/stores/providers';
 import type { ProviderMCPConnectionInfo } from '/@api/provider-info';
 import Fa from 'svelte-fa';
 
-import {cn} from '/@/lib/chat/utils/shadcn';
+import { cn } from '/@/lib/chat/utils/shadcn';
 import { mcpRemoteServerInfos } from '/@/stores/mcp-remote-servers';
 
 import CheckCircleFillIcon from './icons/check-circle-fill.svelte';
@@ -28,7 +28,7 @@ let {
 }: {
   selected: Set<string>;
   class?: string;
-  disabled: boolean ;
+  disabled: boolean;
 } = $props();
 
 let groups: Map<string, Array<ProviderMCPConnectionInfo>> = $derived(

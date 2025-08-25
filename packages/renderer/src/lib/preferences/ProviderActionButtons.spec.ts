@@ -63,6 +63,7 @@ const baseProviderInfo: ProviderInfo = {
   inferenceProviderConnectionInitialization: false,
   mcpProviderConnectionCreation: false,
   mcpProviderConnectionInitialization: false,
+  flowConnections: [],
 };
 
 const mockGlobalContext: ContextUI = {

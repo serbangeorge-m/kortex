@@ -16,7 +16,7 @@ let { message, readonly, loading }: { message: UIMessage; readonly: boolean; loa
 
 let mode = $state<'view' | 'edit'>('view');
 
-const tools: Array<DynamicToolUIPart> = message.parts.filter((part) => part?.type === 'dynamic-tool') ?? [];
+const tools: Array<DynamicToolUIPart> = message.parts.filter(part => part?.type === 'dynamic-tool') ?? [];
 </script>
 
 <div

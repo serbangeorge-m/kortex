@@ -66,6 +66,7 @@ const providerInfo: ProviderInfo = {
   vmProviderConnectionInitialization: false,
   inferenceConnections: [],
   mcpConnections: [],
+  flowConnections: [],
   inferenceProviderConnectionCreation: false,
   inferenceProviderConnectionInitialization: false,
   mcpProviderConnectionCreation: false,

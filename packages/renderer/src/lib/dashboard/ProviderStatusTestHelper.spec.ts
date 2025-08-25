@@ -54,6 +54,7 @@ export function verifyStatus<
     cleanupSupport: false,
     inferenceConnections: [],
     mcpConnections: [],
+    flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
     mcpProviderConnectionCreation: false,

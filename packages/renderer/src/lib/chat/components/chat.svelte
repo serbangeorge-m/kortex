@@ -51,11 +51,11 @@ let selectedModel = $state<ModelInfo | undefined>(getFirstModel());
 let selectedMCP = new SvelteSet<string>();
 
 function getFirstModel(): ModelInfo | undefined {
-  return (models && models.length > 0)?models[0]:undefined;
+  return models && models.length > 0 ? models[0] : undefined;
 }
 
 $effect(() => {
-  if(!selectedModel && models && models.length > 0) {
+  if (!selectedModel && models && models.length > 0) {
     selectedModel = getFirstModel();
   }
 });

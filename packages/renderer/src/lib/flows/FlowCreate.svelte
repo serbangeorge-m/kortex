@@ -1,9 +1,9 @@
 <script lang="ts">
-import { Button,ErrorMessage,Input } from '@podman-desktop/ui-svelte';
+import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { SvelteSet } from 'svelte/reactivity';
 
 import MCPSelector from '/@/lib/chat/components/mcp-selector.svelte';
-import {Textarea} from '/@/lib/chat/components/ui/textarea';
+import { Textarea } from '/@/lib/chat/components/ui/textarea';
 import MonacoEditor from '/@/lib/editor/MonacoEditor.svelte';
 import FormPage from '/@/lib/ui/FormPage.svelte';
 
@@ -25,7 +25,7 @@ let flowProviderConnectionKey: string | undefined = $state(undefined);
 let result: string | undefined = $state(undefined);
 
 async function generate(): Promise<void> {
-  if(!flowProviderConnectionKey) return;
+  if (!flowProviderConnectionKey) return;
 
   const [providerId, connectionName] = flowProviderConnectionKey.split(':');
 

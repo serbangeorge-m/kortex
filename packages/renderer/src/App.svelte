@@ -92,7 +92,7 @@ import Route from './Route.svelte';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 import SubmenuNavigation from './SubmenuNavigation.svelte';
 import McpServerList from './lib/mcp/MCPServerList.svelte';
-import FlowCreate from "/@/lib/flows/FlowCreate.svelte";
+import FlowCreate from '/@/lib/flows/FlowCreate.svelte';
 
 router.mode.memory();
 

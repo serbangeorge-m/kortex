@@ -133,7 +133,7 @@ import type { ViewInfoUI } from '/@api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info';
 import type { WebviewInfo } from '/@api/webview-info';
 
-import { FlowInfo } from '/@api/flow-info';
+import type { FlowInfo } from '/@api/flow-info';
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
 
@@ -305,22 +305,23 @@ export function initExposure(): void {
     return ipcInvoke('flows:list');
   });
 
+  contextBridge.exposeInMainWorld(
+    'readFlow',
+    async (providerId: string, connectionName: string, flowId: string): Promise<string> => {
+      return ipcInvoke('flows:read', providerId, connectionName, flowId);
+    },
+  );
 
-  contextBridge.exposeInMainWorld('readFlow', async (
-    providerId: string,
-    connectionName: string,
-    flowId: string,
-  ): Promise<string> => {
-    return ipcInvoke('flows:read', providerId, connectionName, flowId);
-  });
-
-  contextBridge.exposeInMainWorld('generateFlow', async (
-    providerId: string,
-    connectionName: string,
-    options: containerDesktopAPI.FlowGenerateOptions,
-  ): Promise<string> => {
-    return ipcInvoke('flows:generate', providerId, connectionName, options);
-  });
+  contextBridge.exposeInMainWorld(
+    'generateFlow',
+    async (
+      providerId: string,
+      connectionName: string,
+      options: containerDesktopAPI.FlowGenerateOptions,
+    ): Promise<string> => {
+      return ipcInvoke('flows:generate', providerId, connectionName, options);
+    },
+  );
 
   contextBridge.exposeInMainWorld(
     'flowDeployKubernetes',
@@ -336,8 +337,8 @@ export function initExposure(): void {
         flowId: string;
       },
       options: {
-        namespace: string,
-        hideSecrets: boolean,
+        namespace: string;
+        hideSecrets: boolean;
       },
     ): Promise<string> => {
       return ipcInvoke('flows:deploy:kubernetes', inference, flow, options);

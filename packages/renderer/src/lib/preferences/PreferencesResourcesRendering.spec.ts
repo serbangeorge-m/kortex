@@ -30,7 +30,7 @@ import { providerInfos } from '/@/stores/providers';
 import { CONFIGURATION_DEFAULT_SCOPE } from '/@api/configuration/constants.js';
 import type { Menu } from '/@api/menu.js';
 import type { OnboardingInfo } from '/@api/onboarding';
-import type { ProviderInfo } from '/@api/provider-info';
+import { type ProviderInfo } from '/@api/provider-info';
 
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 
@@ -100,6 +100,7 @@ const providerInfo: ProviderInfo = {
   cleanupSupport: false,
   inferenceConnections: [],
   mcpConnections: [],
+  flowConnections: [],
   inferenceProviderConnectionCreation: false,
   inferenceProviderConnectionInitialization: false,
   mcpProviderConnectionCreation: false,
@@ -209,6 +210,7 @@ describe.each<{
       cleanupSupport: false,
       inferenceConnections: [],
       mcpConnections: [],
+      flowConnections: [],
       inferenceProviderConnectionCreation: false,
       inferenceProviderConnectionInitialization: false,
       mcpProviderConnectionCreation: false,
@@ -273,6 +275,7 @@ describe.each<{
       cleanupSupport: false,
       inferenceConnections: [],
       mcpConnections: [],
+      flowConnections: [],
       inferenceProviderConnectionCreation: false,
       inferenceProviderConnectionInitialization: false,
       mcpProviderConnectionCreation: false,
@@ -330,6 +333,7 @@ describe.each<{
       cleanupSupport: false,
       inferenceConnections: [],
       mcpConnections: [],
+      flowConnections: [],
       inferenceProviderConnectionCreation: false,
       inferenceProviderConnectionInitialization: false,
       mcpProviderConnectionCreation: false,

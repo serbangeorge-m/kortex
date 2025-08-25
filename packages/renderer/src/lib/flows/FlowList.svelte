@@ -4,8 +4,8 @@ import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
 import FlowName from '/@/lib/flows/columns/FlowName.svelte';
 import { flowsInfos } from '/@/stores/flows';
 import type { FlowInfo } from '/@api/flow-info';
-import {handleNavigation} from "/@/navigation";
-import {NavigationPage} from "/@api/navigation-page";
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 
 type FlowSelectable = FlowInfo & { selected: boolean };
 

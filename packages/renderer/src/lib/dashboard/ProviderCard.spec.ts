@@ -23,7 +23,7 @@ import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { expect, test } from 'vitest';
 
-import type { ProviderInfo } from '/@api/provider-info';
+import { type ProviderInfo } from '/@api/provider-info';
 
 import ProviderCard from './ProviderCard.svelte';
 
@@ -51,6 +51,7 @@ test('Expect provider region', async () => {
     cleanupSupport: false,
     inferenceConnections: [],
     mcpConnections: [],
+    flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
     mcpProviderConnectionCreation: false,
@@ -86,6 +87,7 @@ test('Expect provider name', async () => {
     cleanupSupport: false,
     inferenceConnections: [],
     mcpConnections: [],
+    flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
     mcpProviderConnectionCreation: false,
@@ -122,6 +124,7 @@ test('Expect provider icon', async () => {
     cleanupSupport: false,
     inferenceConnections: [],
     mcpConnections: [],
+    flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
     mcpProviderConnectionCreation: false,
@@ -162,6 +165,7 @@ test('Expect no provider version', async () => {
     cleanupSupport: false,
     inferenceConnections: [],
     mcpConnections: [],
+    flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
     mcpProviderConnectionCreation: false,
@@ -198,6 +202,7 @@ test('Expect provider version', async () => {
     cleanupSupport: false,
     inferenceConnections: [],
     mcpConnections: [],
+    flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
     mcpProviderConnectionCreation: false,
@@ -234,6 +239,7 @@ test('Expect provider state', async () => {
     cleanupSupport: false,
     inferenceConnections: [],
     mcpConnections: [],
+    flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
     mcpProviderConnectionCreation: false,

@@ -11,7 +11,7 @@ import Fa from 'svelte-fa';
 import { faToolbox } from '@fortawesome/free-solid-svg-icons/faToolbox';
 
 interface Props {
-  tools: Array<DynamicToolUIPart>
+  tools: Array<DynamicToolUIPart>;
 }
 
 let { tools }: Props = $props();
@@ -25,9 +25,11 @@ function lockScrolling(): void {
 }
 
 function unlockScrolling(): void {
-  tick().then(() => {
-    scrollLock.locked = false;
-  }).catch(console.error);
+  tick()
+    .then(() => {
+      scrollLock.locked = false;
+    })
+    .catch(console.error);
 }
 </script>
 

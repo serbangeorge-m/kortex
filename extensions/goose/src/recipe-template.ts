@@ -25,7 +25,7 @@ interface RecipeTemplateOptions {
     name: string;
     prompt: string;
     instructions: string;
-  }
+  };
 }
 
 export class RecipeTemplate {
