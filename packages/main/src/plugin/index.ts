@@ -42,6 +42,7 @@ import type {
   V1Secret,
   V1Service,
 } from '@kubernetes/client-node';
+import type { MCPServerConfig } from '@mastra/core/mcp';
 import type { ToolSet, UIMessage } from 'ai';
 import { convertToModelMessages, generateText, stepCountIs, streamText } from 'ai';
 import checkDiskSpacePkg from 'check-disk-space';
@@ -123,7 +124,6 @@ import type { KubernetesTroubleshootingInformation } from '/@api/kubernetes-trou
 import type { ContainerCreateOptions as PodmanContainerCreateOptions, PlayKubeInfo } from '/@api/libpod/libpod.js';
 import type { ListOrganizerItem } from '/@api/list-organizer.js';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
-import type { MCPRegistryServerDetail } from '/@api/mcp/mcp-registry-server-entry.js';
 import type { MCPRemoteServerInfo } from '/@api/mcp/mcp-server-info.js';
 import type { Menu } from '/@api/menu.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
@@ -2317,7 +2317,7 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('mcp-registry:getMcpRegistryServers', async (): Promise<readonly MCPRegistryServerDetail[]> => {
+    this.ipcHandle('mcp-registry:getMcpRegistryServers', async (): Promise<readonly MCPServerConfig[]> => {
       return mcpRegistry.listMCPServersFromRegistries();
     });
 

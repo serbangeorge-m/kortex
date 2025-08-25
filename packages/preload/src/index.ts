@@ -41,6 +41,7 @@ import type {
   V1Secret,
   V1Service,
 } from '@kubernetes/client-node';
+import type { MCPServerConfig } from '@mastra/core/mcp';
 import type { UIMessage, UIMessageChunk } from 'ai';
 import { contextBridge, ipcRenderer } from 'electron';
 
@@ -104,7 +105,6 @@ import type { Guide } from '/@api/learning-center/guide';
 import type { ContainerCreateOptions as PodmanContainerCreateOptions, PlayKubeInfo } from '/@api/libpod/libpod';
 import type { ListOrganizerItem } from '/@api/list-organizer';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info';
-import type { MCPRegistryServerDetail } from '/@api/mcp/mcp-registry-server-entry';
 import type { MCPRemoteServerInfo } from '/@api/mcp/mcp-server-info';
 import type { Menu } from '/@api/menu.js';
 import { NavigationPage } from '/@api/navigation-page';
@@ -1762,7 +1762,7 @@ export function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld('getMcpRegistryServers', async (): Promise<MCPRegistryServerDetail[]> => {
+  contextBridge.exposeInMainWorld('getMcpRegistryServers', async (): Promise<MCPServerConfig[]> => {
     return ipcInvoke('mcp-registry:getMcpRegistryServers');
   });
   contextBridge.exposeInMainWorld(
