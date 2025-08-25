@@ -92,6 +92,7 @@ import Route from './Route.svelte';
 import { navigationRegistry } from './stores/navigation/navigation-registry';
 import SubmenuNavigation from './SubmenuNavigation.svelte';
 import McpServerList from './lib/mcp/MCPServerList.svelte';
+import FlowCreate from "/@/lib/flows/FlowCreate.svelte";
 
 router.mode.memory();
 
@@ -168,6 +169,10 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
 
         <Route path="/flows" breadcrumb="Flows">
           <FlowList/>
+        </Route>
+
+        <Route path="/flows/create" breadcrumb="Create">
+          <FlowCreate/>
         </Route>
 
         <Route path="/flows/:providerId/:connectionName/:flowId/*" let:meta breadcrumb="Flow Details">

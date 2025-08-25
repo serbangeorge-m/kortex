@@ -59,6 +59,7 @@ export interface NavigationParameters {
   [NavigationPage.EXTENSIONS_CATALOG]: { searchTerm?: string };
   // flows
   [NavigationPage.FLOWS]: never;
+  [NavigationPage.FLOW_CREATE]: never;
   [NavigationPage.FLOW_DETAILS]: {
     providerId: string;
     connectionName: string;

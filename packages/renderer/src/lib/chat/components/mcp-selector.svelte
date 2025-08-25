@@ -5,6 +5,10 @@ import { faToolbox } from '@fortawesome/free-solid-svg-icons/faToolbox';
 import { providerInfos } from '/@/stores/providers';
 import type { ProviderMCPConnectionInfo } from '/@api/provider-info';
 import Fa from 'svelte-fa';
+
+import {cn} from '/@/lib/chat/utils/shadcn';
+import { mcpRemoteServerInfos } from '/@/stores/mcp-remote-servers';
+
 import CheckCircleFillIcon from './icons/check-circle-fill.svelte';
 import ChevronDownIcon from './icons/chevron-down.svelte';
 import { Button } from './ui/button';
@@ -15,13 +19,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { mcpRemoteServerInfos } from '/@/stores/mcp-remote-servers';
 
 let {
   // selected under the form `${internalProviderId}:${connectionName}``
   selected = $bindable(new SvelteSet()),
+  class: className,
+  disabled = false,
 }: {
   selected: Set<string>;
+  class?: string;
+  disabled: boolean ;
 } = $props();
 
 let groups: Map<string, Array<ProviderMCPConnectionInfo>> = $derived(
@@ -45,13 +52,14 @@ function onSelect(key: string, event: Event): void {
 }
 </script>
 
-<DropdownMenu {open} onOpenChange={(val) => (open = val)}>
+<DropdownMenu {open} onOpenChange={(val): void => (open = val)}>
   <DropdownMenuTrigger>
     {#snippet child({ props })}
       <Button
         {...props}
         variant="outline"
-        class="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground w-fit md:h-[34px] md:px-2"
+        disabled={disabled}
+        class={cn('data-[state=open]:bg-accent data-[state=open]:text-accent-foreground w-fit md:h-[34px] md:px-2', className)}
       >
         <Fa icon={faToolbox} />
         {selected.size} selected

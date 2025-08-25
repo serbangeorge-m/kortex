@@ -428,6 +428,12 @@ declare module '@kortex-app/api' {
     flowId: string;
   }
 
+  export interface FlowGenerateOptions {
+    name: string;
+    description: string;
+    prompt: string;
+  }
+
   export interface FlowProviderConnection {
     name: string;
     displayName?: string;
@@ -444,6 +450,10 @@ declare module '@kortex-app/api' {
        * @experimental expect change
        */
       write(flowId: string, content: string): Promise<void>;
+      /**
+       * @experimental expect change
+       */
+      generate(options?: FlowGenerateOptions): Promise<string>;
     };
     deploy?: {
       kubernetes?(options: FlowDeployKubernetesOptions): Promise<FlowDeployKubernetesResult>;
