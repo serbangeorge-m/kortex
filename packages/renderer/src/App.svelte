@@ -7,8 +7,10 @@ import { router } from 'tinro';
 
 import { parseExtensionListRequest } from '/@/lib/extensions/extension-list';
 import KubernetesRoot from '/@/lib/kube/KubernetesRoot.svelte';
+import FlowCreate from '/@/lib/flows/FlowCreate.svelte';
 import FlowDetails from '/@/lib/flows/FlowDetails.svelte';
 import FlowList from '/@/lib/flows/FlowList.svelte';
+import MCPDetails from '/@/lib/mcp/MCPDetails.svelte';
 import PinActions from '/@/lib/statusbar/PinActions.svelte';
 import { handleNavigation } from '/@/navigation';
 import { kubernetesNoCurrentContext } from '/@/stores/kubernetes-no-current-context';
@@ -62,6 +64,7 @@ import ManifestDetails from './lib/manifest/ManifestDetails.svelte';
 import CreateNetwork from './lib/network/CreateNetwork.svelte';
 import NetworkDetails from './lib/network/NetworkDetails.svelte';
 import NetworksList from './lib/network/NetworksList.svelte';
+import McpServerList from './lib/mcp/MCPServerList.svelte';
 import NodeDetails from './lib/node/NodeDetails.svelte';
 import NodesList from './lib/node/NodesList.svelte';
 import Onboarding from './lib/onboarding/Onboarding.svelte';
@@ -183,9 +186,14 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
           />
         </Route>
 
-        <Route path="/mcps/*" breadcrumb="MCPs">
+        <!-- MCP -->
+        <Route path="/mcps" breadcrumb="MCPs" navigationHint="root">
           <McpServerList />
         </Route>
+        <Route path="/mcps/:id/*" let:meta>
+          <MCPDetails id={meta.params.id} />
+        </Route>
+
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm={meta.query.filter ?? ''} />
         </Route>

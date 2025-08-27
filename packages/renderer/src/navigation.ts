@@ -165,5 +165,8 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
     case NavigationPage.EXTENSIONS_CATALOG:
       router.goto(`/extensions?screen=catalog&searchTerm=${encodeURIComponent(request.parameters.searchTerm ?? '')}`);
       break;
+    case NavigationPage.MCP_DETAILS:
+      router.goto(`/mcps/${request.parameters.id}/summary`);
+      break;
   }
 };
