@@ -77,7 +77,7 @@ export class GooseRecipe implements Disposable {
     return await readFile(path, 'utf-8');
   }
 
-  protected async write(flowId: string, content: string): Promise<void> {
+  protected async write(_flowId: string, _content: string): Promise<void> {
     throw new Error('not implemented');
   }
 
