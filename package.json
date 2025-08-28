@@ -134,6 +134,7 @@
     "vite": "^7.3.1",
     "vitest": "^4.0.10",
     "xvfb-maybe": "^0.2.1"
+    "mcp-registry": "workspace:*"
   },
   "dependencies": {
     "ai": "5.0.11",
