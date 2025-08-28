@@ -28,7 +28,7 @@ let {
 }: {
   selected: Set<string>;
   class?: string;
-  disabled: boolean;
+  disabled?: boolean;
 } = $props();
 
 let groups: Map<string, Array<ProviderMCPConnectionInfo>> = $derived(
@@ -52,7 +52,7 @@ function onSelect(key: string, event: Event): void {
 }
 </script>
 
-<DropdownMenu {open} onOpenChange={(val): void => (open = val)}>
+<DropdownMenu {open} onOpenChange={(val): boolean => (open = val)}>
   <DropdownMenuTrigger>
     {#snippet child({ props })}
       <Button

@@ -124,6 +124,7 @@
     "inversify": "^7.11.0",
     "js-yaml": "^4.1.1",
     "lint-staged": "^16.2.7",
+    "mcp-registry": "workspace:*",
     "minimist": "^1.2.8",
     "msw": "^2.12.7",
     "prettier": "^3.8.0",
@@ -134,11 +135,9 @@
     "vite": "^7.3.1",
     "vitest": "^4.0.10",
     "xvfb-maybe": "^0.2.1"
-    "mcp-registry": "workspace:*"
   },
   "dependencies": {
     "ai": "5.0.11",
-    "@modelcontextprotocol/sdk": "^1.17.2",
     "@docker/extension-api-client-types": "0.4.2",
     "@expo/sudo-prompt": "^9.3.2",
     "@kubernetes/client-node": "^1.4.0",
