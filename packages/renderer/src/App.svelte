@@ -170,7 +170,7 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
           <CustomChat />
         </Route>
 
-        <Route path="/flows" breadcrumb="Flows">
+        <Route path="/flows" breadcrumb="Flows"  navigationHint="root">
           <FlowList/>
         </Route>
 
