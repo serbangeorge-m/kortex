@@ -457,8 +457,9 @@ declare module '@kortex-app/api' {
       read(flowId: string): Promise<string>;
       /**
        * @experimental expect change
+       * @returns the flowId
        */
-      write(flowId: string, content: string): Promise<void>;
+      create(content: string): Promise<string>;
       /**
        * @experimental expect change
        */

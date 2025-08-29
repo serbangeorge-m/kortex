@@ -167,6 +167,7 @@ export class FlowManager implements Disposable {
   }
 
   public refresh(): void {
+    this.#flows.clear();
     this.registerAll().catch(console.error);
   }
 
@@ -176,9 +177,9 @@ export class FlowManager implements Disposable {
 
     // try to register all clients
     await Promise.allSettled(
-      providers.flatMap(({ internalId }) => {
+      providers.flatMap(({ id, internalId }) => {
         const connections = this.provider.getFlowProviderConnection(internalId);
-        return connections.map(this.register.bind(this, internalId));
+        return connections.map(this.register.bind(this, id));
       }),
     ).finally(() => {
       this.apiSender.send('flow:collected');
@@ -208,7 +209,7 @@ export class FlowManager implements Disposable {
     this.#disposable.set(
       key,
       connection.flow.onDidChange(() => {
-        this.apiSender.send('flow:updated');
+        this.refresh();
       }),
     );
   }
