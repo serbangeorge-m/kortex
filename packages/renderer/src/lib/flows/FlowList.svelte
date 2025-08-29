@@ -34,7 +34,11 @@ function navigateToCreateFlow(): void {
   });
 }
 
-let hasInstalledFlowProviders = $derived(window.hasInstalledFlowProviders());
+let hasInstalledFlowProviders = $state(window.hasInstalledFlowProviders());
+
+function retryCheck(): void {
+  hasInstalledFlowProviders = window.hasInstalledFlowProviders();
+}
 </script>
 
 <NavPage searchEnabled={false} title="Flows">
@@ -64,7 +68,7 @@ let hasInstalledFlowProviders = $derived(window.hasInstalledFlowProviders());
             key={key}
           />
         {:else}
-          <NoFlowProviders />
+          <NoFlowProviders {retryCheck} />
         {/if}
       {/await}
     </div>
