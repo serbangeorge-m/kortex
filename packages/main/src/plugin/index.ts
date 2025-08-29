@@ -96,8 +96,13 @@ import type { DocumentationInfo } from '/@api/documentation-info.js';
 import type { CatalogExtension } from '/@api/extension-catalog/extensions-catalog-api.js';
 import type { ExtensionDevelopmentFolderInfo } from '/@api/extension-development-folders-info.js';
 import type { ExtensionInfo } from '/@api/extension-info.js';
+<<<<<<< HEAD
 import type { FeaturedExtension } from '/@api/featured/featured-api.js';
 import type { FeedbackMessages, FeedbackProperties, GitHubIssue } from '/@api/feedback.js';
+=======
+import type { FeedbackProperties, GitHubIssue } from '/@api/feedback.js';
+import type { FlowExecuteInfo } from '/@api/flow-execute-info.js';
+>>>>>>> 7a427f820be (feat: allow to execute locally goose recipes)
 import type { FlowInfo } from '/@api/flow-info.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
@@ -879,6 +884,14 @@ export class PluginSystem {
       return flowManager.hasInstalledFlowProviders();
     });
 
+    this.ipcHandle('flows:listExecute', async (_listener): Promise<Array<FlowExecuteInfo>> => {
+      return flowManager.listExecutions();
+    });
+
+    this.ipcHandle('flows:getLogCurrent', async (_listener): Promise<string> => {
+      return flowManager.getLogCurrent();
+    });
+
     this.ipcHandle(
       'flows:read',
       async (_listener, providerId: string, connectionName: string, flowId: string): Promise<string> => {
@@ -889,6 +902,13 @@ export class PluginSystem {
         if (!flowConnection) throw new Error(`cannot find flow connection with name ${connectionName}`);
 
         return flowConnection.flow.read(flowId);
+      },
+    );
+
+    this.ipcHandle(
+      'flows:dispatchLog',
+      async (_listener, providerId: string, connectionName: string, flowId: string, taskId: string): Promise<void> => {
+        return flowManager.dispatchLog(providerId, connectionName, flowId, taskId);
       },
     );
 
@@ -957,6 +977,21 @@ export class PluginSystem {
         });
 
         return resources;
+      },
+    );
+
+    this.ipcHandle(
+      'flows:execute',
+      async (
+        _listener,
+        flow: {
+          providerId: string;
+          connectionName: string;
+          flowId: string;
+        },
+      ): Promise<string> => {
+        // Get the flow provider to use
+        return flowManager.execute(flow.providerId, flow.connectionName, flow.flowId);
       },
     );
 

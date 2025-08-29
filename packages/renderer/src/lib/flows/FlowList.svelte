@@ -10,6 +10,7 @@ import { handleNavigation } from '/@/navigation';
 import { NavigationPage } from '/@api/navigation-page';
 
 import NoFlowProviders from './components/NoFlowProviders.svelte';
+import FlowActions from './FlowActions.svelte';
 
 type FlowSelectable = FlowInfo & { selected: boolean };
 
@@ -22,7 +23,13 @@ let pathColumn = new TableColumn<FlowSelectable>('Path', {
   renderer: FlowName,
 });
 
-const columns = [pathColumn];
+const flowActions = new TableColumn<FlowSelectable>('Actions', {
+  align: 'right',
+  renderer: FlowActions,
+  overflow: true,
+});
+
+const columns = [pathColumn, flowActions];
 
 function key(flow: FlowSelectable): string {
   return flow.path;
