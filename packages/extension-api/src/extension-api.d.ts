@@ -434,6 +434,10 @@ declare module '@kortex-app/api' {
      */
     prompt: string;
     instruction: string;
+    model: {
+      providerId: string;
+      label: string;
+    };
     mcp: Array<{
       name: string;
       type: 'streamable_http';
@@ -469,7 +473,7 @@ declare module '@kortex-app/api' {
       /**
        * @experimental expect change
        */
-      generateKubernetesYAML(options: FlowGenerateKubernetesOptions): Promise<FlowGenerateKubernetesResult>
+      generateKubernetesYAML(options: FlowGenerateKubernetesOptions): Promise<FlowGenerateKubernetesResult>;
       /**
        * @experimental expect change
        */
