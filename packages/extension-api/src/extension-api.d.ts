@@ -413,18 +413,17 @@ declare module '@kortex-app/api' {
     path: string;
   }
 
-  export interface FlowDeployKubernetesResult {
+  export interface FlowGenerateKubernetesResult {
     resources: string;
   }
 
-  export interface FlowDeployKubernetesOptions {
-    dryrun: boolean;
+  export interface FlowGenerateKubernetesOptions {
+    flowId: string;
     provider: Provider;
     connection: InferenceProviderConnection;
     hideSecrets: boolean;
     model: InferenceModel;
     namespace: string;
-    flowId: string;
   }
 
   export interface FlowGenerateOptions {
@@ -467,14 +466,14 @@ declare module '@kortex-app/api' {
        * @experimental expect change
        */
       generate(options?: FlowGenerateOptions): Promise<string>;
-
+      /**
+       * @experimental expect change
+       */
+      generateKubernetesYAML(options: FlowGenerateKubernetesOptions): Promise<FlowGenerateKubernetesResult>
       /**
        * @experimental expect change
        */
       execute(flowId: string, logger: Logger): Promise<void>;
-    };
-    deploy?: {
-      kubernetes?(options: FlowDeployKubernetesOptions): Promise<FlowDeployKubernetesResult>;
     };
   }
 
