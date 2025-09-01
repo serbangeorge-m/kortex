@@ -64,6 +64,7 @@ import ManifestDetails from './lib/manifest/ManifestDetails.svelte';
 import CreateNetwork from './lib/network/CreateNetwork.svelte';
 import NetworkDetails from './lib/network/NetworkDetails.svelte';
 import NetworksList from './lib/network/NetworksList.svelte';
+import McpRegistryCreateFromRegistryForm from './lib/mcp/MCPRegistryCreateFromRegistryForm.svelte';
 import McpServerList from './lib/mcp/MCPServerList.svelte';
 import NodeDetails from './lib/node/NodeDetails.svelte';
 import NodesList from './lib/node/NodesList.svelte';
@@ -192,6 +193,9 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         </Route>
         <Route path="/mcps/:id/*" let:meta>
           <MCPDetails id={meta.params.id} />
+        </Route>
+        <Route path="/mcp-install-from-registry/:serverId/*" breadcrumb="Install MCP Server from Registry" let:meta>
+          <McpRegistryCreateFromRegistryForm serverId={meta.params.serverId} />
         </Route>
 
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
