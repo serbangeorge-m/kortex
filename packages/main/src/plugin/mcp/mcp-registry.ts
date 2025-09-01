@@ -128,6 +128,14 @@ export class MCPRegistry {
           continue;
         }
 
+        // client already exists ?
+        const existingServers = await this.mcpManager.listMCPRemoteServers();
+        const existing = existingServers.find(srv => srv.id.includes(server.id ?? 'unknown'));
+        if (existing) {
+          console.log(`[MCPRegistry] MCP client for server ${server.id} already exists, skipping`);
+          continue;
+        }
+
         // create transport
         const transport = new StreamableHTTPClientTransport(new URL(remote.url), {
           requestInit: {
