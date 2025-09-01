@@ -96,13 +96,9 @@ import type { DocumentationInfo } from '/@api/documentation-info.js';
 import type { CatalogExtension } from '/@api/extension-catalog/extensions-catalog-api.js';
 import type { ExtensionDevelopmentFolderInfo } from '/@api/extension-development-folders-info.js';
 import type { ExtensionInfo } from '/@api/extension-info.js';
-<<<<<<< HEAD
 import type { FeaturedExtension } from '/@api/featured/featured-api.js';
 import type { FeedbackMessages, FeedbackProperties, GitHubIssue } from '/@api/feedback.js';
-=======
-import type { FeedbackProperties, GitHubIssue } from '/@api/feedback.js';
 import type { FlowExecuteInfo } from '/@api/flow-execute-info.js';
->>>>>>> 7a427f820be (feat: allow to execute locally goose recipes)
 import type { FlowInfo } from '/@api/flow-info.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
@@ -208,7 +204,7 @@ import { downloadGuideList } from './learning-center/learning-center.js';
 import { LearningCenterInit } from './learning-center-init.js';
 import { LibpodApiInit } from './libpod-api-enable/libpod-api-init.js';
 import { ListOrganizerRegistry } from './list-organizer.js';
-import { MCPRegistry } from './mcp/mcp-registry.js';
+import { INTERNAL_PROVIDER_ID, MCPRegistry } from './mcp/mcp-registry.js';
 import { MessageBox } from './message-box.js';
 import { NavigationItemsInit } from './navigation-items-init.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
@@ -918,7 +914,19 @@ export class PluginSystem {
         _listener,
         providerId: string,
         connectionName: string,
-        options: containerDesktopAPI.FlowGenerateOptions,
+        options: {
+          name: string;
+          description: string;
+          /**
+           * system prompt
+           */
+          prompt: string;
+          instruction: string;
+          /**
+           * MCP ids
+           */
+          mcp: Array<string>;
+        },
       ): Promise<string> => {
         const task = taskManager.createTask({
           title: `Generating flow for ${connectionName}'`,
@@ -931,8 +939,42 @@ export class PluginSystem {
             flowProvider.flowConnections.find(({ name }) => name === connectionName);
           if (!flowConnection) throw new Error(`cannot find flow connection with name ${connectionName}`);
 
+          /**
+           * Painfully recover the headers credentials for a given MCP id
+           */
+          const accumulator: Array<{
+            name: string;
+            type: 'streamable_http';
+            uri: string;
+            headers?: {
+              [key: string]: string;
+            };
+          }> = [];
+          for (const key of options.mcp) {
+            // decompose the id (aka KEY) of the MCP server given by the frontend
+            const { internalProviderId, serverId, remoteId } = mcpManager.decomposeKey(key);
+            // skip non-internal (should not happen)
+            if (internalProviderId !== INTERNAL_PROVIDER_ID) continue;
+
+            // Get the server corresponding to the key
+            const server = mcpManager.get(key);
+            // Collect the credentials
+            const init = await mcpRegistry.getCredentials(serverId, remoteId);
+
+            accumulator.push({
+              name: server.name,
+              type: 'streamable_http',
+              uri: server.url,
+              headers: init.headers ?? {},
+            });
+          }
+
           // Generate the raw string
-          const generated = await flowConnection.flow.generate(options);
+          const generated = await flowConnection.flow.generate({
+            ...options,
+            mcp: accumulator,
+          });
+
           // Save it
           const flowId = await flowConnection.flow.create(generated);
 
@@ -2373,9 +2415,6 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('mcp-registry:getMcpRegistryServers', async (): Promise<readonly MCPServerConfig[]> => {
-      return mcpRegistry.listMCPServersFromRegistries();
-    });
     this.ipcHandle('mcp-registry:getMcpRegistries', async (): Promise<readonly containerDesktopAPI.MCPRegistry[]> => {
       return mcpRegistry.getRegistries();
     });

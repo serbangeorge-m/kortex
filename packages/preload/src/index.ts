@@ -76,15 +76,11 @@ import type { ExploreFeature } from '/@api/explore-feature';
 import type { CatalogExtension } from '/@api/extension-catalog/extensions-catalog-api';
 import type { ExtensionDevelopmentFolderInfo } from '/@api/extension-development-folders-info';
 import type { ExtensionInfo } from '/@api/extension-info';
-<<<<<<< HEAD
 import type { FeaturedExtension } from '/@api/featured/featured-api';
 import type { FeedbackMessages, FeedbackProperties, GitHubIssue } from '/@api/feedback';
 import type { ItemInfo } from '/@api/help-menu';
-=======
-import type { FeedbackProperties, GitHubIssue } from '/@api/feedback';
 import type { FlowExecuteInfo } from '/@api/flow-execute-info';
 import type { FlowInfo } from '/@api/flow-info';
->>>>>>> 7a427f820be (feat: allow to execute locally goose recipes)
 import type { HistoryInfo } from '/@api/history-info';
 import type { IconInfo } from '/@api/icon-info';
 import type { ImageCheckerInfo } from '/@api/image-checker-info';
@@ -139,7 +135,6 @@ import type { ViewInfoUI } from '/@api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info';
 import type { WebviewInfo } from '/@api/webview-info';
 
-import type { FlowInfo } from '/@api/flow-info';
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
 

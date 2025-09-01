@@ -15,18 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-<<<<<<< HEAD
-import type { Disposable, Flow, FlowProviderConnection } from '@kortex-app/api';
-=======
 import type { Disposable, Flow, FlowProviderConnection, Logger } from '@kortex-app/api';
->>>>>>> 7a427f820be (feat: allow to execute locally goose recipes)
 import { inject, injectable, preDestroy } from 'inversify';
 
 import { ProviderRegistry } from '/@/plugin/provider-registry.js';
-<<<<<<< HEAD
-import type { FlowInfo } from '/@api/flow-info.js';
 import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
-=======
 import type { FlowExecuteInfo } from '/@api/flow-execute-info.js';
 import type { FlowInfo } from '/@api/flow-info.js';
 
@@ -54,7 +47,6 @@ class BufferLogger implements Logger {
     this.apiSender.send('flow:current-log');
   }
 }
->>>>>>> 7a427f820be (feat: allow to execute locally goose recipes)
 
 @injectable()
 export class FlowManager implements Disposable {
