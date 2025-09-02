@@ -1,12 +1,7 @@
 <script lang="ts">
-<<<<<<< HEAD
 import { onMount } from 'svelte';
-import { Button, Checkbox, Tab } from '@podman-desktop/ui-svelte';
-=======
 import { Button, Checkbox, Dropdown, Tab } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
-import { onMount } from 'svelte';
->>>>>>> 7a427f820be (feat: allow to execute locally goose recipes)
 import { router } from 'tinro';
 
 import type { ModelInfo } from '/@/lib/chat/components/model-info';
@@ -16,13 +11,12 @@ import { getModels } from '/@/lib/models/models-utils';
 import DetailsPage from '/@/lib/ui/DetailsPage.svelte';
 import { getTabUrl, isTabSelected } from '/@/lib/ui/Util';
 import Route from '/@/Route.svelte';
-import { flowCurrentLogInfo } from '/@/stores/flow-current-log';
 import { executeFlowsInfo } from '/@/stores/flows-execute';
 import { providerInfos } from '/@/stores/providers';
 import type { ProviderFlowConnectionInfo } from '/@api/provider-info';
 
-import TerminalWindow from '../ui/TerminalWindow.svelte';
 import FlowActions from './FlowActions.svelte';
+import FlowDetailsRun from './FlowDetailsRun.svelte';
 
 interface Props {
   providerId: string;
@@ -37,8 +31,6 @@ let connection: ProviderFlowConnectionInfo | undefined = $derived(
   provider?.flowConnections.find(connection => connection.name === connectionName),
 );
 let path = $derived(atob(flowId));
-
-
 
 let flowInfo = $derived({
   providerId,
@@ -62,13 +54,6 @@ const flowExecutions = $derived(
     flow => flow.flowInfo.connectionName === connectionName && flow.flowInfo.providerId === providerId,
   ),
 );
-let currentLogFlowId = $state('');
-let logsTerminal: Terminal;
-
-flowCurrentLogInfo.subscribe(log => {
-  logsTerminal?.clear();
-  logsTerminal?.write(log);
-});
 
 async function deployKubernetes(dryrun: boolean): Promise<void> {
   if (!selectedModel) return;
@@ -102,8 +87,6 @@ onMount(() => {
       flowContent = content;
     })
     .catch(console.error);
-<<<<<<< HEAD
-=======
 
   // when a new execute flow is added, select it
   executeFlowsInfo.subscribe(flows => {
@@ -119,13 +102,7 @@ onMount(() => {
       onLogSelectedChange(currentLogFlowId).catch(console.error);
     }
   });
->>>>>>> 7a427f820be (feat: allow to execute locally goose recipes)
 });
-
-async function onLogSelectedChange(taskId: string): Promise<void> {
-  logsTerminal?.clear();
-  await window.flowDispatchLog(providerId, connectionName, flowId, taskId);
-}
 </script>
 
 <DetailsPage title={path}>
@@ -167,19 +144,8 @@ async function onLogSelectedChange(taskId: string): Promise<void> {
       {/if}
     </Route>
     <Route path="/run" breadcrumb="Run ({flowExecutions.length})" navigationHint="tab">
-      <div class="h-full w-full flex flex-col gap-x-2 items-center">
-          <Dropdown
-        class="text-sm"
-        bind:value={currentLogFlowId}
-        onChange={onLogSelectedChange}
-        options={flowExecutions.map((flowExecution) => ({
-          value: flowExecution.taskId,
-          label: flowExecution.taskId,
-        }))}>
-      </Dropdown>
-        <TerminalWindow class="h-full w-full" bind:terminal={logsTerminal} convertEol disableStdIn />
-      </div>
 
+        <FlowDetailsRun {providerId} {connectionName} {flowId} {flowExecutions} />
     </Route>
 
   {/snippet}
