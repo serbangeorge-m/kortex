@@ -82,9 +82,12 @@ test('Expect that removing the connection is going back to the previous page', a
     flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
+<<<<<<< HEAD
     mcpProviderConnectionCreation: false,
     mcpProviderConnectionInitialization: false,
     mcpConnections: [],
+=======
+>>>>>>> 56886861ff4 (chore: remove deprecated (#179))
   };
 
   providerInfos.set([providerInfo]);
@@ -161,12 +164,9 @@ test('Expect to see error message if action fails', async () => {
     extensionId: '',
     cleanupSupport: false,
     inferenceConnections: [],
-    mcpConnections: [],
     flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
-    mcpProviderConnectionCreation: false,
-    mcpProviderConnectionInitialization: false,
   };
 
   providerInfos.set([providerInfo]);
@@ -233,12 +233,9 @@ test('startProviderConnectionLifecycle is called when addConnectionToRestartingQ
     extensionId: '',
     cleanupSupport: false,
     inferenceConnections: [],
-    mcpConnections: [],
     flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
-    mcpProviderConnectionCreation: false,
-    mcpProviderConnectionInitialization: false,
   };
 
   providerInfos.set([providerInfo]);

@@ -54,12 +54,9 @@ const containerProviderInfo: ProviderInfo = {
   vmProviderConnectionCreation: false,
   vmProviderConnectionInitialization: false,
   inferenceConnections: [],
-  mcpConnections: [],
   flowConnections: [],
   inferenceProviderConnectionCreation: false,
   inferenceProviderConnectionInitialization: false,
-  mcpProviderConnectionCreation: false,
-  mcpProviderConnectionInitialization: false,
 };
 
 const containerConnection: ProviderContainerConnectionInfo = {

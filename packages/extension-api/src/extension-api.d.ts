@@ -641,7 +641,6 @@ declare module '@kortex-app/api' {
     | KubernetesProviderConnection
     | VmProviderConnection
     | InferenceProviderConnection
-    | MCPProviderConnection
     | FlowProviderConnection;
 
   // common set of options for creating a provider
@@ -664,12 +663,6 @@ declare module '@kortex-app/api' {
 
   // create programmatically a InferenceProviderConnection
   export interface InferenceProviderConnectionFactory extends ProviderConnectionFactory {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
-  }
-
-  // create programmatically a MCPProviderConnection
-  export interface MCPProviderConnectionFactory extends ProviderConnectionFactory {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     create(params: { [key: string]: any }, logger?: Logger, token?: CancellationToken): Promise<void>;
   }
@@ -815,22 +808,10 @@ declare module '@kortex-app/api' {
       connectionAuditor?: Auditor,
     ): Disposable;
 
-    /**
-     * @deprecated
-     */
-    setMCPProviderConnectionFactory(
-      providerProviderConnectionFactory: MCPProviderConnectionFactory,
-      connectionAuditor?: Auditor,
-    ): Disposable;
-
     registerContainerProviderConnection(connection: ContainerProviderConnection): Disposable;
     registerKubernetesProviderConnection(connection: KubernetesProviderConnection): Disposable;
     registerVmProviderConnection(connection: VmProviderConnection): Disposable;
     registerInferenceProviderConnection(connection: InferenceProviderConnection): Disposable;
-    /**
-     * @deprecated
-     */
-    registerMCPProviderConnection(connection: MCPProviderConnection): Disposable;
 
     registerFlowProviderConnection(connection: FlowProviderConnection): Disposable;
 
@@ -979,22 +960,6 @@ declare module '@kortex-app/api' {
   }
   export interface UnregisterInferenceConnectionEvent {
     providerId: string;
-  }
-
-  /**
-   * @deprecated
-   */
-  export interface RegisterMCPConnectionEvent {
-    providerId: string;
-    connection: MCPProviderConnection;
-  }
-
-  /**
-   * @deprecated
-   */
-  export interface UnregisterMCPConnectionEvent {
-    providerId: string;
-    connectionName: string;
   }
 
   export interface RegisterFlowConnectionEvent {

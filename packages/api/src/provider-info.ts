@@ -28,7 +28,6 @@ import type {
 } from '@kortex-app/api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete' | 'edit';
-
 export interface ProviderContainerConnectionInfo {
   connectionType: 'container';
   name: string;
@@ -63,21 +62,11 @@ export interface ProviderVmConnectionInfo {
   status: ProviderConnectionStatus;
   lifecycleMethods?: LifecycleMethod[];
 }
-
-export interface ProviderMCPConnectionInfo {
-  connectionType: 'mcp';
-  name: string;
-  status: ProviderConnectionStatus;
-  lifecycleMethods?: LifecycleMethod[];
-}
 export interface ProviderFlowConnectionInfo {
   name: string;
   status: ProviderConnectionStatus;
   lifecycleMethods?: LifecycleMethod[];
   connectionType: 'flow';
-  deploy: {
-    kubernetes: boolean;
-  };
 }
 
 export interface ProviderInferenceConnectionInfo {
@@ -95,7 +84,6 @@ export type ProviderConnectionInfo =
   | ProviderKubernetesConnectionInfo
   | ProviderVmConnectionInfo
   | ProviderInferenceConnectionInfo
-  | ProviderMCPConnectionInfo
   | ProviderFlowConnectionInfo;
 
 export interface ProviderInfo {
@@ -109,7 +97,6 @@ export interface ProviderInfo {
   kubernetesConnections: ProviderKubernetesConnectionInfo[];
   vmConnections: ProviderVmConnectionInfo[];
   inferenceConnections: ProviderInferenceConnectionInfo[];
-  mcpConnections: ProviderMCPConnectionInfo[];
   flowConnections: ProviderFlowConnectionInfo[];
 
   status: ProviderStatus;
@@ -157,18 +144,6 @@ export interface ProviderInfo {
   inferenceProviderConnectionCreationDisplayName?: string;
   // optional creation button title (if defined)
   inferenceProviderConnectionCreationButtonTitle?: string;
-
-  /**
-   * MCP Provider connection
-   */
-  // can create provider connection from MCPProviderConnectionFactory params
-  mcpProviderConnectionCreation: boolean;
-  // can initialize provider connection from MCPProviderConnectionFactory params
-  mcpProviderConnectionInitialization: boolean;
-  // optional creation name (if defined)
-  mcpProviderConnectionCreationDisplayName?: string;
-  // optional creation button title (if defined)
-  mcpProviderConnectionCreationButtonTitle?: string;
 
   // other
   emptyConnectionMarkdownDescription?: string;

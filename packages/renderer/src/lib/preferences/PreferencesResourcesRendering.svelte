@@ -182,22 +182,6 @@ onMount(async () => {
           });
         }
       });
-
-      provider.mcpConnections.forEach(connection => {
-        const mcpConnectionName = getProviderConnectionName(provider, connection);
-        connectionNames.push(mcpConnectionName);
-        // update the map only if the container state is different from last time
-        if (
-          !containerConnectionStatus.has(mcpConnectionName) ||
-          containerConnectionStatus.get(mcpConnectionName)?.status !== connection.status
-        ) {
-          containerConnectionStatus.set(mcpConnectionName, {
-            inProgress: false,
-            action: undefined,
-            status: connection.status,
-          });
-        }
-      });
     });
     // if a machine has been deleted we need to clean its old stored status
     containerConnectionStatus.forEach((v, k) => {
@@ -497,9 +481,77 @@ $effect(() => {
               {/if}
               <span class="my-auto font-semibold text-[var(--pd-invert-content-card-header-text)] ml-3 break-words"
                 >{provider.name}</span>
+<<<<<<< HEAD
               {#if provider.version}
                 <span class="my-auto text-[var(--pd-content-sub-header)] ml-3 break-words"
                   >v{provider.version}</span>
+=======
+            </div>
+            <div class="text-center mt-10">
+              <!-- Some providers have a status of 'unknown' so that they do not appear in the dashboard, this allows onboarding to still show. -->
+              {#if globalContext && isOnboardingEnabled(provider, globalContext) && (provider.status === 'not-installed' || provider.status === 'unknown')}
+                <Button
+                  aria-label="Setup {provider.name}"
+                  title="Setup {provider.name}"
+                  onclick={(): void => router.goto(`/preferences/onboarding/${provider.extensionId}`)}>
+                  Setup ...
+                </Button>
+              {:else}
+                <div class="flex flex-row justify-around flex-wrap gap-2">
+                  {#if provider.containerProviderConnectionCreation
+                  || provider.kubernetesProviderConnectionCreation
+                  || provider.vmProviderConnectionCreation
+                  || provider.inferenceProviderConnectionCreation
+                  }
+                    {@const providerDisplayName =
+                      (provider.containerProviderConnectionCreation
+                        ? (provider.containerProviderConnectionCreationDisplayName ?? undefined)
+                        : provider.kubernetesProviderConnectionCreation
+                          ? provider.kubernetesProviderConnectionCreationDisplayName
+                          : provider.vmProviderConnectionCreation
+                            ? provider.vmProviderConnectionCreationDisplayName
+                            : provider.inferenceProviderConnectionCreation
+                              ? provider.inferenceProviderConnectionCreationDisplayName
+                              : undefined) ?? provider.name}
+                    {@const buttonTitle =
+                      (provider.containerProviderConnectionCreation
+                        ? (provider.containerProviderConnectionCreationButtonTitle ?? undefined)
+                        : provider.kubernetesProviderConnectionCreation
+                          ? provider.kubernetesProviderConnectionCreationButtonTitle
+                          : provider.vmProviderConnectionCreation
+                            ? provider.vmProviderConnectionCreationButtonTitle
+                            : provider.inferenceProviderConnectionCreation
+                              ? provider.inferenceProviderConnectionCreationButtonTitle
+                              : undefined) ?? 'Create new'}
+                    <!-- create new provider button -->
+                    <Tooltip bottom tip="Create new {providerDisplayName}">
+                      <Button
+                        aria-label="Create new {providerDisplayName}"
+                        inProgress={providerInstallationInProgress.get(provider.name)}
+                        onclick={(): Promise<void> => doCreateNew(provider, providerDisplayName)}>
+                        {buttonTitle} ...
+                      </Button>
+                    </Tooltip>
+                  {/if}
+                  {#if globalContext && (isOnboardingEnabled(provider, globalContext) || hasAnyConfiguration(provider))}
+                    <Button
+                      aria-label="Setup {provider.name}"
+                      title="Setup {provider.name}"
+                      onclick={(): void => {
+                        if (globalContext && isOnboardingEnabled(provider, globalContext)) {
+                          router.goto(`/preferences/onboarding/${provider.extensionId}`);
+                        } else {
+                          router.goto(`/preferences/default/preferences.${provider.extensionId}`);
+                        }
+                      }}>
+                      <Fa size="0.9x" icon={faGear} />
+                    </Button>
+                  {/if}
+                  {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
+                    <ProviderUpdateButton onPreflightChecks={(checks): CheckStatus[] => (preflightChecks = checks)} provider={provider} />
+                  {/if}
+                </div>
+>>>>>>> 56886861ff4 (chore: remove deprecated (#179))
               {/if}
             </div>
             <ProviderActionButtons
@@ -728,18 +780,6 @@ $effect(() => {
               provider={provider}
               connection={inferenceConnection}
               connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, inferenceConnection))}
-              updateConnectionStatus={updateContainerStatus}
-              addConnectionToRestartingQueue={addConnectionToRestartingQueue}
-            />
-          </div>
-        {/each}
-        {#each provider.mcpConnections as mcpConnection, index (index)}
-          <div class="px-5 py-2 w-[240px]" role="region" aria-label={mcpConnection.name}>
-            <span>{mcpConnection.name} (MCP)</span>
-            <PreferencesConnectionActions
-              provider={provider}
-              connection={mcpConnection}
-              connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, mcpConnection))}
               updateConnectionStatus={updateContainerStatus}
               addConnectionToRestartingQueue={addConnectionToRestartingQueue}
             />
