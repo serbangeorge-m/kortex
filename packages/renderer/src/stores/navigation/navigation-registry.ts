@@ -32,6 +32,7 @@ import { createNavigationKubernetesGroup } from './navigation-registry-kubernete
 import { createNavigationNetworkEntry } from './navigation-registry-network.svelte';
 import { createNavigationPodEntry } from './navigation-registry-pod.svelte';
 import { createNavigationVolumeEntry } from './navigation-registry-volume.svelte';
+import { createNavigationJobsEntry } from './navigation-registry-jobs.svelte';
 import { createNavigationMcpEntry } from './navigation-registry-mcp.svelte';
 
 export interface NavigationRegistryEntry {
@@ -74,6 +75,7 @@ const init = (): void => {
   values.push(createNavigationMcpEntry());
   values.push(createNavigationExtensionEntry());
   values.push(createNavigationFlowsEntry());
+  values.push(createNavigationJobsEntry());
   values.push(createNavigationExtensionGroup());
   hideItems().catch((err: unknown) => console.error('Error hiding navigation items', err));
 };
