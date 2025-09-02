@@ -1,10 +1,7 @@
 <script lang="ts">
-import { SvelteSet } from 'svelte/reactivity';
 import { faToolbox } from '@fortawesome/free-solid-svg-icons/faToolbox';
 
 import { providerInfos } from '/@/stores/providers';
-import type { ProviderMCPConnectionInfo } from '/@api/provider-info';
-import { faToolbox } from '@fortawesome/free-solid-svg-icons/faToolbox';
 import Fa from 'svelte-fa';
 
 import { cn } from '/@/lib/chat/utils/shadcn';
@@ -22,26 +19,13 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 
-let {
-  selected = $bindable(),
-  class: className,
-  disabled = false,
-}: {
+interface Props {
   selected: MCPRemoteServerInfo[];
   class?: string;
   disabled?: boolean;
-} = $props();
-
-let groups: Map<string, Array<ProviderMCPConnectionInfo>> = $derived(
-  $providerInfos.reduce((accumulator, current) => {
-    if (current.mcpConnections.length > 0) {
-      accumulator.set(current.internalId, current.mcpConnections);
-    }
-    return accumulator;
-  }, new Map()),
-);
-
-let open = $state(false);
+  open?: boolean;
+}
+let { selected = $bindable(), class: className, disabled = false, open = $bindable(false) }: Props = $props();
 
 function onSelect(mcp: MCPRemoteServerInfo, event: Event): void {
   event.preventDefault(); // prevent dropdown to close itself
