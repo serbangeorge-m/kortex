@@ -41,6 +41,7 @@ import type {
   ProviderContainerConnection,
   ProviderDetectionCheck,
   ProviderEvent,
+  ProviderInferenceConnection,
   ProviderInformation,
   ProviderInstallation,
   ProviderLifecycle,
@@ -1735,6 +1736,19 @@ export class ProviderRegistry {
       this.inferenceProviders.delete(id);
       this.apiSender.send('provider-change', {});
     });
+  }
+
+  getInferenceConnections(): ProviderInferenceConnection[] {
+    const connections: ProviderInferenceConnection[] = [];
+    this.providers.forEach(provider => {
+      provider.inferenceConnections.forEach(connection => {
+        connections.push({
+          providerId: provider.id,
+          connection,
+        });
+      });
+    });
+    return connections;
   }
 
   registerFlowConnection(provider: Provider, connection: FlowProviderConnection): Disposable {
