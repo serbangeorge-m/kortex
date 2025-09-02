@@ -460,6 +460,10 @@ declare module '@kortex-app/api' {
       /**
        * @experimental expect change
        */
+      delete(flowId: string): Promise<void>;
+      /**
+       * @experimental expect change
+       */
       read(flowId: string): Promise<string>;
       /**
        * @experimental expect change
