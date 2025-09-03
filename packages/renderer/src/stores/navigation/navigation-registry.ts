@@ -74,7 +74,6 @@ const init = (): void => {
   values.push(createNavigationKubernetesGroup());
   values.push(createNavigationMcpEntry());
   values.push(createNavigationFlowsEntry());
-  values.push(createNavigationJobsEntry());
   values.push(createNavigationExtensionEntry());
   values.push(createNavigationExtensionGroup());
   hideItems().catch((err: unknown) => console.error('Error hiding navigation items', err));
