@@ -34,7 +34,6 @@ import { PeerProperties } from './PeerProperties';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
-import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
 import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRenderingCopyButton.svelte';
 import ProviderActionButtons from './ProviderActionButtons.svelte';
 import SettingsPage from './SettingsPage.svelte';
@@ -49,11 +48,7 @@ import {
 
 let providers = $state<ProviderInfo[]>([]);
 let containerConnectionStatus = new SvelteMap<string, IConnectionStatus>();
-let providerInstallationInProgress = new SvelteMap<string, boolean>();
 let extensionOnboardingEnablement = new SvelteMap<string, string>();
-let displayInstallModal = $state(false);
-let providerToBeInstalled = $state<{ provider: ProviderInfo; displayName: string }>();
-let doExecuteAfterInstallation: () => void;
 let preflightChecks = $state<CheckStatus[]>([]);
 
 let restartingQueue: IConnectionRestart[] = [];
@@ -75,16 +70,6 @@ onMount(async () => {
     providers = providerInfosValue;
     const connectionNames: string[] = [];
     providers.forEach(provider => {
-      if (
-        providerToBeInstalled &&
-        doExecuteAfterInstallation &&
-        provider.name === providerToBeInstalled.provider.name &&
-        (provider.status === 'ready' || provider.status === 'installed')
-      ) {
-        providerToBeInstalled = undefined;
-        doExecuteAfterInstallation();
-      }
-
       provider.containerConnections.forEach(container => {
         const containerConnectionName = getProviderConnectionName(provider, container);
         connectionNames.push(containerConnectionName);
@@ -272,63 +257,6 @@ async function startConnectionProvider(
     loggerHandlerKey,
     eventCollect,
   );
-}
-
-async function doCreateNew(provider: ProviderInfo, displayName: string): Promise<void> {
-  displayInstallModal = false;
-  if (provider.status === 'not-installed') {
-    providerInstallationInProgress.set(provider.name, true);
-    providerToBeInstalled = { provider, displayName };
-    doExecuteAfterInstallation = (): void => router.goto(`/preferences/provider/${provider.internalId}`);
-    await performInstallation(provider);
-  } else {
-    await window.telemetryTrack('createNewProviderConnectionPageRequested', {
-      providerId: provider.id,
-      name: provider.name,
-    });
-    router.goto(`/preferences/provider/${provider.internalId}`);
-  }
-}
-
-async function performInstallation(provider: ProviderInfo): Promise<void> {
-  const checksStatus: CheckStatus[] = [];
-  let checkSuccess = false;
-  let currentCheck: CheckStatus;
-  try {
-    checkSuccess = await window.runInstallPreflightChecks(provider.internalId, {
-      endCheck: status => {
-        if (currentCheck) {
-          currentCheck = status;
-        } else {
-          return;
-        }
-        if (currentCheck.successful === false) {
-          checksStatus.push(currentCheck);
-          preflightChecks = checksStatus;
-        }
-      },
-      startCheck: status => {
-        currentCheck = status;
-        if (currentCheck.successful === false) {
-          preflightChecks = [...checksStatus, currentCheck];
-        }
-      },
-    });
-  } catch (err) {
-    console.error(err);
-  }
-  if (checkSuccess) {
-    await window.installProvider(provider.internalId);
-    // reset checks
-    preflightChecks = [];
-  } else {
-    displayInstallModal = true;
-  }
-  providerInstallationInProgress.set(provider.name, false);
-}
-
-function hideInstallModal(): void {
-  displayInstallModal = false;
 }
 
 function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): boolean {
@@ -524,14 +452,7 @@ $effect(() => {
                               ? provider.inferenceProviderConnectionCreationButtonTitle
                               : undefined) ?? 'Create new'}
                     <!-- create new provider button -->
-                    <Tooltip bottom tip="Create new {providerDisplayName}">
-                      <Button
-                        aria-label="Create new {providerDisplayName}"
-                        inProgress={providerInstallationInProgress.get(provider.name)}
-                        onclick={(): Promise<void> => doCreateNew(provider, providerDisplayName)}>
-                        {buttonTitle} ...
-                      </Button>
-                    </Tooltip>
+                    <CreateProviderConnectionButton {provider} {providerDisplayName} {buttonTitle} bind:preflightChecks={preflightChecks} />
                   {/if}
                   {#if globalContext && (isOnboardingEnabled(provider, globalContext) || hasAnyConfiguration(provider))}
                     <Button
@@ -789,11 +710,4 @@ $effect(() => {
       </div>
     {/each}
   </div>
-  {#if displayInstallModal && providerToBeInstalled}
-    <PreferencesProviderInstallationModal
-      providerToBeInstalled={providerToBeInstalled}
-      preflightChecks={preflightChecks}
-      closeCallback={hideInstallModal}
-      doCreateNew={doCreateNew} />
-  {/if}
 </SettingsPage>
