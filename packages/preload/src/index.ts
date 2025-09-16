@@ -43,7 +43,6 @@ import type {
 } from '@kubernetes/client-node';
 import type { DynamicToolUIPart, UIMessage, UIMessageChunk } from 'ai';
 import { contextBridge, ipcRenderer } from 'electron';
-import type { components } from 'mcp-registry';
 
 import type { ApiSenderType } from '/@api/api-sender/api-sender-type';
 import type { AuthenticationProviderInfo } from '/@api/authentication/authentication';
@@ -107,7 +106,7 @@ import type { Guide } from '/@api/learning-center/guide';
 import type { ContainerCreateOptions as PodmanContainerCreateOptions, PlayKubeInfo } from '/@api/libpod/libpod';
 import type { ListOrganizerItem } from '/@api/list-organizer';
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info';
-import type { MCPRemoteServerInfo } from '/@api/mcp/mcp-server-info';
+import type { MCPRemoteServerInfo, MCPServerDetail } from '/@api/mcp/mcp-server-info';
 import type { Menu } from '/@api/menu.js';
 import { NavigationPage } from '/@api/navigation-page';
 import type { NavigationRequest } from '/@api/navigation-request';
@@ -1764,12 +1763,9 @@ export function initExposure(): void {
     },
   );
 
-  contextBridge.exposeInMainWorld(
-    'getMcpRegistryServers',
-    async (): Promise<components['schemas']['ServerDetail'][]> => {
-      return ipcInvoke('mcp-registry:getMcpRegistryServers');
-    },
-  );
+  contextBridge.exposeInMainWorld('getMcpRegistryServers', async (): Promise<MCPServerDetail[]> => {
+    return ipcInvoke('mcp-registry:getMcpRegistryServers');
+  });
 
   contextBridge.exposeInMainWorld(
     'getMcpToolSet',
