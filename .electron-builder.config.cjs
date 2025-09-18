@@ -165,6 +165,10 @@ const config = {
         context.packager.config.extraResources.push(`${PODMAN_EXTENSION_ASSETS}/podman-image-arm64.zst`);
       }
     }
+    context.packager.config.extraResources.push({
+      from: 'packages/main/src/chat/db/migrations/',
+      to: 'chat/db/migrations',
+    });
   },
   afterPack: async context => {
     await addElectronFuses(context);
