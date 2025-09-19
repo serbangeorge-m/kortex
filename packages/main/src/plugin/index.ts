@@ -51,7 +51,7 @@ import { Container } from 'inversify';
 import type { components } from 'mcp-registry';
 import { lookup } from 'mime-types';
 
-import { IPCHandle, IPCMainOn } from '/@/plugin/api.js';
+import { IPCHandle, IPCMainOn, WebContentsType } from '/@/plugin/api.js';
 import { ContainerfileParser } from '/@/plugin/containerfile-parser.js';
 import { ExtensionApiVersion } from '/@/plugin/extension/extension-api-version.js';
 import { ExtensionLoader } from '/@/plugin/extension/extension-loader.js';
@@ -489,10 +489,13 @@ export class PluginSystem {
 
     // init api sender
     const apiSender = this.getApiSender(this.getWebContentsSender());
+    const webContentsSender = this.getWebContentsSender();
     const container = new Container();
     container.bind<ApiSenderType>(ApiSenderType).toConstantValue(apiSender);
     container.bind<IPCHandle>(IPCHandle).toConstantValue(this.ipcHandle);
     container.bind<IPCMainOn>(IPCMainOn).toConstantValue(this.ipcMainOn);
+    container.bind<WebContents>(WebContentsType).toConstantValue(webContentsSender);
+    container.bind<IPCHandle>(IPCHandle).toConstantValue(this.ipcHandle);
     container.bind<TrayMenu>(TrayMenu).toConstantValue(this.trayMenu);
     container.bind<IconRegistry>(IconRegistry).toSelf().inSingletonScope();
     const directoryStrategy = new DirectoryStrategy();
@@ -567,6 +570,7 @@ export class PluginSystem {
     container.bind<CustomPickRegistry>(CustomPickRegistry).toSelf().inSingletonScope();
     container.bind<OnboardingRegistry>(OnboardingRegistry).toSelf().inSingletonScope();
     container.bind<KubernetesClient>(KubernetesClient).toSelf().inSingletonScope();
+    container.bind<ChatManager>(ChatManager).toSelf().inSingletonScope();
 
     // INIT KUBERNETES
     const kubernetesClient = container.get<KubernetesClient>(KubernetesClient);
@@ -644,7 +648,7 @@ export class PluginSystem {
     const flowManager = container.get<FlowManager>(FlowManager);
     flowManager.init();
 
-    const chatManager = new ChatManager(providerRegistry, mcpManager, this.getWebContentsSender, this.ipcHandle);
+    const chatManager = container.get<ChatManager>(ChatManager);
     chatManager.init();
 
     providerRegistry.addProviderListener((name: string, providerInfo: ProviderInfo) => {
