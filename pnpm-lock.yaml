@@ -386,8 +386,13 @@ importers:
   extensions/gemini:
     dependencies:
       '@ai-sdk/google':
+<<<<<<< HEAD
         specifier: ^2.0.5
         version: 2.0.56(zod@4.3.6)
+=======
+        specifier: ^2.0.15
+        version: 2.0.15(zod@3.25.76)
+>>>>>>> 40dd4b1a2db (chore(deps): bump @ai-sdk/google from 2.0.5 to 2.0.15)
       '@kortex-app/api':
         specifier: workspace:*
         version: link:../../packages/extension-api
@@ -726,8 +731,13 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4
 
+<<<<<<< HEAD
   '@ai-sdk/gateway@1.0.7':
     resolution: {integrity: sha512-Athrq7OARuNc0iHZJP6InhSQ53tImCc990vMWyR1UHaZgPZJbXjKhIMiOj54F0I0Nlemx48V4fHYUTfLkJotnQ==}
+=======
+  '@ai-sdk/google@2.0.15':
+    resolution: {integrity: sha512-zazHbMmpMEEc3vnPxFwwd2VtTTGQohq3FeYzn3zCpV6JSvB6iEvtq+JRWTUzYhTonVI1TVpWwqcH0S7az59/Qg==}
+>>>>>>> 40dd4b1a2db (chore(deps): bump @ai-sdk/google from 2.0.5 to 2.0.15)
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -6358,9 +6368,15 @@ packages:
     resolution: {integrity: sha512-zsFhmbkAzwhTft6nd3VxcG0cvJsT70rL+BIGHWVq5fi6MwGrHwzqKaxXE+Hl2GmnGItnDKPPkO5/LQqjVkIdFg==}
     engines: {node: '>=10'}
 
+<<<<<<< HEAD
   node-abi@4.14.0:
     resolution: {integrity: sha512-E4n91K4Nk1Rch2KzD+edU2bfZTP4W42GypAUDXU4vu1A+4u9PvUNDkGI0dXbsy8ZeF3WGj0SD/uHxnXD/sW+3w==}
     engines: {node: '>=22.12.0'}
+=======
+  node-abi@3.77.0:
+    resolution: {integrity: sha512-DSmt0OEcLoK4i3NuscSbGjOf3bqiDEutejqENSplMSFA/gmB8mkED9G4pKWnPl7MDU4rSHebKPHeitpDfyH0cQ==}
+    engines: {node: '>=10'}
+>>>>>>> 40dd4b1a2db (chore(deps): bump @ai-sdk/google from 2.0.5 to 2.0.15)
 
   node-addon-api@1.7.2:
     resolution: {integrity: sha512-ibPK3iA+vaY1eEjESkQkM0BbCqFOaZMiXRTtdB0u7b4djtY6JnsjvPdUHVMg6xQt3B8fpTTWHI9A+ADjM9frzg==}
@@ -8327,11 +8343,19 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.2(zod@4.3.6)
       zod: 4.3.6
 
+<<<<<<< HEAD
   '@ai-sdk/gateway@1.0.7(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.3(zod@4.3.6)
       zod: 4.3.6
+=======
+  '@ai-sdk/google@2.0.15(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
+      zod: 3.25.76
+>>>>>>> 40dd4b1a2db (chore(deps): bump @ai-sdk/google from 2.0.5 to 2.0.15)
 
   '@ai-sdk/gateway@2.0.49(zod@4.3.6)':
     dependencies:
@@ -14879,6 +14903,10 @@ snapshots:
   node-abi@4.14.0:
     dependencies:
       semver: 7.7.4
+
+  node-abi@3.77.0:
+    dependencies:
+      semver: 7.7.2
 
   node-addon-api@1.7.2:
     optional: true
