@@ -167,8 +167,11 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         <Route path="/" breadcrumb="Chat" navigationHint="root">
           <CustomChat />
         </Route>
-        <Route path="/chat/*" breadcrumb="Chat">
+        <Route path="/chat" breadcrumb="Chat">
           <CustomChat />
+        </Route>
+        <Route path="/chat/:chatId/*" let:meta breadcrumb="Chat">
+          <CustomChat chatId={meta.params.chatId} />
         </Route>
 
         <Route path="/flows" breadcrumb="Flows"  navigationHint="root">
