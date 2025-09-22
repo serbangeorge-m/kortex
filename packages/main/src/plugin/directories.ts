@@ -26,4 +26,5 @@ export interface Directories {
   getSafeStorageDirectory(): string;
   getDataDirectory(): string;
   getManagedDefaultsDirectory(): string;
+  getChatPersistenceDirectory(): string;
 }
