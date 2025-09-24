@@ -387,12 +387,17 @@ importers:
     dependencies:
       '@ai-sdk/google':
 <<<<<<< HEAD
+<<<<<<< HEAD
         specifier: ^2.0.5
         version: 2.0.56(zod@4.3.6)
 =======
         specifier: ^2.0.15
         version: 2.0.15(zod@3.25.76)
 >>>>>>> 40dd4b1a2db (chore(deps): bump @ai-sdk/google from 2.0.5 to 2.0.15)
+=======
+        specifier: ^2.0.16
+        version: 2.0.16(zod@3.25.76)
+>>>>>>> 965c2a20d5f (chore(deps): bump @ai-sdk/google from 2.0.15 to 2.0.16)
       '@kortex-app/api':
         specifier: workspace:*
         version: link:../../packages/extension-api
@@ -741,6 +746,7 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4
 
+<<<<<<< HEAD
   '@ai-sdk/gateway@1.0.5':
     resolution: {integrity: sha512-GOhxiHm2nfuS618Ia13AWxEIhCsj5+tFaw6sjSO7pvMZT03QgFAJyX4xBYj+3i3mfIvw+yJOvyhVu1fI+pAHQA==}
     engines: {node: '>=18'}
@@ -754,6 +760,10 @@ packages:
   '@ai-sdk/google@2.0.15':
     resolution: {integrity: sha512-zazHbMmpMEEc3vnPxFwwd2VtTTGQohq3FeYzn3zCpV6JSvB6iEvtq+JRWTUzYhTonVI1TVpWwqcH0S7az59/Qg==}
 >>>>>>> 40dd4b1a2db (chore(deps): bump @ai-sdk/google from 2.0.5 to 2.0.15)
+=======
+  '@ai-sdk/google@2.0.16':
+    resolution: {integrity: sha512-VN9QO1syIyKxYfAiS5QPZkw0caV6n/mmyvJui3T+lkhGPS2RXTv7nDrtRv8TroNzdPcPWoaZMgJRJD2W7oEZ+g==}
+>>>>>>> 965c2a20d5f (chore(deps): bump @ai-sdk/google from 2.0.15 to 2.0.16)
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -8386,6 +8396,7 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
       zod: 3.25.76
 
+<<<<<<< HEAD
   '@ai-sdk/gateway@1.0.5(zod@3.25.76)':
 >>>>>>> 52031247929 (chore(deps): bump @ai-sdk/svelte from 3.0.11 to 3.0.48)
     dependencies:
@@ -8401,6 +8412,9 @@ snapshots:
       zod: 4.3.6
 =======
   '@ai-sdk/google@2.0.15(zod@3.25.76)':
+=======
+  '@ai-sdk/google@2.0.16(zod@3.25.76)':
+>>>>>>> 965c2a20d5f (chore(deps): bump @ai-sdk/google from 2.0.15 to 2.0.16)
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
