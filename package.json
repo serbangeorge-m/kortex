@@ -84,6 +84,7 @@
     "@kortex-app/api": "workspace:",
     "@playwright/test": "1.57.0",
     "@rollup/plugin-commonjs": "^29.0.0",
+    "@kortex-hub/mcp-registry-types": "^1.1.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@tsconfig/strictest": "^2.0.8",
