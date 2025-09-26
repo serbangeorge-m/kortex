@@ -4,6 +4,7 @@ packages:
   - 'extensions/*'
   - 'extensions/*/packages/*'
   - 'scripts'
+  - 'tests/playwright'
 onlyBuiltDependencies:
   - '@biomejs/biome'
   - core-js
