@@ -188,9 +188,6 @@ importers:
       '@kortex-hub/mcp-registry-types':
         specifier: ^1.1.0
         version: 1.1.0
-      '@playwright/test':
-        specifier: 1.54.2
-        version: 1.54.2
       '@rollup/plugin-commonjs':
         specifier: ^28.0.6
         version: 28.0.6(rollup@4.46.2)
@@ -672,6 +669,18 @@ importers:
         version: 2.8.1
 
   packages/webview-api: {}
+
+  tests/playwright:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.54.2
+        version: 1.54.2
+      '@types/node':
+        specifier: ^22
+        version: 22.18.6
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
 
 packages:
 
@@ -9071,24 +9080,24 @@ snapshots:
 
   '@types/adm-zip@0.5.7':
     dependencies:
-      '@types/node': 22.17.0
+      '@types/node': 22.18.6
 
   '@types/aria-query@5.0.4': {}
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
-      '@types/node': 22.17.0
+      '@types/node': 22.18.6
 
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/cacheable-request@6.0.3':
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
       '@types/responselike': 1.0.3
 
   '@types/chai@5.2.2':
@@ -9097,11 +9106,11 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/conventional-commits-parser@5.0.1':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/cookie@0.6.0': {}
 
@@ -9113,20 +9122,20 @@ snapshots:
 
   '@types/docker-modem@3.0.6':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
       '@types/ssh2': 1.15.5
 
   '@types/dockerode@3.3.42':
     dependencies:
       '@types/docker-modem': 3.0.6
-      '@types/node': 22.17.0
+      '@types/node': 22.18.6
       '@types/ssh2': 1.15.5
 
   '@types/estree@1.0.8': {}
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -9140,7 +9149,7 @@ snapshots:
 
   '@types/fs-extra@9.0.13':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/getos@3.0.4': {}
 
@@ -9162,7 +9171,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/mdast@4.0.4':
     dependencies:
@@ -9178,7 +9187,7 @@ snapshots:
 
   '@types/node-fetch@2.6.12':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
       form-data: 4.0.4
 
   '@types/node@18.19.122':
@@ -9196,7 +9205,6 @@ snapshots:
   '@types/node@22.18.6':
     dependencies:
       undici-types: 6.21.0
-    optional: true
 
   '@types/node@24.1.0':
     dependencies:
@@ -9214,7 +9222,7 @@ snapshots:
 
   '@types/plist@3.0.5':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
       xmlbuilder: 15.1.1
     optional: true
 
@@ -9228,19 +9236,19 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/semver@7.7.0': {}
 
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
       '@types/send': 0.17.4
 
   '@types/ssh2@1.15.5':
@@ -9251,29 +9259,29 @@ snapshots:
 
   '@types/stream-buffers@3.0.7':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/stream-chain@2.1.0':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/stream-json@1.7.8':
     dependencies:
-      '@types/node': 22.17.0
+      '@types/node': 22.18.6
       '@types/stream-chain': 2.1.0
 
   '@types/tar-fs@2.0.4':
     dependencies:
-      '@types/node': 22.17.0
+      '@types/node': 22.18.6
       '@types/tar-stream': 3.1.3
 
   '@types/tar-stream@3.1.3':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
 
   '@types/tar@6.1.13':
     dependencies:
-      '@types/node': 22.17.0
+      '@types/node': 22.18.6
       minipass: 4.2.8
 
   '@types/tough-cookie@4.0.5': {}
@@ -9295,7 +9303,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 22.17.0
+      '@types/node': 22.18.6
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -9305,7 +9313,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.39.1(@typescript-eslint/parser@8.39.1(eslint@9.33.0(jiti@2.4.2))(typescript@5.9.2))(eslint@9.33.0(jiti@2.4.2))(typescript@5.9.2)':
@@ -13740,7 +13748,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 22.17.1
+      '@types/node': 22.18.6
       long: 5.3.2
 
   proxy-addr@2.0.7:
