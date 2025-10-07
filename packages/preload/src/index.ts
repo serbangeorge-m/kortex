@@ -46,6 +46,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 import type { ApiSenderType } from '/@api/api-sender/api-sender-type';
 import type { AuthenticationProviderInfo } from '/@api/authentication/authentication';
+import type { FlowGenerationParameters } from '/@api/chat/flow-generation-parameters-schema';
 import type { InferenceParameters } from '/@api/chat/InferenceParameters.js';
 import type { Chat, Message } from '/@api/chat/schema.js';
 import type { CliToolInfo } from '/@api/cli-tool-info';
@@ -1212,7 +1213,7 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'inferenceGenerateFlowParams',
-    async (params: InferenceParameters): Promise<{ prompt: string }> => {
+    async (params: InferenceParameters): Promise<FlowGenerationParameters> => {
       return ipcInvoke('inference:generateFlowParams', params);
     },
   );
