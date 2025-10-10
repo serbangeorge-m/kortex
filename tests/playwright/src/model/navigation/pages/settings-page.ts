@@ -70,5 +70,6 @@ export class SettingsPage extends BasePage {
   async selectPreference(option: PreferenceOption): Promise<void> {
     const preferencesNav = this.page.getByRole('navigation', { name: 'PreferencesNavigation' });
     await preferencesNav.getByRole('link', { name: option }).click();
+    await this.page.getByText(option, { exact: true }).first().waitFor({ state: 'visible' });
   }
 }

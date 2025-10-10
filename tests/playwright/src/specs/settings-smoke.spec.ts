@@ -29,19 +29,26 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('Settings page navigation', { tag: '@smoke' }, () => {
-  test('All settings tabs are visible', async () => {
+  test('[TC-01] All settings tabs are visible', async () => {
     await expect(settingsPage.resourcesTab).toBeVisible();
     await expect(settingsPage.cliToolsTab).toBeVisible();
     await expect(settingsPage.proxyTab).toBeVisible();
     await expect(settingsPage.preferencesTab).toBeVisible();
   });
 
-  test('Preferences submenu items are visible and can be interacted with', async ({ page }) => {
+  test('[TC-02] Preferences submenu items are visible and can be interacted with', async ({ page }) => {
     await settingsPage.goToPreferences();
     const preferencesNav = page.getByRole('navigation', { name: 'PreferencesNavigation' });
+
     for (const option of preferenceOptions) {
       await expect(preferencesNav.getByRole('link', { name: option })).toBeVisible();
       await settingsPage.selectPreference(option);
     }
+  });
+
+  test('[TC-03] CLI tab shows goose CLI tool', async ({ page }) => {
+    await settingsPage.goToCliTools();
+    await expect(page.getByLabel('cli-name')).toBeVisible();
+    await expect(page.getByLabel('cli-name')).toHaveText('goose');
   });
 });
