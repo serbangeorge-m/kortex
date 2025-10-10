@@ -15,8 +15,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { expect, test } from './fixtures/electron-app';
-import { NavigationBar } from './model/navigation/navigation';
+import { expect, test } from '../fixtures/electron-app';
+import { NavigationBar } from '../model/navigation/navigation';
 
 let navigationBar: NavigationBar;
 
