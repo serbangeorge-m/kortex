@@ -198,7 +198,7 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
           <MCPDetails id={meta.params.id} />
         </Route>
         <Route path="/mcp-install-from-registry/:serverId/*" breadcrumb="Install MCP Server from Registry" let:meta>
-          <McpRegistryCreateFromRegistryForm serverId={meta.params.serverId} />
+          <McpRegistryCreateFromRegistryForm serverId={decodeURIComponent(meta.params.serverId)} />
         </Route>
 
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
