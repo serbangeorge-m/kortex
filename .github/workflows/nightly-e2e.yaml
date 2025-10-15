@@ -38,6 +38,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     if: ${{ github.event_name == 'schedule' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'windows' }}
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
@@ -94,6 +95,18 @@ jobs:
           require_tests: true
           report_paths: '**/*results.xml'
 
+      - name: Advanced Test Metrics Analysis
+        uses: serbangeorge-m/test-metrics-action@main
+        if: always()
+        with:
+          report_paths: '**/*results.xml'
+          test_framework: 'junit'
+          fail_on_failure: false
+          detailed_summary: true
+          require_tests: false
+          retention_days: 30
+          cache_key_prefix: 'kortex-nightly-e2e'
+
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -107,6 +120,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     if: ${{ github.event_name == 'schedule' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos' }}
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
@@ -163,14 +177,6 @@ jobs:
           require_tests: true
           report_paths: '**/*results.xml'
 
-      - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: results-e2e-${{ matrix.os }}-${{ matrix.mode }}
-          path: |
-            tests/**/output/*
-
       - name: Advanced Test Metrics Analysis
         uses: serbangeorge-m/test-metrics-action@main
         if: always()
@@ -182,3 +188,11 @@ jobs:
           require_tests: false
           retention_days: 30
           cache_key_prefix: 'kortex-nightly-e2e'
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-e2e-${{ matrix.os }}-${{ matrix.mode }}
+          path: |
+            tests/**/output/*
