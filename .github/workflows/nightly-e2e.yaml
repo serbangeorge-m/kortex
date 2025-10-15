@@ -170,3 +170,15 @@ jobs:
           name: results-e2e-${{ matrix.os }}-${{ matrix.mode }}
           path: |
             tests/**/output/*
+
+      - name: Advanced Test Metrics Analysis
+        uses: serbangeorge-m/test-metrics-action@v1
+        if: always()
+        with:
+          report_paths: '**/*results.xml'
+          test_framework: 'junit'
+          fail_on_failure: false
+          detailed_summary: true
+          require_tests: false
+          retention_days: 30
+          cache_key_prefix: 'kortex-nightly-e2e'
