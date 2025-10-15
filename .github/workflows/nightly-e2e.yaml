@@ -172,7 +172,7 @@ jobs:
             tests/**/output/*
 
       - name: Advanced Test Metrics Analysis
-        uses: serbangeorge-m/test-metrics-action@77b5e0665b60f03729e95485c7a9d240dcb49d54
+        uses: serbangeorge-m/test-metrics-action@main
         if: always()
         with:
           report_paths: '**/*results.xml'
