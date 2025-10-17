@@ -15,17 +15,25 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import { expect, test } from '../fixtures/electron-app';
+import { NavigationBar } from '../model/navigation/navigation';
 
-import type { Page } from '@playwright/test';
+let navigationBar: NavigationBar;
 
-export abstract class BasePage {
-  readonly page: Page;
+test.beforeEach(async ({ page }) => {
+  navigationBar = new NavigationBar(page);
+});
 
-  constructor(page: Page) {
-    this.page = page;
-  }
+test.describe.serial('App start', { tag: '@smoke' }, () => {
+  test('[TC-01] Initial Dashboard page is displayed', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: 'No AI Models Available' })).toBeVisible({ timeout: 30_000 });
+  });
 
-  public getPage(): Page {
-    return this.page;
-  }
-}
+  test('[TC-02] Navigation bar and its items are visible', async () => {
+    await expect(navigationBar.navigationLocator).toBeVisible();
+
+    for (const link of navigationBar.getAllLinks()) {
+      await expect(link).toBeVisible();
+    }
+  });
+});

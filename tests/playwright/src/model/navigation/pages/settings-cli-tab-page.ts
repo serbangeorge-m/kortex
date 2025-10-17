@@ -16,16 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
-export abstract class BasePage {
-  readonly page: Page;
+import { BasePage } from './base-page';
+
+export class SettingsCliPage extends BasePage {
+  readonly toolName: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
+    this.toolName = page.getByLabel('cli-name');
   }
 
-  public getPage(): Page {
-    return this.page;
+  async waitForLoad(): Promise<void> {
+    await expect(this.toolName).toBeVisible();
   }
 }
