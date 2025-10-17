@@ -54,9 +54,13 @@ export enum ExtensionStatus {
   UNKNOWN = 'unknown',
 }
 
-export class ExtensionsInstalledTabPage extends BasePage {
+export class ExtensionsInstalledPage extends BasePage {
   constructor(page: Page) {
     super(page);
+  }
+
+  async waitForLoad(): Promise<void> {
+    await expect(this.getExtension(builtInExtensions[0].locator)).toBeVisible();
   }
 
   getExtension(locator: ExtensionLocator): Locator {

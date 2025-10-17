@@ -31,6 +31,7 @@ let extensionsPage: ExtensionsPage;
 test.beforeEach(async ({ page }) => {
   navigationBar = new NavigationBar(page);
   extensionsPage = new ExtensionsPage(page);
+  await expect(navigationBar.navigationLocator).toBeVisible({ timeout: 30_000 });
   await navigationBar.extensionsLink.click();
 });
 
@@ -54,25 +55,25 @@ test.describe('Extensions page navigation', { tag: '@smoke' }, () => {
   });
 
   test('[TC-03] Built-in extensions lifecycle and controls validation', async () => {
-    await extensionsPage.installedTab.click();
+    const installedPage = await extensionsPage.openInstalled();
     for (const extension of builtInExtensions) {
-      await expect(extensionsPage.installedPage.getExtension(extension.locator)).toBeVisible();
-      const badge = extensionsPage.installedPage.getExtensionBadge(extension.locator);
+      await expect(installedPage.getExtension(extension.locator)).toBeVisible();
+      const badge = installedPage.getExtensionBadge(extension.locator);
       await expect(badge).toBeVisible();
       await expect(badge).toHaveText(BADGE_TEXT);
-      const initialState = await extensionsPage.installedPage.getExtensionState(extension.locator);
-      const deleteButton = extensionsPage.installedPage.getExtensionButton(extension.locator, Button.DELETE);
+      const deleteButton = installedPage.getExtensionButton(extension.locator, Button.DELETE);
       await expect(deleteButton).toBeVisible();
       await expect(deleteButton).toBeDisabled();
+      const initialState = await installedPage.getExtensionState(extension.locator);
       if (initialState === ExtensionStatus.RUNNING) {
-        await extensionsPage.installedPage.stopExtensionAndVerify(extension.locator);
+        await installedPage.stopExtensionAndVerify(extension.locator);
         await expect(deleteButton).toBeDisabled();
-        await extensionsPage.installedPage.startExtensionAndVerify(extension.locator);
+        await installedPage.startExtensionAndVerify(extension.locator);
         await expect(deleteButton).toBeDisabled();
       } else if (initialState === ExtensionStatus.STOPPED) {
-        await extensionsPage.installedPage.startExtensionAndVerify(extension.locator);
+        await installedPage.startExtensionAndVerify(extension.locator);
         await expect(deleteButton).toBeDisabled();
-        await extensionsPage.installedPage.stopExtensionAndVerify(extension.locator);
+        await installedPage.stopExtensionAndVerify(extension.locator);
         await expect(deleteButton).toBeDisabled();
       }
     }

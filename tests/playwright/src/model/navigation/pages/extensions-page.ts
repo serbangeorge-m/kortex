@@ -20,10 +20,8 @@ import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 import { BasePage } from './base-page';
-import { ExtensionsCatalogTabPage } from './extensions-catalog-tab-page';
 import { builtInExtensions, type ExtensionLocator } from './extensions-installed-tab-page';
-import { ExtensionsInstalledTabPage } from './extensions-installed-tab-page';
-import { ExtensionsLocalTabPage } from './extensions-local-tab-page';
+import { ExtensionsInstalledPage } from './extensions-installed-tab-page';
 
 export class ExtensionsPage extends BasePage {
   readonly searchField: Locator;
@@ -39,16 +37,11 @@ export class ExtensionsPage extends BasePage {
     this.localExtensionsTab = page.getByRole('button', { name: 'Local Extensions', exact: true });
   }
 
-  get installedPage(): ExtensionsInstalledTabPage {
-    return new ExtensionsInstalledTabPage(this.page);
-  }
-
-  get catalogPage(): ExtensionsCatalogTabPage {
-    return new ExtensionsCatalogTabPage(this.page);
-  }
-
-  get localPage(): ExtensionsLocalTabPage {
-    return new ExtensionsLocalTabPage(this.page);
+  async openInstalled(): Promise<ExtensionsInstalledPage> {
+    await this.installedTab.click();
+    const installedPage = new ExtensionsInstalledPage(this.page);
+    await installedPage.waitForLoad();
+    return installedPage;
   }
 
   getAllTabs(): Locator[] {
@@ -64,11 +57,12 @@ export class ExtensionsPage extends BasePage {
   }
 
   async verifySearchResults(searchedExtensionLocator: ExtensionLocator): Promise<void> {
-    await expect(this.installedPage.getExtension(searchedExtensionLocator)).toBeVisible();
+    const installedPage = new ExtensionsInstalledPage(this.page);
+    await expect(installedPage.getExtension(searchedExtensionLocator)).toBeVisible();
     for (const otherExtension of builtInExtensions.filter(
       extension => extension.locator !== searchedExtensionLocator,
     )) {
-      await expect(this.installedPage.getExtension(otherExtension.locator)).not.toBeVisible();
+      await expect(installedPage.getExtension(otherExtension.locator)).not.toBeVisible();
     }
   }
 }
