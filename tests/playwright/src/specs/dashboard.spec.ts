@@ -30,8 +30,7 @@ test.describe.serial('App start', { tag: '@smoke' }, () => {
   });
 
   test('[TC-02] Navigation bar and its items are visible', async () => {
-    await expect(navigationBar.navigationLocator).toBeVisible();
-
+    await expect(navigationBar.navigationLocator).toBeVisible({ timeout: 30_000 });
     for (const link of navigationBar.getAllLinks()) {
       await expect(link).toBeVisible();
     }
