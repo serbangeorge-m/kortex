@@ -37,6 +37,8 @@ const config: PlaywrightTestConfig = {
     trace: 'retain-on-failure',
   },
 
+  preserveOutput: 'failures-only',
+
   projects: [
     {
       name: 'Electron',
