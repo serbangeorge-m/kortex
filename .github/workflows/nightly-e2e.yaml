@@ -100,12 +100,13 @@ jobs:
         if: always()
         with:
           report_paths: '**/*results.xml'
+          artifact_suffix: ${{ matrix.os }}-${{ matrix.mode }}-e2e-tests
           test_framework: 'junit'
           fail_on_failure: false
           detailed_summary: true
           require_tests: false
           retention_days: 30
-          cache_key_prefix: 'kortex-nightly-e2e'
+          cache_key_prefix: 'kortex-nightly-e2e-${{ matrix.os }}-${{ matrix.mode }}'
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
@@ -182,12 +183,13 @@ jobs:
         if: always()
         with:
           report_paths: '**/*results.xml'
+          artifact_suffix: ${{ matrix.os }}-${{ matrix.mode }}-e2e-tests
           test_framework: 'junit'
           fail_on_failure: false
           detailed_summary: true
           require_tests: false
           retention_days: 30
-          cache_key_prefix: 'kortex-nightly-e2e'
+          cache_key_prefix: 'kortex-nightly-e2e-${{ matrix.os }}-${{ matrix.mode }}'
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
