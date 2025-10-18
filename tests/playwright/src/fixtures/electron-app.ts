@@ -69,18 +69,14 @@ export const test = base.extend<ElectronFixtures>({
 
   page: async ({ electronApp }, use) => {
     await new Promise(resolve => setTimeout(resolve, 3000));
-    console.log('Waiting for first window to appear...');
     let page: Page;
     try {
       page = await electronApp.firstWindow({ timeout: 90_000 });
-      console.log('First window appeared successfully');
     } catch (error) {
       console.error('Failed to get first window:', error);
       throw error;
     }
-    console.log('Waiting for page to load...');
     await page.waitForLoadState('domcontentloaded', { timeout: 30_000 });
-    console.log('Page loaded successfully');
     await use(page);
   },
 });
