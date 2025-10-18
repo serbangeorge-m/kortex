@@ -77,6 +77,7 @@ export const test = base.extend<ElectronFixtures>({
       throw error;
     }
     await page.waitForLoadState('domcontentloaded', { timeout: 30_000 });
+    await page.waitForLoadState('networkidle', { timeout: 60_000 });
     await use(page);
   },
 });
