@@ -68,9 +68,23 @@ export const test = base.extend<ElectronFixtures>({
   },
 
   page: async ({ electronApp }, use) => {
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    const page = await electronApp.firstWindow();
-    await page.waitForLoadState('domcontentloaded');
+    let page: Page;
+    try {
+      page = await electronApp.firstWindow({ timeout: 120_000 });
+    } catch (error) {
+      console.error('Failed to get first window:', error);
+      throw error;
+    }
+    await page.waitForLoadState('load', { timeout: 90_000 });
+    try {
+      await page.waitForSelector('main', { timeout: 30_000, state: 'attached' });
+    } catch (error) {
+      const url = page.url();
+      const isClosed = page.isClosed();
+      console.error('Page fixture failed - main element not found:', { url, isClosed });
+      throw error;
+    }
+
     await use(page);
   },
 });
