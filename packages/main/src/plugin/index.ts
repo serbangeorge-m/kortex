@@ -889,18 +889,6 @@ export class PluginSystem {
       return containerProviderRegistry.listPods();
     });
 
-    this.ipcHandle('flows:list', async (_listener): Promise<Array<FlowInfo>> => {
-      return flowManager.all();
-    });
-
-    this.ipcHandle('flows:listExecute', async (_listener): Promise<Array<FlowExecuteInfo>> => {
-      return flowManager.listExecutions();
-    });
-
-    this.ipcHandle('flows:getLogCurrent', async (_listener): Promise<string> => {
-      return flowManager.getLogCurrent();
-    });
-
     this.ipcHandle(
       'flows:delete',
       async (_listener, providerId: string, connectionName: string, flowId: string): Promise<void> => {
@@ -926,13 +914,6 @@ export class PluginSystem {
         if (!flowConnection) throw new Error(`cannot find flow connection with name ${connectionName}`);
 
         return flowConnection.flow.read(flowId);
-      },
-    );
-
-    this.ipcHandle(
-      'flows:dispatchLog',
-      async (_listener, providerId: string, connectionName: string, flowId: string, taskId: string): Promise<void> => {
-        return flowManager.dispatchLog(providerId, connectionName, flowId, taskId);
       },
     );
 
@@ -1047,25 +1028,6 @@ export class PluginSystem {
         return resources;
       },
     );
-
-    this.ipcHandle(
-      'flows:execute',
-      async (
-        _listener,
-        flow: {
-          providerId: string;
-          connectionName: string;
-          flowId: string;
-        },
-      ): Promise<string> => {
-        // Get the flow provider to use
-        return flowManager.execute(flow.providerId, flow.connectionName, flow.flowId);
-      },
-    );
-
-    this.ipcHandle('flows:refresh', async (): Promise<void> => {
-      return flowManager.refresh();
-    });
 
     this.ipcHandle('container-provider-registry:listNetworks', async (): Promise<NetworkInspectInfo[]> => {
       return containerProviderRegistry.listNetworks();
