@@ -49,6 +49,7 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderKubernetesConnectionInfo,
   ProviderVmConnectionInfo,
+import type { SchedulerRegistry } from '/@/plugin/scheduler/scheduler-registry.js';
 } from '/@api/provider-info.js';
 
 import type { AutostartEngine } from './autostart-engine.js';
@@ -65,6 +66,8 @@ let autostartEngine: AutostartEngine;
 const apiSenderSendMock = vi.fn();
 
 let containerRegistry: ContainerProviderRegistry;
+
+let schedulerRegistry: SchedulerRegistry;
 
 class TestProviderRegistry extends ProviderRegistry {
   getKubernetesProviders(): Map<string, KubernetesProviderConnection> {
@@ -96,7 +99,11 @@ beforeEach(() => {
     isApiAttached: vi.fn(),
     onApiAttached: vi.fn(),
   } as unknown as ContainerProviderRegistry;
-  providerRegistry = new TestProviderRegistry(apiSender, containerRegistry, telemetry);
+  schedulerRegistry = {
+    register: vi.fn(),
+  } as unknown as SchedulerRegistry;
+
+  providerRegistry = new TestProviderRegistry(apiSender, containerRegistry, telemetry, schedulerRegistry);
   autostartEngine = {
     registerProvider: vi.fn(),
   } as unknown as AutostartEngine;
