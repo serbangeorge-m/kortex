@@ -140,7 +140,14 @@ export class SafeStorage {
   getDecrypted(key: string): string | undefined {
     const value = this.#data[key];
     if (value) {
-      return this.decrypt(value);
+      try {
+        return this.decrypt(value);
+      } catch (error) {
+        if (process.env['NODE_ENV'] === 'development' || process.env['CI']) {
+          console.warn('[SafeStorage] Decryption failed, returning undefined');
+        }
+        return undefined;
+      }
     }
     return undefined;
   }
