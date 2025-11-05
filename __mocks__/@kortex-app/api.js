@@ -28,6 +28,7 @@ const cli = {
   createCliTool: vi.fn(),
 };
 
+<<<<<<< HEAD
 const commands = {
   registerCommand: vi.fn(),
 };
@@ -46,6 +47,10 @@ const containerEngine = {
 
 const context = {
   setValue: vi.fn(),
+=======
+const provider = {
+  createProvider: vi.fn(),
+>>>>>>> de03ad0a8f9 (chore: add more mocking for unit tests)
 };
 
 const env = {
@@ -68,17 +73,22 @@ const kubernetes = {
 const net = {
   getFreePort: vi.fn(),
 };
-
 const process = {
   exec: vi.fn(),
 };
 
+<<<<<<< HEAD
 const eventEmitterListeners = [];
+=======
+const EventEmitter = vi.fn();
+const Disposable = { dispose: vi.fn() };
+>>>>>>> de03ad0a8f9 (chore: add more mocking for unit tests)
 
 const extensions = {
   getExtension: vi.fn(),
 };
 
+<<<<<<< HEAD
 const proxy = {
   isEnabled: vi.fn(),
   onDidUpdateProxy: vi.fn(),
@@ -167,4 +177,23 @@ beforeEach(() => {
   eventEmitterListeners.length = 0;
 });
 
+=======
+const init = () => {
+  EventEmitter.mockImplementation(() => {
+    const listeners = [];
+    return {
+      event: vi.fn(callback => {
+        listeners.push(callback);
+      }),
+      fire: vi.fn(data => {
+        listeners.forEach(listener => listener(data));
+      }),
+      dispose: vi.fn(),
+    };
+  });
+};
+
+const plugin = { init, env, extensions, process, mcpRegistry, provider, EventEmitter, Disposable };
+init();
+>>>>>>> de03ad0a8f9 (chore: add more mocking for unit tests)
 module.exports = plugin;
