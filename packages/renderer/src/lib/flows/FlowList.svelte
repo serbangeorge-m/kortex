@@ -20,14 +20,15 @@ const row = new TableRow<FlowSelectable>({
   selectable: (_): boolean => false,
 });
 
-const itemColumn = new TableColumn<FlowSelectable>('flow', {
+const itemColumn = new TableColumn<FlowSelectable>('', {
   width: '40px',
   renderer: FlowIcon,
 });
 
-let pathColumn = new TableColumn<FlowSelectable>('Path', {
+let pathColumn = new TableColumn<FlowSelectable>('Flow', {
   width: '2fr',
   renderer: FlowName,
+  comparator: (a, b): number => a.name.localeCompare(b.name),
 });
 
 const flowActions = new TableColumn<FlowSelectable>('Actions', {
@@ -69,10 +70,10 @@ function navigateToCreateFlow(): void {
         {:else}
           <Table
             kind="flows"
-            data={$flowsInfos.map((flow) => ({ ...flow, selected: false, name: flow.path }))}
+            data={$flowsInfos.map((flow) => ({ ...flow, selected: false }))}
             columns={columns}
             row={row}
-            defaultSortColumn="Path"
+            defaultSortColumn="Flow"
             key={key}
           />
         {/if}
