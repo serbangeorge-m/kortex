@@ -16,14 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface FlowInfo {
-  /**
-   * The provider id (not the internalId)
-   */
-  providerId: string;
-  connectionName: string;
+import '@testing-library/jest-dom/vitest';
 
-  id: string;
-  path: string;
-  name: string;
-}
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import type { FlowInfo } from '/@api/flow-info';
+
+import FlowName from './FlowName.svelte';
+
+test('Display flow name as main text and flow path as secondary text', () => {
+  const flowInfo: FlowInfo = {
+    providerId: 'provider1',
+    connectionName: 'connection1',
+    id: 'flow1',
+    path: '/some/path',
+    name: 'Flow 1',
+  };
+  render(FlowName, { object: flowInfo });
+
+  expect(screen.getByText('/some/path')).toBeInTheDocument();
+  expect(screen.getByText('Flow 1')).toBeInTheDocument();
+});
