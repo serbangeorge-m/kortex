@@ -383,6 +383,37 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
 
+  extensions/container/packages/api:
+    dependencies:
+      '@kortex-app/api':
+        specifier: workspace:*
+        version: link:../../../../packages/extension-api
+
+  extensions/container/packages/extension:
+    dependencies:
+      inversify:
+        specifier: ^7.7.1
+        version: 7.7.1(reflect-metadata@0.2.2)
+    devDependencies:
+      '@kortex-app/api':
+        specifier: workspace:*
+        version: link:../../../../packages/extension-api
+      '@kortex-app/container-extension-api':
+        specifier: workspace:*
+        version: link:../api
+      adm-zip:
+        specifier: ^0.5.16
+        version: 0.5.16
+      mkdirp:
+        specifier: ^3.0.1
+        version: 3.0.1
+      vite:
+        specifier: ^7.1.2
+        version: 7.1.2(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.1.0)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(msw@2.10.4(@types/node@24.1.0)(typescript@5.9.2))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+
   extensions/gemini:
     dependencies:
       '@ai-sdk/google':
@@ -1496,6 +1527,12 @@ packages:
   '@jridgewell/source-map@0.3.11':
     resolution: {integrity: sha512-ZMp1V8ZFcPG5dIWnQLr3NSI1MiCU7UETdS/A0G8V/XWHvJv3ZsFqutJn1Y5RPmAPX6F3BiE397OqveU/9NCuIA==}
 
+<<<<<<< HEAD
+=======
+  '@jridgewell/sourcemap-codec@1.5.4':
+    resolution: {integrity: sha512-VT2+G1VQs/9oz078bLrYbecdZKs912zQlkelYpuf+SXF+QvZDYJlbx/LSx+meSAwdDFnF8FVXW92AVjjkVmgFw==}
+
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
 
@@ -5868,8 +5905,13 @@ packages:
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
 
+<<<<<<< HEAD
   loupe@3.2.1:
     resolution: {integrity: sha512-CdzqowRJCeLU72bHvWqwRBBlLcMEtIvGrlvef74kMnV2AolS9Y8xUv1I0U/MNAWMhBlKIoyuEgoJ0t/bbwHbLQ==}
+=======
+  loupe@3.1.4:
+    resolution: {integrity: sha512-wJzkKwJrheKtknCOKNEtDK4iqg/MxmZheEMtSTYvnzRdEYaZzmgH976nenp8WdJRdx5Vc1X/9MO0Oszl6ezeXg==}
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   lowercase-keys@2.0.0:
     resolution: {integrity: sha512-tqNXrS78oMOE73NMxK4EMLQsQowWf8jKooH9g7xPavRT706R6bkQJ6DY2Te7QukaZsulxa30wQ7bk0pm4XiHmA==}
@@ -8848,7 +8890,11 @@ snapshots:
   '@esbuild/win32-x64@0.25.12':
     optional: true
 
+<<<<<<< HEAD
   '@eslint-community/eslint-utils@4.7.0(eslint@9.39.3(jiti@2.6.1))':
+=======
+  '@eslint-community/eslint-utils@4.7.0(eslint@9.33.0(jiti@2.4.2))':
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
     dependencies:
       eslint: 9.39.3(jiti@2.6.1)
       eslint-visitor-keys: 3.4.3
@@ -8867,9 +8913,17 @@ snapshots:
 
   '@eslint/compat@2.0.2(eslint@9.39.3(jiti@2.6.1))':
     dependencies:
+<<<<<<< HEAD
       '@eslint/core': 1.1.0
     optionalDependencies:
       eslint: 9.39.3(jiti@2.6.1)
+=======
+      '@eslint/object-schema': 2.1.6
+      debug: 4.4.3
+      minimatch: 3.1.2
+    transitivePeerDependencies:
+      - supports-color
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   '@eslint/config-array@0.21.1':
     dependencies:
@@ -9113,6 +9167,11 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
     optional: true
 
+<<<<<<< HEAD
+=======
+  '@jridgewell/sourcemap-codec@1.5.4': {}
+
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
   '@jridgewell/trace-mapping@0.3.31':
@@ -10320,10 +10379,17 @@ snapshots:
 
   '@sveltejs/vite-plugin-svelte-inspector@5.0.0(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.47.0)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)))(svelte@5.47.0)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2))':
     dependencies:
+<<<<<<< HEAD
       '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.47.0)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2))
       debug: 4.4.3
       svelte: 5.47.0
       vite: 7.3.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)
+=======
+      '@sveltejs/vite-plugin-svelte': 6.1.1(svelte@5.38.1)(vite@7.1.2(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1))
+      debug: 4.4.3
+      svelte: 5.38.1
+      vite: 7.1.2(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
     transitivePeerDependencies:
       - supports-color
 
@@ -10499,7 +10565,11 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       '@types/responselike': 1.0.3
 
   '@types/chai@5.2.2':
@@ -10508,7 +10578,11 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   '@types/cors@2.8.19':
     dependencies:
@@ -10526,13 +10600,21 @@ snapshots:
 
   '@types/docker-modem@3.0.6':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       '@types/ssh2': 1.15.5
 
   '@types/dockerode@3.3.47':
     dependencies:
       '@types/docker-modem': 3.0.6
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       '@types/ssh2': 1.15.5
 
   '@types/estree@1.0.8': {}
@@ -10560,7 +10642,11 @@ snapshots:
 
   '@types/fs-extra@9.0.13':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   '@types/getos@3.0.4': {}
 
@@ -10582,7 +10668,11 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   '@types/mdast@4.0.4':
     dependencies:
@@ -10619,6 +10709,21 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+<<<<<<< HEAD
+=======
+  '@types/node@22.17.1':
+    dependencies:
+      undici-types: 6.21.0
+
+  '@types/node@22.18.6':
+    dependencies:
+      undici-types: 6.21.0
+
+  '@types/node@22.19.0':
+    dependencies:
+      undici-types: 6.21.0
+
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
   '@types/node@24.1.0':
     dependencies:
       undici-types: 7.8.0
@@ -10645,7 +10750,11 @@ snapshots:
 
   '@types/plist@3.0.5':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       xmlbuilder: 15.1.1
     optional: true
 
@@ -10659,7 +10768,11 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   '@types/retry@0.12.0': {}
 
@@ -10668,7 +10781,11 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   '@types/serve-static@1.15.7':
     dependencies:
@@ -10812,6 +10929,7 @@ snapshots:
 
   '@typescript-eslint/type-utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
+<<<<<<< HEAD
       '@typescript-eslint/types': 8.56.1
       '@typescript-eslint/typescript-estree': 8.56.1(typescript@5.9.3)
       '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
@@ -10819,6 +10937,48 @@ snapshots:
       eslint: 9.39.3(jiti@2.6.1)
       ts-api-utils: 2.4.0(typescript@5.9.3)
       typescript: 5.9.3
+=======
+      '@typescript-eslint/types': 8.46.3
+      '@typescript-eslint/visitor-keys': 8.46.3
+
+  '@typescript-eslint/tsconfig-utils@8.35.1(typescript@5.9.2)':
+    dependencies:
+      typescript: 5.9.2
+
+  '@typescript-eslint/tsconfig-utils@8.38.0(typescript@5.9.2)':
+    dependencies:
+      typescript: 5.9.2
+
+  '@typescript-eslint/tsconfig-utils@8.39.1(typescript@5.9.2)':
+    dependencies:
+      typescript: 5.9.2
+
+  '@typescript-eslint/tsconfig-utils@8.46.3(typescript@5.9.2)':
+    dependencies:
+      typescript: 5.9.2
+
+  '@typescript-eslint/type-utils@8.39.1(eslint@9.33.0(jiti@2.4.2))(typescript@5.9.2)':
+    dependencies:
+      '@typescript-eslint/types': 8.39.1
+      '@typescript-eslint/typescript-estree': 8.39.1(typescript@5.9.2)
+      '@typescript-eslint/utils': 8.39.1(eslint@9.33.0(jiti@2.4.2))(typescript@5.9.2)
+      debug: 4.4.3
+      eslint: 9.33.0(jiti@2.4.2)
+      ts-api-utils: 2.1.0(typescript@5.9.2)
+      typescript: 5.9.2
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/type-utils@8.39.1(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.2)':
+    dependencies:
+      '@typescript-eslint/types': 8.39.1
+      '@typescript-eslint/typescript-estree': 8.39.1(typescript@5.9.2)
+      '@typescript-eslint/utils': 8.39.1(eslint@9.39.1(jiti@2.4.2))(typescript@5.9.2)
+      debug: 4.4.3
+      eslint: 9.39.1(jiti@2.4.2)
+      ts-api-utils: 2.1.0(typescript@5.9.2)
+      typescript: 5.9.2
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
     transitivePeerDependencies:
       - supports-color
 
@@ -10864,7 +11024,45 @@ snapshots:
       '@typescript-eslint/types': 8.56.1
       '@typescript-eslint/visitor-keys': 8.56.1
       debug: 4.4.3
+<<<<<<< HEAD
       minimatch: 10.2.4
+=======
+      fast-glob: 3.3.3
+      is-glob: 4.0.3
+      minimatch: 9.0.5
+      semver: 7.7.2
+      ts-api-utils: 2.1.0(typescript@5.9.2)
+      typescript: 5.9.2
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/typescript-estree@8.39.1(typescript@5.9.2)':
+    dependencies:
+      '@typescript-eslint/project-service': 8.39.1(typescript@5.9.2)
+      '@typescript-eslint/tsconfig-utils': 8.39.1(typescript@5.9.2)
+      '@typescript-eslint/types': 8.39.1
+      '@typescript-eslint/visitor-keys': 8.39.1
+      debug: 4.4.3
+      fast-glob: 3.3.3
+      is-glob: 4.0.3
+      minimatch: 9.0.5
+      semver: 7.7.2
+      ts-api-utils: 2.1.0(typescript@5.9.2)
+      typescript: 5.9.2
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/typescript-estree@8.46.3(typescript@5.9.2)':
+    dependencies:
+      '@typescript-eslint/project-service': 8.46.3(typescript@5.9.2)
+      '@typescript-eslint/tsconfig-utils': 8.46.3(typescript@5.9.2)
+      '@typescript-eslint/types': 8.46.3
+      '@typescript-eslint/visitor-keys': 8.46.3
+      debug: 4.4.3
+      fast-glob: 3.3.3
+      is-glob: 4.0.3
+      minimatch: 9.0.5
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       semver: 7.7.3
       tinyglobby: 0.2.15
       ts-api-utils: 2.4.0(typescript@5.9.3)
@@ -11325,7 +11523,11 @@ snapshots:
       chromium-pickle-js: 0.2.0
       config-file-ts: 0.2.8-rc1
       debug: 4.4.3
+<<<<<<< HEAD
       dmg-builder: 26.0.12(patch_hash=b1937a6dd1c958dfabaa5fd32cb2ede7972c4d6143ccb1e7fe5963e19e34cc3d)(electron-builder-squirrel-windows@25.1.8(dmg-builder@26.0.12))
+=======
+      dmg-builder: 26.0.12(electron-builder-squirrel-windows@25.1.8(dmg-builder@26.0.12))
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       dotenv: 16.6.1
       dotenv-expand: 11.0.7
       ejs: 3.1.10
@@ -11691,7 +11893,11 @@ snapshots:
   builder-util-runtime@9.5.1:
     dependencies:
       debug: 4.4.3
+<<<<<<< HEAD
       sax: 1.4.3
+=======
+      sax: 1.4.1
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
     transitivePeerDependencies:
       - supports-color
 
@@ -11838,10 +12044,15 @@ snapshots:
       assertion-error: 2.0.1
       check-error: 2.1.3
       deep-eql: 5.0.2
+<<<<<<< HEAD
       loupe: 3.2.1
       pathval: 2.0.1
 
   chai@6.2.2: {}
+=======
+      loupe: 3.1.4
+      pathval: 2.0.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   chalk@2.4.2:
     dependencies:
@@ -13853,7 +14064,19 @@ snapshots:
       make-dir: 4.0.0
       supports-color: 7.2.0
 
+<<<<<<< HEAD
   istanbul-reports@3.2.0:
+=======
+  istanbul-lib-source-maps@5.0.6:
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.30
+      debug: 4.4.3
+      istanbul-lib-coverage: 3.2.2
+    transitivePeerDependencies:
+      - supports-color
+
+  istanbul-reports@3.1.7:
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
     dependencies:
       html-escaper: 2.0.2
       istanbul-lib-report: 3.0.1
@@ -14154,7 +14377,11 @@ snapshots:
 
   longest-streak@3.1.0: {}
 
+<<<<<<< HEAD
   loupe@3.2.1: {}
+=======
+  loupe@3.1.4: {}
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   lowercase-keys@2.0.0: {}
 
@@ -15278,6 +15505,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
+<<<<<<< HEAD
       '@types/node': 24.11.0
       long: 5.3.2
 
@@ -15294,6 +15522,9 @@ snapshots:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       long: 5.3.2
 
   proxy-addr@2.0.7:
@@ -16202,7 +16433,11 @@ snapshots:
 
   tailwindcss@4.2.1: {}
 
+<<<<<<< HEAD
   tapable@2.3.0: {}
+=======
+  tapable@2.2.2: {}
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
 
   tar-fs@2.1.4:
     dependencies:
@@ -16656,6 +16891,7 @@ snapshots:
 
   vite@7.3.1(@types/node@24.1.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2):
     dependencies:
+<<<<<<< HEAD
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
@@ -16750,13 +16986,129 @@ snapshots:
       '@vitest/snapshot': 4.0.18
       '@vitest/spy': 4.0.18
       '@vitest/utils': 4.0.18
+=======
+      cac: 6.7.14
+      debug: 4.4.3
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       es-module-lexer: 1.7.0
       expect-type: 1.3.0
       magic-string: 0.30.21
       obug: 2.1.1
       pathe: 2.0.3
+<<<<<<< HEAD
       picomatch: 4.0.3
       std-env: 3.10.0
+=======
+      vite: 7.1.2(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+    transitivePeerDependencies:
+      - '@types/node'
+      - jiti
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - yaml
+
+  vite@6.3.5(@types/node@22.17.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1):
+    dependencies:
+      esbuild: 0.25.12
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.46.2
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      '@types/node': 22.17.0
+      fsevents: 2.3.3
+      jiti: 2.4.2
+      lightningcss: 1.30.1
+      terser: 5.36.0
+      tsx: 4.20.3
+      yaml: 2.8.1
+
+  vite@6.3.5(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1):
+    dependencies:
+      esbuild: 0.25.12
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.46.2
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      '@types/node': 24.1.0
+      fsevents: 2.3.3
+      jiti: 2.4.2
+      lightningcss: 1.30.1
+      terser: 5.36.0
+      tsx: 4.20.3
+      yaml: 2.8.1
+
+  vite@7.1.2(@types/node@22.17.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1):
+    dependencies:
+      esbuild: 0.25.12
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.46.2
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      '@types/node': 22.17.0
+      fsevents: 2.3.3
+      jiti: 2.4.2
+      lightningcss: 1.30.1
+      terser: 5.36.0
+      tsx: 4.20.3
+      yaml: 2.8.1
+
+  vite@7.1.2(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1):
+    dependencies:
+      esbuild: 0.25.12
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.46.2
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      '@types/node': 24.1.0
+      fsevents: 2.3.3
+      jiti: 2.4.2
+      lightningcss: 1.30.1
+      terser: 5.36.0
+      tsx: 4.20.3
+      yaml: 2.8.1
+
+  vitefu@1.1.1(vite@7.1.2(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)):
+    optionalDependencies:
+      vite: 7.1.2(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+
+  vitest-canvas-mock@0.3.3(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.1.0)(jiti@2.4.2)(jsdom@27.0.0-beta.2)(lightningcss@1.30.1)(msw@2.10.4(@types/node@24.1.0)(typescript@5.9.2))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)):
+    dependencies:
+      jest-canvas-mock: 2.5.2
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.1.0)(jiti@2.4.2)(jsdom@27.0.0-beta.2)(lightningcss@1.30.1)(msw@2.10.4(@types/node@24.1.0)(typescript@5.9.2))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.17.0)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(msw@2.10.4(@types/node@22.17.0)(typescript@5.9.2))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1):
+    dependencies:
+      '@types/chai': 5.2.2
+      '@vitest/expect': 3.2.4
+      '@vitest/mocker': 3.2.4(msw@2.10.4(@types/node@22.17.0)(typescript@5.9.2))(vite@6.3.5(@types/node@22.17.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1))
+      '@vitest/pretty-format': 3.2.4
+      '@vitest/runner': 3.2.4
+      '@vitest/snapshot': 3.2.4
+      '@vitest/spy': 3.2.4
+      '@vitest/utils': 3.2.4
+      chai: 5.2.0
+      debug: 4.4.3
+      expect-type: 1.2.1
+      magic-string: 0.30.17
+      pathe: 2.0.3
+      picomatch: 4.0.3
+      std-env: 3.9.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       tinybench: 2.9.0
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
@@ -16782,6 +17134,7 @@ snapshots:
 
   vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@24.11.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(msw@2.12.10(@types/node@24.11.0)(typescript@5.9.3))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2):
     dependencies:
+<<<<<<< HEAD
       '@vitest/expect': 4.0.18
       '@vitest/mocker': 4.0.18(msw@2.12.10(@types/node@24.11.0)(typescript@5.9.3))(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.18
@@ -16796,6 +17149,23 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
       std-env: 3.10.0
+=======
+      '@types/chai': 5.2.2
+      '@vitest/expect': 3.2.4
+      '@vitest/mocker': 3.2.4(msw@2.10.4(@types/node@24.1.0)(typescript@5.9.2))(vite@6.3.5(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1))
+      '@vitest/pretty-format': 3.2.4
+      '@vitest/runner': 3.2.4
+      '@vitest/snapshot': 3.2.4
+      '@vitest/spy': 3.2.4
+      '@vitest/utils': 3.2.4
+      chai: 5.2.0
+      debug: 4.4.3
+      expect-type: 1.2.1
+      magic-string: 0.30.17
+      pathe: 2.0.3
+      picomatch: 4.0.3
+      std-env: 3.9.0
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       tinybench: 2.9.0
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
@@ -16815,6 +17185,53 @@ snapshots:
       - sass-embedded
       - stylus
       - sugarss
+<<<<<<< HEAD
+=======
+      - supports-color
+      - terser
+      - tsx
+      - yaml
+
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.1.0)(jiti@2.4.2)(jsdom@27.0.0-beta.2)(lightningcss@1.30.1)(msw@2.10.4(@types/node@24.1.0)(typescript@5.9.2))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1):
+    dependencies:
+      '@types/chai': 5.2.2
+      '@vitest/expect': 3.2.4
+      '@vitest/mocker': 3.2.4(msw@2.10.4(@types/node@24.1.0)(typescript@5.9.2))(vite@6.3.5(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1))
+      '@vitest/pretty-format': 3.2.4
+      '@vitest/runner': 3.2.4
+      '@vitest/snapshot': 3.2.4
+      '@vitest/spy': 3.2.4
+      '@vitest/utils': 3.2.4
+      chai: 5.2.0
+      debug: 4.4.3
+      expect-type: 1.2.1
+      magic-string: 0.30.17
+      pathe: 2.0.3
+      picomatch: 4.0.3
+      std-env: 3.9.0
+      tinybench: 2.9.0
+      tinyexec: 0.3.2
+      tinyglobby: 0.2.14
+      tinypool: 1.1.1
+      tinyrainbow: 2.0.0
+      vite: 6.3.5(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+      vite-node: 3.2.4(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/debug': 4.1.12
+      '@types/node': 24.1.0
+      jsdom: 27.0.0-beta.2
+    transitivePeerDependencies:
+      - jiti
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+>>>>>>> accc31f1c97 (feat: add skeleton for container extension (#691))
       - terser
       - tsx
       - yaml
