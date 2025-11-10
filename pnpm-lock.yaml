@@ -38,8 +38,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(patch_hash=1c34691b2a4cf5f4fdeb73244fb59dccceee5642ddca2ac6c41fe86d9fde86e5)(encoding@0.1.13)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.21.0
-        version: 1.21.0
+        specifier: ^1.21.1
+        version: 1.21.1
       '@oslojs/crypto':
         specifier: ^1.0.1
         version: 1.0.1
@@ -395,7 +395,7 @@ importers:
         version: 2.0.30(zod@4.1.12)
       '@google/genai':
         specifier: ^1.25.0
-        version: 1.25.0(@modelcontextprotocol/sdk@1.21.0)(encoding@0.1.13)
+        version: 1.25.0(@modelcontextprotocol/sdk@1.21.1)(encoding@0.1.13)
       '@kortex-app/api':
         specifier: workspace:*
         version: link:../../packages/extension-api
@@ -416,8 +416,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/extension-api
       '@modelcontextprotocol/sdk':
-        specifier: ^1.21.0
-        version: 1.21.0
+        specifier: ^1.21.1
+        version: 1.21.1
       '@octokit/rest':
         specifier: ^21.1.0
         version: 21.1.1
@@ -1541,8 +1541,8 @@ packages:
     resolution: {integrity: sha512-9QOtNffcOF/c1seMCDnjckb3R9WHcG34tky+FHpNKKCW0wc/scYLwMtO+ptyGUfMW0/b/n4qRiALlaFHc9Oj7Q==}
     engines: {node: '>= 10.0.0'}
 
-  '@modelcontextprotocol/sdk@1.21.0':
-    resolution: {integrity: sha512-YFBsXJMFCyI1zP98u7gezMFKX4lgu/XpoZJk7ufI6UlFKXLj2hAMUuRlQX/nrmIPOmhRrG6tw2OQ2ZA/ZlXYpQ==}
+  '@modelcontextprotocol/sdk@1.21.1':
+    resolution: {integrity: sha512-UyLFcJLDvUuZbGnaQqXFT32CpPpGj7VS19roLut6gkQVhb439xUzYWbsUvdI3ZPL+2hnFosuugtYWE0Mcs1rmQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -8135,12 +8135,12 @@ snapshots:
 
   '@gar/promisify@1.1.3': {}
 
-  '@google/genai@1.25.0(@modelcontextprotocol/sdk@1.21.0)(encoding@0.1.13)':
+  '@google/genai@1.25.0(@modelcontextprotocol/sdk@1.21.1)(encoding@0.1.13)':
     dependencies:
       google-auth-library: 9.15.1(encoding@0.1.13)
       ws: 8.18.3
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.21.0
+      '@modelcontextprotocol/sdk': 1.21.1
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -8381,7 +8381,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@modelcontextprotocol/sdk@1.21.0':
+  '@modelcontextprotocol/sdk@1.21.1':
     dependencies:
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
