@@ -15,6 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import type { FlowParameter } from '@kortex-app/api';
 
 export interface FlowInfo {
   /**
@@ -26,4 +27,5 @@ export interface FlowInfo {
   id: string;
   path: string;
   name: string;
+  parameters?: Array<FlowParameter>;
 }
