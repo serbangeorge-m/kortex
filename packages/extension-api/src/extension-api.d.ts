@@ -436,6 +436,12 @@ declare module '@kortex-app/api' {
     flowId: string;
   }
 
+  export interface FlowExecuteParams {
+    flowId: string;
+    logger: Logger;
+    params?: Record<string, string>;
+  }
+
   export interface FlowGenerateCommandLineResult {
     command: string;
     args: string[];
@@ -502,7 +508,7 @@ declare module '@kortex-app/api' {
       /**
        * @experimental expect change
        */
-      execute(flowId: string, logger: Logger, params?: Record<string, string>): Promise<void>;
+      execute(options: FlowExecuteParams): Promise<void>;
     };
   }
 
