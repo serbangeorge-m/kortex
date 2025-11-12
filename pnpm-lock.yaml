@@ -391,6 +391,9 @@ importers:
 
   extensions/container/packages/extension:
     dependencies:
+      dockerode:
+        specifier: ^4.0.7
+        version: 4.0.7
       inversify:
         specifier: ^7.7.1
         version: 7.7.1(reflect-metadata@0.2.2)
@@ -404,6 +407,9 @@ importers:
       '@kortex-app/container-extension-api':
         specifier: workspace:*
         version: link:../api
+      '@types/dockerode':
+        specifier: ^3.3.42
+        version: 3.3.42
       adm-zip:
         specifier: ^0.5.16
         version: 0.5.16
@@ -830,6 +836,7 @@ packages:
     peerDependencies:
       zod: ^3.23.8
 
+<<<<<<< HEAD
   '@ai-sdk/provider-utils@3.0.15':
     resolution: {integrity: sha512-kOc6Pxb7CsRlNt+sLZKL7/VGQUd7ccl3/tIK+Bqf5/QhHR0Qm3qRBMz1IwU1RmjJEZA73x+KB5cUckbDl2WF7Q==}
     engines: {node: '>=18'}
@@ -838,6 +845,10 @@ packages:
 
   '@ai-sdk/provider-utils@3.0.21':
     resolution: {integrity: sha512-veuMwTLxsgh31Jjn0SnBABnM1f7ebHhRWcV2ZuY3hP3iJDCZ8VXBaYqcHXoOQDqUXTCas08sKQcHyWK+zl882Q==}
+=======
+  '@ai-sdk/provider-utils@3.0.17':
+    resolution: {integrity: sha512-TR3Gs4I3Tym4Ll+EPdzRdvo/rc8Js6c4nVhFLuvGLX/Y4V9ZcQMa/HTiYsHEgmYrf1zVi6Q145UEZUfleOwOjw==}
+>>>>>>> e66b38ba309 (chore: adds helper to build dockerode object from socket path (#724))
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -8399,6 +8410,7 @@ snapshots:
       secure-json-parse: 2.7.0
       zod: 4.3.6
 
+<<<<<<< HEAD
   '@ai-sdk/provider-utils@3.0.15(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
@@ -8414,6 +8426,9 @@ snapshots:
       zod: 4.3.6
 
   '@ai-sdk/provider-utils@3.0.3(zod@4.3.6)':
+=======
+  '@ai-sdk/provider-utils@3.0.17(zod@4.1.11)':
+>>>>>>> e66b38ba309 (chore: adds helper to build dockerode object from socket path (#724))
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
