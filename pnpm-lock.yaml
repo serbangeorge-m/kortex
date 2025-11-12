@@ -535,6 +535,31 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.11.0)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.31.1)(msw@2.12.10(@types/node@24.11.0)(typescript@5.9.3))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.2)
 
+  extensions/ramalama:
+    dependencies:
+      inversify:
+        specifier: ^7.7.1
+        version: 7.7.1(reflect-metadata@0.2.2)
+    devDependencies:
+      '@kortex-app/api':
+        specifier: workspace:*
+        version: link:../../packages/extension-api
+      '@kortex-app/container-extension-api':
+        specifier: workspace:*
+        version: link:../container/packages/api
+      adm-zip:
+        specifier: ^0.5.16
+        version: 0.5.16
+      mkdirp:
+        specifier: ^3.0.1
+        version: 3.0.1
+      vite:
+        specifier: ^7.1.2
+        version: 7.1.2(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.1.0)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(msw@2.10.4(@types/node@24.1.0)(typescript@5.9.2))(terser@5.36.0)(tsx@4.20.3)(yaml@2.8.1)
+
   packages/extension-api:
     devDependencies:
       '@ai-sdk/provider':
@@ -10555,11 +10580,15 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
+<<<<<<< HEAD
       '@types/node': 24.11.0
 
   '@types/bunyan@1.8.11':
     dependencies:
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> 4d5744ae5cc (chore: introduce skeleton for RamaLama extension (#692))
 
   '@types/cacheable-request@6.0.3':
     dependencies:
@@ -10586,7 +10615,11 @@ snapshots:
 
   '@types/cors@2.8.19':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> 4d5744ae5cc (chore: introduce skeleton for RamaLama extension (#692))
 
   '@types/culori@4.0.1': {}
 
@@ -10621,7 +10654,11 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> 4d5744ae5cc (chore: introduce skeleton for RamaLama extension (#692))
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -10790,7 +10827,11 @@ snapshots:
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> 4d5744ae5cc (chore: introduce skeleton for RamaLama extension (#692))
       '@types/send': 0.17.4
 
   '@types/ssh2@1.15.5':
@@ -10805,7 +10846,11 @@ snapshots:
 
   '@types/stream-chain@2.1.0':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> 4d5744ae5cc (chore: introduce skeleton for RamaLama extension (#692))
 
   '@types/stream-json@1.7.8':
     dependencies:
@@ -10819,7 +10864,11 @@ snapshots:
 
   '@types/tar-stream@3.1.3':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> 4d5744ae5cc (chore: introduce skeleton for RamaLama extension (#692))
 
   '@types/tar@6.1.13':
     dependencies:
@@ -10860,7 +10909,11 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
+<<<<<<< HEAD
       '@types/node': 24.11.0
+=======
+      '@types/node': 22.19.0
+>>>>>>> 4d5744ae5cc (chore: introduce skeleton for RamaLama extension (#692))
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
