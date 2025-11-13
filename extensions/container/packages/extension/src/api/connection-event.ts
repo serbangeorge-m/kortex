@@ -16,17 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type Dockerode from 'dockerode';
+// use zod for the json event received by docker/podman
 
-export interface ContainerEngineEvent {
-  status?: string;
-  Type?: string;
-}
+import z from 'zod';
 
-export interface EndpointConnection {
-  path: string;
-  dockerode: Dockerode;
-}
+export const DockerEventSchema = z.object({
+  status: z.string().optional(),
+  Type: z.string().optional(),
+});
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ContainerExtensionAPI {}
+export type DockerEvent = z.infer<typeof DockerEventSchema>;

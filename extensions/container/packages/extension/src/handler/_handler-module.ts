@@ -16,17 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type Dockerode from 'dockerode';
+import { ContainerModule } from 'inversify';
 
-export interface ContainerEngineEvent {
-  status?: string;
-  Type?: string;
-}
+import { ConnectionHandler } from './connection-handler';
 
-export interface EndpointConnection {
-  path: string;
-  dockerode: Dockerode;
-}
+const handlersModule = new ContainerModule(options => {
+  options.bind<ConnectionHandler>(ConnectionHandler).toSelf().inSingletonScope();
+});
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ContainerExtensionAPI {}
+export { handlersModule };
