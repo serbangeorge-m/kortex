@@ -86,6 +86,7 @@ export const resources = {
   openai: { displayName: 'OpenAI', hasCreateButton: true },
   goose: { displayName: 'goose', hasCreateButton: false },
   gemini: { displayName: 'Gemini', hasCreateButton: true },
+  ramalama: { displayName: 'RamaLama', hasCreateButton: false },
 } as const;
 
 export type SettingsResourceId = keyof typeof resources;
