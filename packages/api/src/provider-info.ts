@@ -79,11 +79,19 @@ export interface ProviderInferenceConnectionInfo {
   }>;
 }
 
+export interface ProviderRagConnectionInfo {
+  name: string;
+  status: ProviderConnectionStatus;
+  lifecycleMethods?: LifecycleMethod[];
+  connectionType: 'rag';
+}
+
 export type ProviderConnectionInfo =
   | ProviderContainerConnectionInfo
   | ProviderKubernetesConnectionInfo
   | ProviderVmConnectionInfo
   | ProviderInferenceConnectionInfo
+  | ProviderRagConnectionInfo
   | ProviderFlowConnectionInfo;
 
 export interface ProviderInfo {
@@ -97,6 +105,7 @@ export interface ProviderInfo {
   kubernetesConnections: ProviderKubernetesConnectionInfo[];
   vmConnections: ProviderVmConnectionInfo[];
   inferenceConnections: ProviderInferenceConnectionInfo[];
+  ragConnections: ProviderRagConnectionInfo[];
   flowConnections: ProviderFlowConnectionInfo[];
 
   status: ProviderStatus;
@@ -144,6 +153,18 @@ export interface ProviderInfo {
   inferenceProviderConnectionCreationDisplayName?: string;
   // optional creation button title (if defined)
   inferenceProviderConnectionCreationButtonTitle?: string;
+
+  /**
+   * RAG Provider connection
+   */
+  // can create provider connection from RagProviderConnectionFactory params
+  ragProviderConnectionCreation: boolean;
+  // can initialize provider connection from RagProviderConnectionFactory params
+  ragProviderConnectionInitialization: boolean;
+  // optional creation name (if defined)
+  ragProviderConnectionCreationDisplayName?: string;
+  // optional creation button title (if defined)
+  ragProviderConnectionCreationButtonTitle?: string;
 
   // other
   emptyConnectionMarkdownDescription?: string;

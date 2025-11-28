@@ -73,9 +73,12 @@ const provider: ProviderInfo = {
   extensionId: '',
   cleanupSupport: false,
   inferenceConnections: [],
+  ragConnections: [],
   flowConnections: [],
   inferenceProviderConnectionCreation: false,
   inferenceProviderConnectionInitialization: false,
+  ragProviderConnectionCreation: false,
+  ragProviderConnectionInitialization: false,
 };
 
 const pod1: PodInfo = {

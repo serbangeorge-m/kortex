@@ -23,9 +23,10 @@ import type {
 } from '@kortex-app/api';
 import { inject, injectable } from 'inversify';
 
-import { ApiSenderType, IPCHandle } from '/@/plugin/api.js';
+import { IPCHandle } from '/@/plugin/api.js';
 import type { ProviderImpl } from '/@/plugin/provider-impl.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
+import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import type { IDisposable } from '/@api/disposable.js';
 import type { ProviderScheduleItemInfo } from '/@api/scheduler/scheduler-api-info.js';
 

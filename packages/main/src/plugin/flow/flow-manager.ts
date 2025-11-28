@@ -21,13 +21,14 @@ import type { Disposable, Flow, FlowProviderConnection, Logger, ProviderSchedule
 import { inject, injectable, preDestroy } from 'inversify';
 
 import { ProviderRegistry } from '/@/plugin/provider-registry.js';
-import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import { SchedulerRegistry } from '/@/plugin/scheduler/scheduler-registry.js';
+import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import type { FlowExecuteInfo } from '/@api/flow-execute-info.js';
 import type { FlowInfo } from '/@api/flow-info.js';
 import type { FlowScheduleInfo } from '/@api/flow-schedule-info.js';
 
 import { TaskManager } from '../tasks/task-manager.js';
+import { IPCHandle } from '/@/plugin/api.js';
 
 class BufferLogger implements Logger {
   #buffer = '';

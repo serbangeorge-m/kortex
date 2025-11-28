@@ -22,10 +22,9 @@ import type { ToolSet } from 'ai';
 import { inject, injectable, preDestroy } from 'inversify';
 
 import { MCPExchanges, MCPMessageExchange } from '/@/plugin/mcp/mcp-exchanges.js';
+import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import { IAsyncDisposable } from '/@api/async-disposable.js';
 import type { MCPRemoteServerInfo } from '/@api/mcp/mcp-server-info.js';
-import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
-import { MCPTransportDelegate } from './mcp-transport-delegate.js';
 
 /**
  * experimental_createMCPClient return `Promise<MCPClient>` but they did not exported this type...

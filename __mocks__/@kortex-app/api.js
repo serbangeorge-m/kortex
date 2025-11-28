@@ -28,7 +28,6 @@ const cli = {
   createCliTool: vi.fn(),
 };
 
-<<<<<<< HEAD
 const commands = {
   registerCommand: vi.fn(),
 };
@@ -43,14 +42,6 @@ const containerEngine = {
   listContainers: vi.fn(),
   saveImage: vi.fn(),
   onEvent: vi.fn(),
-};
-
-const context = {
-  setValue: vi.fn(),
-=======
-const provider = {
-  createProvider: vi.fn(),
->>>>>>> de03ad0a8f9 (chore: add more mocking for unit tests)
 };
 
 const env = {
@@ -77,71 +68,13 @@ const process = {
   exec: vi.fn(),
 };
 
-<<<<<<< HEAD
 const eventEmitterListeners = [];
-=======
 const EventEmitter = vi.fn();
 const Disposable = { dispose: vi.fn() };
->>>>>>> de03ad0a8f9 (chore: add more mocking for unit tests)
 
 const extensions = {
   getExtension: vi.fn(),
 };
-
-<<<<<<< HEAD
-const proxy = {
-  isEnabled: vi.fn(),
-  onDidUpdateProxy: vi.fn(),
-  onDidStateChange: vi.fn(),
-  getProxySettings: vi.fn(),
-};
-
-const provider = {
-  createProvider: vi.fn(),
-  onDidRegisterContainerConnection: vi.fn(),
-  onDidUnregisterContainerConnection: vi.fn(),
-  onDidUpdateProvider: vi.fn(),
-  onDidUpdateContainerConnection: vi.fn(),
-  onDidUpdateVersion: vi.fn(),
-  registerUpdate: vi.fn(),
-  getContainerConnections: vi.fn(),
-};
-
-const registry = {
-  registerRegistryProvider: vi.fn(),
-  registerRegistry: vi.fn(),
-  unregisterRegistry: vi.fn(),
-  onDidRegisterRegistry: vi.fn(),
-  onDidUnregisterRegistry: vi.fn(),
-  onDidUpdateRegistry: vi.fn(),
-  suggestRegistry: vi.fn(),
-};
-
-const window = {
-  showInformationMessage: vi.fn(),
-  showErrorMessage: vi.fn(),
-  withProgress: vi.fn(),
-  showNotification: vi.fn(),
-  showWarningMessage: vi.fn(),
-
-  showQuickPick: vi.fn(),
-  showInputBox: vi.fn(),
-  createStatusBarItem: vi.fn(),
-};
-
-const Disposable = { from: vi.fn(), dispose: vi.fn() };
-
-class EventEmitter {
-  event(callback) {
-    eventEmitterListeners.push(callback);
-  }
-
-  fire(data) {
-    eventEmitterListeners.forEach(listener => listener(data));
-  }
-
-  dispose() {}
-}
 
 const ProgressLocation = {
   APP_ICON: 1,
@@ -176,24 +109,4 @@ const plugin = {
 beforeEach(() => {
   eventEmitterListeners.length = 0;
 });
-
-=======
-const init = () => {
-  EventEmitter.mockImplementation(() => {
-    const listeners = [];
-    return {
-      event: vi.fn(callback => {
-        listeners.push(callback);
-      }),
-      fire: vi.fn(data => {
-        listeners.forEach(listener => listener(data));
-      }),
-      dispose: vi.fn(),
-    };
-  });
-};
-
-const plugin = { init, env, extensions, process, mcpRegistry, provider, EventEmitter, Disposable };
-init();
->>>>>>> de03ad0a8f9 (chore: add more mocking for unit tests)
 module.exports = plugin;

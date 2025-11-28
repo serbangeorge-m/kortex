@@ -15,18 +15,18 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import {
   isJSONRPCRequest,
   isJSONRPCResponse,
-  JSONRPCRequest,
-  JSONRPCResponse,
+  type JSONRPCRequest,
+  type JSONRPCResponse,
 } from '@modelcontextprotocol/sdk/types.js';
 import type { DynamicToolUIPart } from 'ai';
 import { inject, injectable } from 'inversify';
 
-import { ApiSenderType } from '/@/plugin/api.js';
 import { MCPTransportDelegate } from '/@/plugin/mcp/mcp-transport-delegate.js';
+import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 
 // Exchanges are represented as DynamicToolUIPart so the renderer can display them directly
 export type MCPMessageExchange = DynamicToolUIPart;

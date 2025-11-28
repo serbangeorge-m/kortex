@@ -132,6 +132,9 @@ const providerInfoMock: ProviderInfo = {
   installationSupport: false,
   cleanupSupport: false,
   flowConnections: [],
+  ragConnections: [],
+  ragProviderConnectionCreation: false,
+  ragProviderConnectionInitialization: false,
 };
 
 const extensionInfoMock: ExtensionInfo = {

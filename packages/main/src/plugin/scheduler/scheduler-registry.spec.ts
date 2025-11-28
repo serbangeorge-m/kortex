@@ -20,9 +20,9 @@ import type { ProviderScheduler } from '@kortex-app/api';
 import { Container } from 'inversify';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { ApiSenderType } from '/@/plugin/api.js';
 import type { ProviderImpl } from '/@/plugin/provider-impl.js';
 import { SchedulerRegistry } from '/@/plugin/scheduler/scheduler-registry.js';
+import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 
 const providerImpl1 = {
   id: 'provider-1',

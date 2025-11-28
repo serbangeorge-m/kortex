@@ -26,6 +26,7 @@ import { app } from 'electron';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { Certificates } from '/@/plugin/certificates.js';
+import type { ChunkProviderRegistry } from '/@/plugin/chunk-provider-registry.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 import type { ExtensionApiVersion } from '/@/plugin/extension/extension-api-version.js';
 import type { FeatureRegistry } from '/@/plugin/feature-registry.js';
@@ -309,6 +310,8 @@ const extensionAnalyzer = {
   analyzeExtension: vi.fn(),
 } as unknown as ExtensionAnalyzer;
 
+const chunkProviderRegistry = {} as ChunkProviderRegistry;
+
 const createApi = (disposables?: { dispose(): unknown }[]): typeof containerDesktopAPI => {
   const analyzedExtension = {
     path: '/path',
@@ -392,6 +395,7 @@ beforeEach(() => {
     extensionApiVersion,
     featureRegistry,
     mcpRegistry,
+    chunkProviderRegistry,
   );
 });
 

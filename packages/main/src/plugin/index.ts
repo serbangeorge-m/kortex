@@ -52,6 +52,7 @@ import { Container } from 'inversify';
 import { lookup } from 'mime-types';
 
 import { IPCHandle, IPCMainOn, WebContentsType } from '/@/plugin/api.js';
+import { ChunkProviderRegistry } from '/@/plugin/chunk-provider-registry.js';
 import { ContainerfileParser } from '/@/plugin/containerfile-parser.js';
 import { ExtensionApiVersion } from '/@/plugin/extension/extension-api-version.js';
 import { ExtensionLoader } from '/@/plugin/extension/extension-loader.js';
@@ -100,8 +101,6 @@ import type { ExtensionDevelopmentFolderInfo } from '/@api/extension-development
 import type { ExtensionInfo } from '/@api/extension-info.js';
 import type { FeaturedExtension } from '/@api/featured/featured-api.js';
 import type { FeedbackMessages, FeedbackProperties, GitHubIssue } from '/@api/feedback.js';
-import type { FlowExecuteInfo } from '/@api/flow-execute-info.js';
-import type { FlowInfo } from '/@api/flow-info.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
 import type { ImageCheckerInfo } from '/@api/image-checker-info.js';
@@ -561,6 +560,7 @@ export class PluginSystem {
     container.bind<ImageRegistry>(ImageRegistry).toSelf().inSingletonScope();
     container.bind<MCPRegistry>(MCPRegistry).toSelf().inSingletonScope();
     container.bind<MCPIPCHandler>(MCPIPCHandler).toSelf().inSingletonScope();
+    container.bind<ChunkProviderRegistry>(ChunkProviderRegistry).toSelf().inSingletonScope();
     container.bind<ViewRegistry>(ViewRegistry).toSelf().inSingletonScope();
     container.bind<Context>(Context).toSelf().inSingletonScope();
     container.bind<ContainerProviderRegistry>(ContainerProviderRegistry).toSelf().inSingletonScope();
@@ -850,6 +850,8 @@ export class PluginSystem {
     const mcpRegistry = container.get<MCPRegistry>(MCPRegistry);
     const schedulerRegistry = container.get<SchedulerRegistry>(SchedulerRegistry);
     mcpRegistry.init();
+    const chunkProviderRegistry = container.get<ChunkProviderRegistry>(ChunkProviderRegistry);
+    chunkProviderRegistry.init();
 
     const mcpIPCHandler = container.get<MCPIPCHandler>(MCPIPCHandler);
     mcpIPCHandler.init();
@@ -2930,6 +2932,29 @@ export class PluginSystem {
           navigateToTask: () => navigationManager.navigateToProviderTask(internalProviderId, taskId),
           execute: (logger: LoggerWithEnd, token?: containerDesktopAPI.CancellationToken) =>
             providerRegistry.createInferenceProviderConnection(internalProviderId, params, logger, token),
+          executeErrorMsg: (err: unknown) => `Something went wrong while trying to create provider: ${err}`,
+        });
+      },
+    );
+
+    this.ipcHandle(
+      'provider-registry:createRagProviderConnection',
+      async (
+        _listener: Electron.IpcMainInvokeEvent,
+        internalProviderId: string,
+        params: { [key: string]: unknown },
+        loggerId: string,
+        tokenId: number | undefined,
+        taskId: number | undefined,
+      ): Promise<void> => {
+        const providerName = providerRegistry.getProviderInfo(internalProviderId)?.name;
+        return taskConnectionUtils.withTask({
+          loggerId,
+          tokenId,
+          title: `Creating ${providerName ?? 'RAG'} provider`,
+          navigateToTask: () => navigationManager.navigateToProviderTask(internalProviderId, taskId),
+          execute: (logger: LoggerWithEnd, token?: containerDesktopAPI.CancellationToken) =>
+            providerRegistry.createRagProviderConnection(internalProviderId, params, logger, token),
           executeErrorMsg: (err: unknown) => `Something went wrong while trying to create provider: ${err}`,
         });
       },

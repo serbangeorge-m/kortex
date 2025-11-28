@@ -42,6 +42,7 @@ import type {
 } from '@kortex-app/api';
 import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import type { SchedulerRegistry } from '/@/plugin/scheduler/scheduler-registry.js';
 import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import type {
   CheckStatus,
@@ -49,7 +50,6 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderKubernetesConnectionInfo,
   ProviderVmConnectionInfo,
-import type { SchedulerRegistry } from '/@/plugin/scheduler/scheduler-registry.js';
 } from '/@api/provider-info.js';
 
 import type { AutostartEngine } from './autostart-engine.js';

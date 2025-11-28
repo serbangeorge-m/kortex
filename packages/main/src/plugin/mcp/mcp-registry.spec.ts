@@ -18,9 +18,9 @@
 
 import { expect, test, vi } from 'vitest';
 
+import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import type { IConfigurationRegistry } from '/@api/configuration/models.js';
 
-import type { ApiSenderType } from '../api.js';
 import type { Certificates } from '../certificates.js';
 import type { Proxy } from '../proxy.js';
 import type { SafeStorageRegistry } from '../safe-storage/safe-storage-registry.js';
