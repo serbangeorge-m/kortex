@@ -20,8 +20,6 @@ import { TIMEOUTS } from 'src/model/core/types';
 import { expect, test } from '../../fixtures/provider-fixtures';
 import { waitForNavigationReady } from '../../utils/app-ready';
 
-test.skip(!!process.env.CI, 'Skipping chat tests on CI');
-
 test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
   test.beforeEach(async ({ page, navigationBar }) => {
     await waitForNavigationReady(page);
