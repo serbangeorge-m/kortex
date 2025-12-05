@@ -20,8 +20,6 @@ import { TIMEOUTS } from 'src/model/core/types';
 import { expect, test } from '../../fixtures/provider-fixtures';
 import { waitForNavigationReady } from '../../utils/app-ready';
 
-test.skip(!!process.env.CI, 'Skipping chat tests on CI');
-
 test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
   test.beforeEach(async ({ page, navigationBar }) => {
     await waitForNavigationReady(page);
@@ -55,7 +53,7 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
       await chatPage.sendMessage(session.message);
 
       messageCount++;
-      await chatPage.waitForChatHistoryCount(messageCount);
+      await chatPage.waitForChatHistoryCount(messageCount, TIMEOUTS.MODEL_RESPONSE);
     }
 
     for (const session of chatSessions) {
@@ -137,7 +135,13 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
     }
   });
 
-  test('[CHAT-07] Export chat as Flow', async ({ chatPage, navigationBar, flowsPage }) => {
+  test('[CHAT-07] Export chat as Flow', async ({ chatPage, navigationBar, flowsPage, resource }, testInfo) => {
+    // Skip for Ollama - flows not yet supported
+    if (resource === 'ollama' || testInfo.project.name === 'Ollama-Provider') {
+      test.skip(true, 'Flows not supported for Ollama');
+      return;
+    }
+
     await chatPage.ensureSidebarVisible();
     await chatPage.clickNewChat();
 
@@ -151,7 +155,7 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
     await chatPage.verifyConversationMessage(promptForExport);
     await expect
       .poll(async () => await chatPage.verifyModelConversationMessage(expectedModelResponsePattern), {
-        timeout: TIMEOUTS.STANDARD,
+        timeout: TIMEOUTS.MODEL_RESPONSE,
         message: 'Model should respond with recursive Fibonacci code pattern',
       })
       .toBeTruthy();
@@ -182,7 +186,7 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
     await chatPage.verifyStopButtonVisible();
     await chatPage.verifySendButtonHidden();
 
-    await chatPage.verifySendButtonVisible(TIMEOUTS.STANDARD);
+    await chatPage.verifySendButtonVisible(TIMEOUTS.MODEL_RESPONSE);
     await chatPage.verifyStopButtonHidden();
   });
 });
