@@ -61,6 +61,12 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
+      - name: Setup Ollama
+        shell: bash
+        run: |
+          chmod +x ./tests/playwright/scripts/setup-ollama.sh
+          ./tests/playwright/scripts/setup-ollama.sh
+
       - name: Run Smoke E2E tests in ${{ matrix.mode == 'production' && 'Production' || 'Development' }} Mode
         shell: bash
         run: |
@@ -129,6 +135,12 @@ jobs:
 
       - name: Execute pnpm
         run: pnpm install
+
+      - name: Setup Ollama
+        shell: bash
+        run: |
+          chmod +x ./tests/playwright/scripts/setup-ollama.sh
+          ./tests/playwright/scripts/setup-ollama.sh
 
       - name: Run Smoke E2E tests in ${{ matrix.mode == 'production' && 'Production' || 'Development' }} Mode
         shell: bash
