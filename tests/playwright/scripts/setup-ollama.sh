@@ -130,20 +130,34 @@ install_ollama_windows() {
     # Try to install via winget first (available on Windows 11 and recent Windows 10)
     if command -v winget &> /dev/null; then
         log_info "Installing Ollama via winget..."
-        if winget install --id=Ollama.Ollama -e --silent --accept-package-agreements --accept-source-agreements; then
-            log_info "Ollama installed successfully via winget"
-            # Winget installations might need PATH refresh
-            export PATH="$PATH:/c/Users/$USER/AppData/Local/Programs/Ollama"
-            export PATH="$PATH:/c/Program Files/Ollama"
-            
-            if command -v ollama &> /dev/null; then
-                return 0
-            else
-                log_warn "Ollama installed via winget but command not found, will try manual installation"
-            fi
-        else
-            log_warn "Winget installation failed, falling back to manual installation"
+        # Redirect winget output to reduce noise but keep errors
+        if winget install --id=Ollama.Ollama -e --silent --accept-package-agreements --accept-source-agreements 2>&1 | grep -i "error" || true; then
+            log_info "Winget installation completed"
         fi
+        
+        # Check common winget installation paths
+        local winget_paths=(
+            "$LOCALAPPDATA/Programs/Ollama"
+            "/c/Users/$USER/AppData/Local/Programs/Ollama"
+            "$PROGRAMFILES/Ollama"
+            "/c/Program Files/Ollama"
+        )
+        
+        for path in "${winget_paths[@]}"; do
+            if [ -d "$path" ] && [ -f "$path/ollama.exe" ]; then
+                log_info "Found Ollama at: $path"
+                export PATH="$PATH:$path"
+                # Force refresh the command cache
+                hash -r 2>/dev/null || true
+                
+                if command -v ollama &> /dev/null; then
+                    log_info "Ollama command is available via winget installation"
+                    return 0
+                fi
+            fi
+        done
+        
+        log_warn "Ollama may have been installed via winget but command not immediately available"
     else
         log_info "Winget not available, using manual installation"
     fi
@@ -236,14 +250,35 @@ install_ollama_windows() {
     export PATH="$PATH:$ollama_path"
     log_info "Added Ollama to PATH: $ollama_path"
 
-    # Verify ollama command is available
-    if ! command -v ollama &> /dev/null; then
-        log_error "Ollama command not found after installation"
-        log_error "PATH: $PATH"
-        log_error "Directory contents of $ollama_path:"
-        ls -la "$ollama_path" || log_error "Could not list directory"
+    # Verify ollama.exe exists
+    if [ ! -f "$ollama_path/ollama.exe" ]; then
+        log_error "ollama.exe not found in $ollama_path"
+        log_error "Directory contents:"
+        ls -la "$ollama_path" 2>&1 || log_error "Could not list directory"
         exit 1
     fi
+    
+    # On Windows with Git Bash, we need to call the exe directly
+    log_info "Creating ollama command wrapper..."
+    local ollama_wrapper="/usr/local/bin/ollama"
+    mkdir -p /usr/local/bin 2>/dev/null || true
+    echo "#!/bin/bash" > "$ollama_wrapper"
+    echo "\"$ollama_path/ollama.exe\" \"\$@\"" >> "$ollama_wrapper"
+    chmod +x "$ollama_wrapper"
+    
+    # Also add to PATH
+    export PATH="/usr/local/bin:$PATH:$ollama_path"
+    hash -r 2>/dev/null || true
+    
+    # Verify ollama command works
+    if ! ollama --version &> /dev/null; then
+        log_error "Ollama command not working after installation"
+        log_error "Trying to run directly: $ollama_path/ollama.exe --version"
+        "$ollama_path/ollama.exe" --version || log_error "Direct execution also failed"
+        exit 1
+    fi
+    
+    log_info "Ollama command is working"
 
     # Start Ollama server in background
     log_info "Starting Ollama server..."
