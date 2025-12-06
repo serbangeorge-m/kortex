@@ -139,22 +139,60 @@ install_ollama_windows() {
         exit 1
     fi
 
-    log_info "Downloading Ollama installer..."
-    curl -fsSL -o /tmp/OllamaSetup.exe "$download_url"
+    # Use Windows temp directory
+    local temp_dir="${TEMP:-/c/Windows/Temp}"
+    local installer_path="$temp_dir/OllamaSetup.exe"
+
+    log_info "Downloading Ollama installer to $installer_path..."
+    curl -fsSL -o "$installer_path" "$download_url"
+
+    if [ ! -f "$installer_path" ]; then
+        log_error "Failed to download installer"
+        exit 1
+    fi
 
     log_info "Running Ollama installer (silent mode)..."
-    # Run installer silently
-    /tmp/OllamaSetup.exe /S
+    # Use start /wait to ensure the installer completes before proceeding
+    # /S flag for silent installation
+    cmd.exe /c "start /wait \"\" \"$installer_path\" /S" || {
+        log_warn "Standard silent install failed, trying alternative method..."
+        # Fallback: run directly with timeout
+        timeout 120 "$installer_path" /S || log_warn "Installer may have completed or timed out"
+    }
 
-    # Wait for installation to complete
-    sleep 10
+    # Wait for installation to finalize
+    log_info "Waiting for installation to complete..."
+    sleep 15
 
-    # Add to PATH if not already there
-    export PATH="$PATH:/c/Users/$USER/AppData/Local/Programs/Ollama"
+    # Add Ollama to PATH
+    local ollama_path="/c/Users/$USER/AppData/Local/Programs/Ollama"
+    if [ -d "$ollama_path" ]; then
+        export PATH="$PATH:$ollama_path"
+        log_info "Added Ollama to PATH: $ollama_path"
+    else
+        # Try alternative installation location
+        ollama_path="/c/Program Files/Ollama"
+        if [ -d "$ollama_path" ]; then
+            export PATH="$PATH:$ollama_path"
+            log_info "Added Ollama to PATH: $ollama_path"
+        else
+            log_error "Ollama installation directory not found"
+            exit 1
+        fi
+    fi
 
-    # Start Ollama server
+    # Verify ollama command is available
+    if ! command -v ollama &> /dev/null; then
+        log_error "Ollama command not found after installation"
+        exit 1
+    fi
+
+    # Start Ollama server in background
     log_info "Starting Ollama server..."
-    ollama serve &
+    ollama serve > /dev/null 2>&1 &
+    local server_pid=$!
+    
+    log_info "Ollama server started with PID: $server_pid"
     sleep 5
 }
 
@@ -193,30 +231,52 @@ verify_installation() {
 
     # Check if ollama command exists
     if ! command -v ollama &> /dev/null; then
-        log_error "Ollama command not found"
+        log_error "Ollama command not found in PATH"
+        log_error "Current PATH: $PATH"
         return 1
     fi
 
     # Check version
-    ollama --version
+    log_info "Ollama version:"
+    ollama --version || {
+        log_error "Failed to get Ollama version"
+        return 1
+    }
 
     # Check if server is running by listing models
-    local max_attempts=10
+    local max_attempts=20
     local attempt=1
 
+    log_info "Waiting for Ollama server to become ready..."
     while [ $attempt -le $max_attempts ]; do
         if ollama list &> /dev/null; then
             log_info "Ollama server is responding"
-            ollama list
+            ollama list || log_warn "Could not list models, but server is running"
             return 0
         else
             log_warn "Waiting for Ollama server... (attempt $attempt/$max_attempts)"
+            
+            # On Windows, the server might need extra time to initialize
+            if [ "$(detect_os)" = "windows" ]; then
+                sleep 3
+            else
+                sleep 2
+            fi
+            
             attempt=$((attempt + 1))
-            sleep 2
         fi
     done
 
-    log_error "Ollama server is not responding"
+    log_error "Ollama server is not responding after $max_attempts attempts"
+    
+    # Debug information
+    log_error "Checking if Ollama process is running..."
+    if [ "$(detect_os)" = "windows" ]; then
+        tasklist | grep -i ollama || log_error "No Ollama process found"
+    else
+        ps aux | grep -i ollama | grep -v grep || log_error "No Ollama process found"
+    fi
+    
     return 1
 }
 

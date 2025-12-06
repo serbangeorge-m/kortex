@@ -15,44 +15,17 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { execFileSync } from 'node:child_process';
-
 import type { PlaywrightTestConfig } from '@playwright/test';
 
 import type { ResourceId } from './src/model/core/types';
 
-// Check if Ollama is running locally by trying to connect to its port
-function isOllamaRunning(): boolean {
-  // If OLLAMA_ENABLED is set (CI), trust it
-  if (process.env.OLLAMA_ENABLED) {
-    return true;
-  }
+// Check if Ollama tests should run
+// In CI: setup script sets OLLAMA_ENABLED after successful installation and verification
+// Locally: Assumes Ollama is not available unless OLLAMA_ENABLED is explicitly set
+const ollamaAvailable = !!process.env.OLLAMA_ENABLED;
 
-  // For local development, check if Ollama server is accessible
-  // Uses node subprocess to make an HTTP request (avoids PATH security issues with curl)
-  try {
-    const checkScript = `
-      const http = require('http');
-      const req = http.get('http://localhost:11434/api/tags', { timeout: 1000 }, (res) => {
-        let data = '';
-        res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          process.exit(data.includes('models') ? 0 : 1);
-        });
-      });
-      req.on('error', () => process.exit(1));
-      req.on('timeout', () => { req.destroy(); process.exit(1); });
-    `;
-    execFileSync(process.execPath, ['-e', checkScript], { timeout: 2000, stdio: 'ignore' });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-const ollamaAvailable = isOllamaRunning();
 if (ollamaAvailable) {
-  console.log('Ollama detected - enabling Ollama-Provider project');
+  console.log('Ollama enabled - running Ollama-Provider tests');
 }
 
 const config: PlaywrightTestConfig & {
