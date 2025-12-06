@@ -165,5 +165,5 @@ export const TIMEOUTS = {
   INITIALIZING_SCREEN: 180_000,
   STANDARD: 30_000,
   SHORT: 10_000,
-  MODEL_RESPONSE: 120_000, // Longer timeout for LLM responses (especially local models like Ollama)
+  MODEL_RESPONSE: 180_000, // Longer timeout for LLM responses (especially local models like Ollama on slower runners)
 } as const;
