@@ -36,7 +36,7 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
     await chatPage.ensureSidebarVisible();
     const initialCount = await chatPage.getChatHistoryCount();
     await chatPage.getSuggestedMessages().last().click();
-    await chatPage.waitForChatHistoryCount(initialCount + 1, 15_000);
+    await chatPage.waitForChatHistoryCount(initialCount + 1, TIMEOUTS.MODEL_RESPONSE);
   });
 
   test('[CHAT-03] Create and switch between multiple chat sessions without data loss', async ({ chatPage }) => {
