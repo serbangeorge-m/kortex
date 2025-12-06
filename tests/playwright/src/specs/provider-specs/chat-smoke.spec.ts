@@ -44,8 +44,8 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
     let messageCount = await chatPage.getChatHistoryCount();
 
     const chatSessions = [
-      { message: 'What is Kubernetes?', expectedIndex: 1 },
-      { message: 'Explain Docker containers', expectedIndex: 0 },
+      { message: '2+2?', expectedIndex: 1 },
+      { message: '3*3?', expectedIndex: 0 },
     ];
 
     for (const session of chatSessions) {
