@@ -35,7 +35,11 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
   test('[CHAT-02] Create and check new chat history item', async ({ chatPage }) => {
     await chatPage.ensureSidebarVisible();
     const initialCount = await chatPage.getChatHistoryCount();
-    await chatPage.getSuggestedMessages().last().click();
+
+    // Send a simple message (more reliable than clicking suggested message)
+    await chatPage.sendMessage('Hello');
+
+    // Wait for chat history to update (includes model response timeout)
     await chatPage.waitForChatHistoryCount(initialCount + 1, TIMEOUTS.MODEL_RESPONSE);
   });
 
