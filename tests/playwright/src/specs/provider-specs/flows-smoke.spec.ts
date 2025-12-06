@@ -46,7 +46,7 @@ test.describe.serial('Flow page e2e test suite', { tag: '@smoke' }, () => {
   test('[FLOW-02] Check that user can create a new flow', async ({ navigationBar, flowsPage }) => {
     await flowsPage.createFlow(flowName, { prompt });
     await navigationBar.navigateToFlowsPage();
-    await flowsPage.ensureRowExists(flowName, TIMEOUTS.MODEL_RESPONSE, false);
+    await flowsPage.ensureRowExists(flowName, TIMEOUTS.STANDARD, false);
   });
 
   test('[FLOW-03] Check that user can run the created flow from details page and validate the results', async ({
@@ -58,7 +58,7 @@ test.describe.serial('Flow page e2e test suite', { tag: '@smoke' }, () => {
     await flowDetailsPage.runFlow();
     await flowDetailsPage.switchToRunTab();
 
-    await flowDetailsPage.waitForTerminalContent(expectedTerminalContent, TIMEOUTS.MODEL_RESPONSE);
+    await flowDetailsPage.waitForTerminalContent(expectedTerminalContent, TIMEOUTS.DEFAULT);
   });
 
   test('[FLOW-04] Check that user can delete the created flow from details page', async ({
@@ -79,7 +79,7 @@ test.describe.serial('Flow page e2e test suite', { tag: '@smoke' }, () => {
     await expect.poll(async () => await flowsPage.checkIfFlowsPageIsEmpty()).toBeTruthy();
     await flowsPage.createFlowFromContentRegion(flowNameFromContentRegion, { prompt });
     await navigationBar.navigateToFlowsPage();
-    await flowsPage.ensureRowExists(flowNameFromContentRegion, TIMEOUTS.MODEL_RESPONSE, false);
+    await flowsPage.ensureRowExists(flowNameFromContentRegion, TIMEOUTS.STANDARD, false);
   });
 
   test('[FLOW-06] Check that user can run the created flow from Flows page using the run button', async ({
@@ -90,9 +90,9 @@ test.describe.serial('Flow page e2e test suite', { tag: '@smoke' }, () => {
 
     await flowDetailsPage.switchToRunTab();
     await expect
-      .poll(async () => await flowDetailsPage.getCurrentNumberOfRuns(), { timeout: TIMEOUTS.MODEL_RESPONSE })
+      .poll(async () => await flowDetailsPage.getCurrentNumberOfRuns(), { timeout: TIMEOUTS.STANDARD })
       .toBe(1);
-    await flowDetailsPage.waitForTerminalContent(expectedTerminalContent, TIMEOUTS.MODEL_RESPONSE);
+    await flowDetailsPage.waitForTerminalContent(expectedTerminalContent, TIMEOUTS.DEFAULT);
   });
 
   test('[FLOW-07] Run a flow a second time and check that task can be selected and changed', async ({
@@ -105,11 +105,11 @@ test.describe.serial('Flow page e2e test suite', { tag: '@smoke' }, () => {
 
     await flowDetailsPage.switchToRunTab();
     await expect
-      .poll(async () => await flowDetailsPage.getCurrentNumberOfRuns(), { timeout: TIMEOUTS.MODEL_RESPONSE })
+      .poll(async () => await flowDetailsPage.getCurrentNumberOfRuns(), { timeout: TIMEOUTS.STANDARD })
       .toBe(2);
 
     await flowDetailsPage.selectLastTask();
-    await flowDetailsPage.waitForTerminalContent(expectedTerminalContent, TIMEOUTS.MODEL_RESPONSE);
+    await flowDetailsPage.waitForTerminalContent(expectedTerminalContent, TIMEOUTS.DEFAULT);
   });
 
   test('[FLOW-08] Check that user can delete the created flow from Flows page using the delete button', async ({
