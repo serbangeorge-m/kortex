@@ -163,29 +163,29 @@ install_ollama_windows() {
     # Wait for installation to finalize and find installation directory
     log_info "Waiting for installation to complete..."
     
-    # Possible installation locations
-    local possible_paths=(
-        "/c/Users/$USER/AppData/Local/Programs/Ollama"
-        "/c/Program Files/Ollama"
-        "/c/Program Files (x86)/Ollama"
-        "$LOCALAPPDATA/Programs/Ollama"
-        "$PROGRAMFILES/Ollama"
-    )
-    
     local ollama_path=""
     local max_wait=60  # Wait up to 60 seconds
     local waited=0
     
     while [ $waited -lt $max_wait ]; do
-        for path in "${possible_paths[@]}"; do
-            # Expand variables and check if directory exists
-            local expanded_path=$(eval echo "$path")
-            if [ -d "$expanded_path" ]; then
-                ollama_path="$expanded_path"
-                log_info "Found Ollama installation at: $ollama_path"
-                break 2
-            fi
-        done
+        # Check possible installation locations
+        if [ -d "/c/Users/$USER/AppData/Local/Programs/Ollama" ]; then
+            ollama_path="/c/Users/$USER/AppData/Local/Programs/Ollama"
+            log_info "Found Ollama installation at: $ollama_path"
+            break
+        elif [ -d "/c/Program Files/Ollama" ]; then
+            ollama_path="/c/Program Files/Ollama"
+            log_info "Found Ollama installation at: $ollama_path"
+            break
+        elif [ -n "$LOCALAPPDATA" ] && [ -d "$LOCALAPPDATA/Programs/Ollama" ]; then
+            ollama_path="$LOCALAPPDATA/Programs/Ollama"
+            log_info "Found Ollama installation at: $ollama_path"
+            break
+        elif [ -n "$PROGRAMFILES" ] && [ -d "$PROGRAMFILES/Ollama" ]; then
+            ollama_path="$PROGRAMFILES/Ollama"
+            log_info "Found Ollama installation at: $ollama_path"
+            break
+        fi
         
         log_info "Waiting for installation directory... ($waited/$max_wait seconds)"
         sleep 5
@@ -195,10 +195,10 @@ install_ollama_windows() {
     if [ -z "$ollama_path" ]; then
         log_error "Ollama installation directory not found after $max_wait seconds"
         log_error "Searched paths:"
-        for path in "${possible_paths[@]}"; do
-            local expanded_path=$(eval echo "$path")
-            log_error "  - $expanded_path"
-        done
+        log_error "  - /c/Users/$USER/AppData/Local/Programs/Ollama"
+        log_error "  - /c/Program Files/Ollama"
+        [ -n "$LOCALAPPDATA" ] && log_error "  - $LOCALAPPDATA/Programs/Ollama"
+        [ -n "$PROGRAMFILES" ] && log_error "  - $PROGRAMFILES/Ollama"
         exit 1
     fi
     
