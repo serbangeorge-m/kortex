@@ -129,13 +129,28 @@ install_ollama_windows() {
     
     # Get the actual Windows username
     local windows_user="${USERNAME:-${USER:-runneradmin}}"
-    log_info "Windows user: $windows_user"
+    local arch=$(detect_arch)
+    log_info "Windows user: $windows_user, Architecture: $arch"
+    
+    # Check if we're on ARM architecture
+    if [ "$arch" = "arm64" ]; then
+        log_warn "Detected ARM64 architecture"
+        log_warn "Note: Ollama ARM64 support on Windows may be limited"
+    fi
 
     # Try to install via winget first (available on Windows 11 and recent Windows 10)
     # winget.exe might not be in Git Bash PATH, try to call it directly
     local winget_cmd="winget.exe"
     if ! command -v "$winget_cmd" &> /dev/null; then
         winget_cmd="/c/Users/$windows_user/AppData/Local/Microsoft/WindowsApps/winget.exe"
+    fi
+    
+    # Also check in system directories
+    if ! command -v winget &> /dev/null && [ ! -f "$winget_cmd" ]; then
+        # Try common system locations
+        if [ -f "/c/Program Files/WindowsApps/Microsoft.DesktopAppInstaller_1.0.0.0_x64__8wekyb3d8bbwe/winget.exe" ]; then
+            winget_cmd="/c/Program Files/WindowsApps/Microsoft.DesktopAppInstaller_1.0.0.0_x64__8wekyb3d8bbwe/winget.exe"
+        fi
     fi
     
     if command -v winget &> /dev/null || [ -f "$winget_cmd" ]; then
@@ -177,13 +192,45 @@ install_ollama_windows() {
             cat /tmp/winget-install.log || true
         fi
     else
-        log_info "Winget not available, using manual installation"
+        log_warn "Winget not available"
     fi
     
-    # If winget succeeded and we found the installation, proceed to verification
+    # If winget didn't work, try Chocolatey as fallback
+    if [ -z "$ollama_path" ] && command -v choco &> /dev/null; then
+        log_info "Trying installation via Chocolatey..."
+        if choco install ollama -y > /tmp/choco-install.log 2>&1; then
+            log_info "Chocolatey installation completed"
+            
+            # Check for installation
+            local check_paths=(
+                "/c/Users/$windows_user/AppData/Local/Programs/Ollama"
+                "/c/Program Files/Ollama"
+                "/c/ProgramData/chocolatey/lib/ollama/tools"
+            )
+            
+            for path in "${check_paths[@]}"; do
+                if [ -d "$path" ] && [ -f "$path/ollama.exe" ]; then
+                    log_info "Found Ollama at: $path"
+                    ollama_path="$path"
+                    break
+                fi
+            done
+            
+            if [ -z "$ollama_path" ]; then
+                log_warn "Chocolatey reported success but installation not found"
+                cat /tmp/choco-install.log
+            fi
+        else
+            log_warn "Chocolatey installation failed"
+            cat /tmp/choco-install.log || true
+        fi
+    fi
+    
+    # If neither winget nor chocolatey worked, fail gracefully
     if [ -z "$ollama_path" ]; then
-        log_error "Winget installation failed and manual installation is not reliable in CI"
-        log_error "Please ensure winget is available on the runner or pre-install Ollama"
+        log_error "Could not install Ollama via winget or chocolatey"
+        log_error "Ollama tests will be skipped for this runner"
+        log_error "To enable Ollama tests, ensure winget or chocolatey is available, or pre-install Ollama"
         exit 1
     fi
     
