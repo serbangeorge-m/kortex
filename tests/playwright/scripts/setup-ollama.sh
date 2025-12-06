@@ -127,6 +127,28 @@ install_ollama_windows() {
         return 0
     fi
 
+    # Try to install via winget first (available on Windows 11 and recent Windows 10)
+    if command -v winget &> /dev/null; then
+        log_info "Installing Ollama via winget..."
+        if winget install --id=Ollama.Ollama -e --silent --accept-package-agreements --accept-source-agreements; then
+            log_info "Ollama installed successfully via winget"
+            # Winget installations might need PATH refresh
+            export PATH="$PATH:/c/Users/$USER/AppData/Local/Programs/Ollama"
+            export PATH="$PATH:/c/Program Files/Ollama"
+            
+            if command -v ollama &> /dev/null; then
+                return 0
+            else
+                log_warn "Ollama installed via winget but command not found, will try manual installation"
+            fi
+        else
+            log_warn "Winget installation failed, falling back to manual installation"
+        fi
+    else
+        log_info "Winget not available, using manual installation"
+    fi
+
+    # Manual installation fallback
     local arch=$(detect_arch)
     local download_url=""
 
@@ -151,14 +173,22 @@ install_ollama_windows() {
         exit 1
     fi
 
-    log_info "Running Ollama installer (silent mode)..."
-    # Use start /wait to ensure the installer completes before proceeding
-    # /S flag for silent installation
-    cmd.exe /c "start /wait \"\" \"$installer_path\" /S" || {
-        log_warn "Standard silent install failed, trying alternative method..."
-        # Fallback: run directly with timeout
-        timeout 120 "$installer_path" /S || log_warn "Installer may have completed or timed out"
+    log_info "Running Ollama installer..."
+    log_warn "Note: Ollama installer may require GUI interaction and might not work in CI"
+    
+    # Try running installer in background with timeout
+    powershell.exe -Command "Start-Process -FilePath '$installer_path' -ArgumentList '/S' -Wait -NoNewWindow" || {
+        log_warn "PowerShell installer method failed, trying cmd.exe..."
+        cmd.exe /c "start /wait \"\" \"$installer_path\" /S" || {
+            log_error "All installation methods failed"
+            log_error "This might be because Ollama's Windows installer doesn't support true silent installation"
+            log_error "Consider using winget or pre-installing Ollama on the runner image"
+            exit 1
+        }
     }
+    
+    log_info "Installer execution completed, waiting for files..."
+    sleep 10
 
     # Wait for installation to finalize and find installation directory
     log_info "Waiting for installation to complete..."
