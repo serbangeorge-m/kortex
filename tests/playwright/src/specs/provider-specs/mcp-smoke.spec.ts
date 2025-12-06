@@ -54,21 +54,25 @@ test.describe('MCP Registry Management', { tag: '@smoke' }, () => {
     await installTab.verifyServerCountIsRestored(initialServerCount);
   });
 
-  // Test expected to fail until issue https://github.com/kortex-hub/kortex/issues/651 is fixed
-  test.fail(
-    '[MCP-02] Add and remove MCP server: verify server list updates accordingly',
-    async ({ mcpSetup: _mcpSetup, mcpPage }) => {
-      test.skip(
-        !process.env[MCP_SERVERS.github.envVarName],
-        `${MCP_SERVERS.github.envVarName} environment variable is not set`,
-      );
+  test('[MCP-02] Add and remove MCP server: verify server list updates accordingly', async ({
+    mcpSetup: _mcpSetup,
+    mcpPage,
+  }) => {
+    test.skip(
+      !process.env[MCP_SERVERS.github.envVarName],
+      `${MCP_SERVERS.github.envVarName} environment variable is not set`,
+    );
 
-      const serverName = MCP_SERVERS.github.serverName;
-      const mcpReadyTab = await mcpPage.openReadyTab();
+    // Known issue: safeStorage fails locally but works in CI
+    // See: https://github.com/kortex-hub/kortex/issues/651
+    const isCI = !!process.env.CI;
+    test.fail(!isCI, 'Test fails locally due to Electron safeStorage issue in dev environment');
 
-      await expect
-        .poll(async () => await mcpReadyTab.isServerConnected(serverName), { timeout: SERVER_CONNECTION_TIMEOUT })
-        .toBeTruthy();
-    },
-  );
+    const serverName = MCP_SERVERS.github.serverName;
+    const mcpReadyTab = await mcpPage.openReadyTab();
+
+    await expect
+      .poll(async () => await mcpReadyTab.isServerConnected(serverName), { timeout: SERVER_CONNECTION_TIMEOUT })
+      .toBeTruthy();
+  });
 });
