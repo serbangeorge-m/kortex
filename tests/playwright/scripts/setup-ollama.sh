@@ -160,30 +160,58 @@ install_ollama_windows() {
         timeout 120 "$installer_path" /S || log_warn "Installer may have completed or timed out"
     }
 
-    # Wait for installation to finalize
+    # Wait for installation to finalize and find installation directory
     log_info "Waiting for installation to complete..."
-    sleep 15
-
-    # Add Ollama to PATH
-    local ollama_path="/c/Users/$USER/AppData/Local/Programs/Ollama"
-    if [ -d "$ollama_path" ]; then
-        export PATH="$PATH:$ollama_path"
-        log_info "Added Ollama to PATH: $ollama_path"
-    else
-        # Try alternative installation location
-        ollama_path="/c/Program Files/Ollama"
-        if [ -d "$ollama_path" ]; then
-            export PATH="$PATH:$ollama_path"
-            log_info "Added Ollama to PATH: $ollama_path"
-        else
-            log_error "Ollama installation directory not found"
-            exit 1
-        fi
+    
+    # Possible installation locations
+    local possible_paths=(
+        "/c/Users/$USER/AppData/Local/Programs/Ollama"
+        "/c/Program Files/Ollama"
+        "/c/Program Files (x86)/Ollama"
+        "$LOCALAPPDATA/Programs/Ollama"
+        "$PROGRAMFILES/Ollama"
+    )
+    
+    local ollama_path=""
+    local max_wait=60  # Wait up to 60 seconds
+    local waited=0
+    
+    while [ $waited -lt $max_wait ]; do
+        for path in "${possible_paths[@]}"; do
+            # Expand variables and check if directory exists
+            local expanded_path=$(eval echo "$path")
+            if [ -d "$expanded_path" ]; then
+                ollama_path="$expanded_path"
+                log_info "Found Ollama installation at: $ollama_path"
+                break 2
+            fi
+        done
+        
+        log_info "Waiting for installation directory... ($waited/$max_wait seconds)"
+        sleep 5
+        waited=$((waited + 5))
+    done
+    
+    if [ -z "$ollama_path" ]; then
+        log_error "Ollama installation directory not found after $max_wait seconds"
+        log_error "Searched paths:"
+        for path in "${possible_paths[@]}"; do
+            local expanded_path=$(eval echo "$path")
+            log_error "  - $expanded_path"
+        done
+        exit 1
     fi
+    
+    # Add to PATH
+    export PATH="$PATH:$ollama_path"
+    log_info "Added Ollama to PATH: $ollama_path"
 
     # Verify ollama command is available
     if ! command -v ollama &> /dev/null; then
         log_error "Ollama command not found after installation"
+        log_error "PATH: $PATH"
+        log_error "Directory contents of $ollama_path:"
+        ls -la "$ollama_path" || log_error "Could not list directory"
         exit 1
     fi
 
