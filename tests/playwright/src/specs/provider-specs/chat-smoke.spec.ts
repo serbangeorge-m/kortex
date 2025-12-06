@@ -33,7 +33,7 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
   });
 
   test('[CHAT-02] Create and check new chat history item', async ({ chatPage }) => {
-    test.setTimeout(300_000); // 5 minutes for slower runners
+    test.setTimeout(300_000); // for slower runners
     await chatPage.ensureSidebarVisible();
     const initialCount = await chatPage.getChatHistoryCount();
     await chatPage.getSuggestedMessages().last().click();
@@ -41,7 +41,7 @@ test.describe.serial('Chat page navigation', { tag: '@smoke' }, () => {
   });
 
   test('[CHAT-03] Create and switch between multiple chat sessions without data loss', async ({ chatPage }) => {
-    test.setTimeout(300_000); // 10 minutes for multiple model responses on slower runners
+    test.setTimeout(300_000); // for slower runners
     await chatPage.ensureSidebarVisible();
     let messageCount = await chatPage.getChatHistoryCount();
 
