@@ -25,6 +25,11 @@ const MCP_REGISTRY_URL = 'https://registry.modelcontextprotocol.io';
 const SERVER_LIST_UPDATE_TIMEOUT = 60_000;
 const SERVER_CONNECTION_TIMEOUT = 10_000;
 
+// Configure MCP setup only when GITHUB_TOKEN is available
+test.use({
+  mcpServers: process.env[MCP_SERVERS.github.envVarName] ? ['github'] : [],
+});
+
 test.describe('MCP Registry Management', { tag: '@smoke' }, () => {
   test.beforeEach(async ({ page, navigationBar }) => {
     await waitForNavigationReady(page);
@@ -63,10 +68,12 @@ test.describe('MCP Registry Management', { tag: '@smoke' }, () => {
       `${MCP_SERVERS.github.envVarName} environment variable is not set`,
     );
 
-    // Known issue: safeStorage fails locally but works in CI
-    // See: https://github.com/kortex-hub/kortex/issues/651
+    // Test expected to fail locally until issue https://github.com/kortex-hub/kortex/issues/651 is fixed
+    // In CI, the test should pass as safeStorage works correctly there
     const isCI = !!process.env.CI;
-    test.fail(!isCI, 'Test fails locally due to Electron safeStorage issue in dev environment');
+    if (!isCI) {
+      test.fail();
+    }
 
     const serverName = MCP_SERVERS.github.serverName;
     const mcpReadyTab = await mcpPage.openReadyTab();
