@@ -138,66 +138,9 @@ install_ollama_windows() {
         log_warn "Note: Ollama ARM64 support on Windows may be limited"
     fi
 
-    # Try to install via winget first (available on Windows 11 and recent Windows 10)
-    # winget.exe might not be in Git Bash PATH, try to call it directly
-    local winget_cmd="winget.exe"
-    if ! command -v "$winget_cmd" &> /dev/null; then
-        winget_cmd="/c/Users/$windows_user/AppData/Local/Microsoft/WindowsApps/winget.exe"
-    fi
-    
-    # Also check in system directories
-    if ! command -v winget &> /dev/null && [ ! -f "$winget_cmd" ]; then
-        # Try common system locations
-        if [ -f "/c/Program Files/WindowsApps/Microsoft.DesktopAppInstaller_1.0.0.0_x64__8wekyb3d8bbwe/winget.exe" ]; then
-            winget_cmd="/c/Program Files/WindowsApps/Microsoft.DesktopAppInstaller_1.0.0.0_x64__8wekyb3d8bbwe/winget.exe"
-        fi
-    fi
-    
-    if command -v winget &> /dev/null || [ -f "$winget_cmd" ]; then
-        log_info "Installing Ollama via winget..."
-        # Run winget with reduced output
-        if "$winget_cmd" install --id=Ollama.Ollama -e --silent --accept-package-agreements --accept-source-agreements > /tmp/winget-install.log 2>&1; then
-            log_info "Winget installation completed successfully"
-            
-            # Check common winget installation paths
-            local check_paths=(
-                "/c/Users/$windows_user/AppData/Local/Programs/Ollama"
-                "/c/Program Files/Ollama"
-            )
-            
-            for path in "${check_paths[@]}"; do
-                if [ -d "$path" ] && [ -f "$path/ollama.exe" ]; then
-                    log_info "Found Ollama at: $path"
-                    
-                    # Create wrapper and continue with the rest of the function
-                    ollama_path="$path"
-                    
-                    # Jump to the verification section
-                    log_info "Ollama installed successfully via winget"
-                    # Don't return here, continue to create wrapper and verify
-                    break
-                fi
-            done
-            
-            # If we found it via winget, skip manual installation
-            if [ -n "$ollama_path" ]; then
-                log_info "Skipping manual installation, using winget installation"
-                # Continue to wrapper creation below
-            else
-                log_warn "Winget reported success but installation not found at expected paths"
-                cat /tmp/winget-install.log
-            fi
-        else
-            log_warn "Winget installation failed, check log at /tmp/winget-install.log"
-            cat /tmp/winget-install.log || true
-        fi
-    else
-        log_warn "Winget not available"
-    fi
-    
-    # If winget didn't work, try Chocolatey as fallback
-    if [ -z "$ollama_path" ] && command -v choco &> /dev/null; then
-        log_info "Trying installation via Chocolatey..."
+    # Install via Chocolatey
+    if command -v choco &> /dev/null; then
+        log_info "Installing Ollama via Chocolatey..."
         if choco install ollama -y > /tmp/choco-install.log 2>&1; then
             log_info "Chocolatey installation completed"
             
@@ -224,13 +167,17 @@ install_ollama_windows() {
             log_warn "Chocolatey installation failed"
             cat /tmp/choco-install.log || true
         fi
+    else
+        log_error "Chocolatey is not available on this runner"
+        log_error "Please install Chocolatey or pre-install Ollama"
+        exit 1
     fi
     
-    # If neither winget nor chocolatey worked, fail gracefully
+    # If chocolatey installation didn't work, fail gracefully
     if [ -z "$ollama_path" ]; then
-        log_error "Could not install Ollama via winget or chocolatey"
+        log_error "Could not install Ollama via Chocolatey"
         log_error "Ollama tests will be skipped for this runner"
-        log_error "To enable Ollama tests, ensure winget or chocolatey is available, or pre-install Ollama"
+        log_error "To enable Ollama tests, ensure Chocolatey is available, or pre-install Ollama"
         exit 1
     fi
     
