@@ -126,123 +126,64 @@ install_ollama_windows() {
         ollama --version
         return 0
     fi
+    
+    # Get the actual Windows username
+    local windows_user="${USERNAME:-${USER:-runneradmin}}"
+    log_info "Windows user: $windows_user"
 
     # Try to install via winget first (available on Windows 11 and recent Windows 10)
-    if command -v winget &> /dev/null; then
+    # winget.exe might not be in Git Bash PATH, try to call it directly
+    local winget_cmd="winget.exe"
+    if ! command -v "$winget_cmd" &> /dev/null; then
+        winget_cmd="/c/Users/$windows_user/AppData/Local/Microsoft/WindowsApps/winget.exe"
+    fi
+    
+    if command -v winget &> /dev/null || [ -f "$winget_cmd" ]; then
         log_info "Installing Ollama via winget..."
-        # Redirect winget output to reduce noise but keep errors
-        if winget install --id=Ollama.Ollama -e --silent --accept-package-agreements --accept-source-agreements 2>&1 | grep -i "error" || true; then
-            log_info "Winget installation completed"
-        fi
-        
-        # Check common winget installation paths
-        local winget_paths=(
-            "$LOCALAPPDATA/Programs/Ollama"
-            "/c/Users/$USER/AppData/Local/Programs/Ollama"
-            "$PROGRAMFILES/Ollama"
-            "/c/Program Files/Ollama"
-        )
-        
-        for path in "${winget_paths[@]}"; do
-            if [ -d "$path" ] && [ -f "$path/ollama.exe" ]; then
-                log_info "Found Ollama at: $path"
-                export PATH="$PATH:$path"
-                # Force refresh the command cache
-                hash -r 2>/dev/null || true
-                
-                if command -v ollama &> /dev/null; then
-                    log_info "Ollama command is available via winget installation"
-                    return 0
+        # Run winget with reduced output
+        if "$winget_cmd" install --id=Ollama.Ollama -e --silent --accept-package-agreements --accept-source-agreements > /tmp/winget-install.log 2>&1; then
+            log_info "Winget installation completed successfully"
+            
+            # Check common winget installation paths
+            local check_paths=(
+                "/c/Users/$windows_user/AppData/Local/Programs/Ollama"
+                "/c/Program Files/Ollama"
+            )
+            
+            for path in "${check_paths[@]}"; do
+                if [ -d "$path" ] && [ -f "$path/ollama.exe" ]; then
+                    log_info "Found Ollama at: $path"
+                    
+                    # Create wrapper and continue with the rest of the function
+                    ollama_path="$path"
+                    
+                    # Jump to the verification section
+                    log_info "Ollama installed successfully via winget"
+                    # Don't return here, continue to create wrapper and verify
+                    break
                 fi
+            done
+            
+            # If we found it via winget, skip manual installation
+            if [ -n "$ollama_path" ]; then
+                log_info "Skipping manual installation, using winget installation"
+                # Continue to wrapper creation below
+            else
+                log_warn "Winget reported success but installation not found at expected paths"
+                cat /tmp/winget-install.log
             fi
-        done
-        
-        log_warn "Ollama may have been installed via winget but command not immediately available"
+        else
+            log_warn "Winget installation failed, check log at /tmp/winget-install.log"
+            cat /tmp/winget-install.log || true
+        fi
     else
         log_info "Winget not available, using manual installation"
     fi
-
-    # Manual installation fallback
-    local arch=$(detect_arch)
-    local download_url=""
-
-    if [ "$arch" = "amd64" ]; then
-        download_url="https://ollama.ai/download/OllamaSetup.exe"
-    elif [ "$arch" = "arm64" ]; then
-        download_url="https://ollama.ai/download/OllamaSetup.exe"
-    else
-        log_error "Unsupported architecture: $arch"
-        exit 1
-    fi
-
-    # Use Windows temp directory
-    local temp_dir="${TEMP:-/c/Windows/Temp}"
-    local installer_path="$temp_dir/OllamaSetup.exe"
-
-    log_info "Downloading Ollama installer to $installer_path..."
-    curl -fsSL -o "$installer_path" "$download_url"
-
-    if [ ! -f "$installer_path" ]; then
-        log_error "Failed to download installer"
-        exit 1
-    fi
-
-    log_info "Running Ollama installer..."
-    log_warn "Note: Ollama installer may require GUI interaction and might not work in CI"
     
-    # Try running installer in background with timeout
-    powershell.exe -Command "Start-Process -FilePath '$installer_path' -ArgumentList '/S' -Wait -NoNewWindow" || {
-        log_warn "PowerShell installer method failed, trying cmd.exe..."
-        cmd.exe /c "start /wait \"\" \"$installer_path\" /S" || {
-            log_error "All installation methods failed"
-            log_error "This might be because Ollama's Windows installer doesn't support true silent installation"
-            log_error "Consider using winget or pre-installing Ollama on the runner image"
-            exit 1
-        }
-    }
-    
-    log_info "Installer execution completed, waiting for files..."
-    sleep 10
-
-    # Wait for installation to finalize and find installation directory
-    log_info "Waiting for installation to complete..."
-    
-    local ollama_path=""
-    local max_wait=60  # Wait up to 60 seconds
-    local waited=0
-    
-    while [ $waited -lt $max_wait ]; do
-        # Check possible installation locations
-        if [ -d "/c/Users/$USER/AppData/Local/Programs/Ollama" ]; then
-            ollama_path="/c/Users/$USER/AppData/Local/Programs/Ollama"
-            log_info "Found Ollama installation at: $ollama_path"
-            break
-        elif [ -d "/c/Program Files/Ollama" ]; then
-            ollama_path="/c/Program Files/Ollama"
-            log_info "Found Ollama installation at: $ollama_path"
-            break
-        elif [ -n "$LOCALAPPDATA" ] && [ -d "$LOCALAPPDATA/Programs/Ollama" ]; then
-            ollama_path="$LOCALAPPDATA/Programs/Ollama"
-            log_info "Found Ollama installation at: $ollama_path"
-            break
-        elif [ -n "$PROGRAMFILES" ] && [ -d "$PROGRAMFILES/Ollama" ]; then
-            ollama_path="$PROGRAMFILES/Ollama"
-            log_info "Found Ollama installation at: $ollama_path"
-            break
-        fi
-        
-        log_info "Waiting for installation directory... ($waited/$max_wait seconds)"
-        sleep 5
-        waited=$((waited + 5))
-    done
-    
+    # If winget succeeded and we found the installation, proceed to verification
     if [ -z "$ollama_path" ]; then
-        log_error "Ollama installation directory not found after $max_wait seconds"
-        log_error "Searched paths:"
-        log_error "  - /c/Users/$USER/AppData/Local/Programs/Ollama"
-        log_error "  - /c/Program Files/Ollama"
-        [ -n "$LOCALAPPDATA" ] && log_error "  - $LOCALAPPDATA/Programs/Ollama"
-        [ -n "$PROGRAMFILES" ] && log_error "  - $PROGRAMFILES/Ollama"
+        log_error "Winget installation failed and manual installation is not reliable in CI"
+        log_error "Please ensure winget is available on the runner or pre-install Ollama"
         exit 1
     fi
     
