@@ -31,6 +31,7 @@ on:
           - all
           - windows
           - macos
+          - linux
 
 jobs:
   windows-e2e-tests:
@@ -61,6 +62,36 @@ jobs:
       - name: Execute pnpm
         run: pnpm install
 
+      - name: Setup Ollama
+        uses: ai-action/setup-ollama@v1
+
+      - name: Ensure Ollama server is ready
+        shell: bash
+        run: |
+          # Wait for Ollama server to be ready (up to 60 seconds)
+          for i in {1..30}; do
+            if ollama list &> /dev/null; then
+              echo "Ollama server is ready"
+              exit 0
+            fi
+            echo "Waiting for Ollama server... (attempt $i/30)"
+            sleep 2
+          done
+          echo "Ollama server failed to start"
+          exit 1
+
+      - name: Pull tinyllama model
+        shell: bash
+        run: |
+          ollama pull tinyllama
+          if ollama list | grep -q tinyllama; then
+            echo "Model tinyllama is ready"
+            echo "OLLAMA_ENABLED=true" >> $GITHUB_ENV
+          else
+            echo "Failed to pull tinyllama model"
+            exit 1
+          fi
+
       - name: Run Smoke E2E tests in ${{ matrix.mode == 'production' && 'Production' || 'Development' }} Mode
         shell: bash
         run: |
@@ -78,6 +109,96 @@ jobs:
                 ;;
             esac
             path=$(realpath $BINARY_PATH)
+            echo "Kortex built binary: $path"
+            export KORTEX_BINARY=$path
+          fi
+          pnpm test:e2e
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: always()
+        with:
+          annotate_only: true
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          require_tests: true
+          report_paths: '**/*results.xml'
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-e2e-${{ matrix.os }}-${{ matrix.mode }}
+          path: tests/playwright/output/**
+          retention-days: 30
+
+  linux-e2e-tests:
+    name: ${{ matrix.os }} - ${{ matrix.mode }} e2e tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'linux' }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        mode: [prod, dev]
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Setup Ollama
+        uses: ai-action/setup-ollama@v1
+
+      - name: Ensure Ollama server is ready
+        shell: bash
+        run: |
+          # Wait for Ollama server to be ready (up to 60 seconds)
+          for i in {1..30}; do
+            if ollama list &> /dev/null; then
+              echo "Ollama server is ready"
+              exit 0
+            fi
+            echo "Waiting for Ollama server... (attempt $i/30)"
+            sleep 2
+          done
+          echo "Ollama server failed to start"
+          exit 1
+
+      - name: Pull tinyllama model
+        shell: bash
+        run: |
+          ollama pull tinyllama
+          if ollama list | grep -q tinyllama; then
+            echo "Model tinyllama is ready"
+            echo "OLLAMA_ENABLED=true" >> $GITHUB_ENV
+          else
+            echo "Failed to pull tinyllama model"
+            exit 1
+          fi
+
+      - name: Run Smoke E2E tests in ${{ matrix.mode == 'production' && 'Production' || 'Development' }} Mode
+        shell: bash
+        run: |
+          if [ ${{ matrix.mode }} == 'prod' ]; then
+            echo "Compiling Kortex in production mode"
+            export ELECTRON_ENABLE_INSPECT=true
+            pnpm compile:current --linux dir
+            path=$(realpath "./dist/linux-unpacked/kortex")
             echo "Kortex built binary: $path"
             export KORTEX_BINARY=$path
           fi
@@ -129,6 +250,36 @@ jobs:
 
       - name: Execute pnpm
         run: pnpm install
+
+      - name: Setup Ollama
+        uses: ai-action/setup-ollama@v1
+
+      - name: Ensure Ollama server is ready
+        shell: bash
+        run: |
+          # Wait for Ollama server to be ready (up to 60 seconds)
+          for i in {1..30}; do
+            if ollama list &> /dev/null; then
+              echo "Ollama server is ready"
+              exit 0
+            fi
+            echo "Waiting for Ollama server... (attempt $i/30)"
+            sleep 2
+          done
+          echo "Ollama server failed to start"
+          exit 1
+
+      - name: Pull tinyllama model
+        shell: bash
+        run: |
+          ollama pull tinyllama
+          if ollama list | grep -q tinyllama; then
+            echo "Model tinyllama is ready"
+            echo "OLLAMA_ENABLED=true" >> $GITHUB_ENV
+          else
+            echo "Failed to pull tinyllama model"
+            exit 1
+          fi
 
       - name: Run Smoke E2E tests in ${{ matrix.mode == 'production' && 'Production' || 'Development' }} Mode
         shell: bash
