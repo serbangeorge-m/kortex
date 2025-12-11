@@ -1,0 +1,145 @@
+#
+# Copyright (C) 2025 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: E2E Test Job
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: 'Operating system to run on'
+        required: true
+        type: string
+      mode:
+        description: 'Test mode (prod or dev)'
+        required: true
+        type: string
+      compile_args:
+        description: 'Arguments for pnpm compile:current (e.g., --win dir, --linux dir, --mac dir)'
+        required: true
+        type: string
+      binary_path:
+        description: 'Path to the compiled binary (for prod mode)'
+        required: true
+        type: string
+
+jobs:
+  e2e-test:
+    name: ${{ inputs.os }} - ${{ inputs.mode }} e2e tests
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 60
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Execute pnpm
+        run: pnpm install
+
+      - name: Cache Ollama models
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama
+          key: ${{ runner.os }}-${{ runner.arch }}-ollama-tinyllama-v1
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-ollama-
+
+      - name: Setup Ollama
+        uses: ai-action/setup-ollama@v1
+
+      - name: Check Ollama server and pull model
+        shell: bash
+        run: |
+          # Wait for Ollama server to be ready (up to 60 seconds)
+          for i in {1..30}; do
+            if ollama list &> /dev/null; then
+              echo "Ollama server is ready"
+              break
+            fi
+            echo "Waiting for Ollama server... (attempt $i/30)"
+            sleep 2
+            if [ $i -eq 30 ]; then
+              echo "Ollama server failed to start"
+              exit 1
+            fi
+          done
+
+          # Pull the model
+          ollama pull tinyllama
+          if ollama list | grep -q tinyllama; then
+            echo "Model tinyllama is ready"
+            echo "OLLAMA_ENABLED=true" >> $GITHUB_ENV
+          else
+            echo "Failed to pull tinyllama model"
+            exit 1
+          fi
+
+      - name: Run Smoke E2E tests in ${{ inputs.mode == 'prod' && 'Production' || 'Development' }} Mode
+        shell: bash
+        run: |
+          if [ "${{ inputs.mode }}" == "prod" ]; then
+            echo "Compiling Kortex in production mode"
+            export ELECTRON_ENABLE_INSPECT=true
+            pnpm compile:current ${{ inputs.compile_args }}
+            path=$(realpath "${{ inputs.binary_path }}")
+            echo "Kortex built binary: $path"
+            export KORTEX_BINARY=$path
+          fi
+          pnpm test:e2e
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: always()
+        with:
+          annotate_only: true
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          require_tests: true
+          report_paths: '**/*results.xml'
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-e2e-${{ inputs.os }}-${{ inputs.mode }}
+          path: tests/playwright/output/**
+          retention-days: 7
+
+      - name: Add workflow summary
+        if: always()
+        shell: bash
+        run: |
+          echo "## E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | ${{ inputs.os }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Architecture | ${{ runner.arch }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Mode | ${{ inputs.mode }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Ollama Enabled | $OLLAMA_ENABLED |" >> $GITHUB_STEP_SUMMARY
+
