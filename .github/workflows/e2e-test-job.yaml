@@ -82,7 +82,7 @@ jobs:
             fi
             echo "Waiting for Ollama server... (attempt $i/30)"
             sleep 2
-            if [ $i -eq 30 ]; then
+            if [ "$i" -eq 30 ]; then
               echo "Ollama server failed to start"
               exit 1
             fi
@@ -92,7 +92,7 @@ jobs:
           ollama pull tinyllama
           if ollama list | grep -q tinyllama; then
             echo "Model tinyllama is ready"
-            echo "OLLAMA_ENABLED=true" >> $GITHUB_ENV
+            echo "OLLAMA_ENABLED=true" >> "$GITHUB_ENV"
           else
             echo "Failed to pull tinyllama model"
             exit 1
@@ -107,7 +107,7 @@ jobs:
             pnpm compile:current ${{ inputs.compile_args }}
             path=$(realpath "${{ inputs.binary_path }}")
             echo "Kortex built binary: $path"
-            export KORTEX_BINARY=$path
+            export KORTEX_BINARY="$path"
           fi
           pnpm test:e2e
 
@@ -134,12 +134,14 @@ jobs:
         if: always()
         shell: bash
         run: |
-          echo "## E2E Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Platform | ${{ inputs.os }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Architecture | ${{ runner.arch }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Mode | ${{ inputs.mode }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Ollama Enabled | $OLLAMA_ENABLED |" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## E2E Test Results"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| Platform | ${{ inputs.os }} |"
+            echo "| Architecture | ${{ runner.arch }} |"
+            echo "| Mode | ${{ inputs.mode }} |"
+            echo "| Ollama Enabled | $OLLAMA_ENABLED |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
