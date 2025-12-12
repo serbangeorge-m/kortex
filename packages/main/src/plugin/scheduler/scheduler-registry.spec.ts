@@ -56,6 +56,8 @@ const apiSenderMock = {
   send: vi.fn(),
 } as unknown as ApiSenderType;
 
+const ipcHandleMock = vi.fn();
+
 let schedulerRegistry: SchedulerRegistry;
 
 beforeEach(() => {
@@ -63,6 +65,7 @@ beforeEach(() => {
   const container = new Container();
   container.bind(SchedulerRegistry).toSelf().inSingletonScope();
   container.bind(ApiSenderType).toConstantValue(apiSenderMock);
+  container.bind(IPCHandle).toConstantValue(ipcHandleMock);
   schedulerRegistry = container.get(SchedulerRegistry);
 });
 

@@ -55,6 +55,7 @@ import { Disposable } from './types/disposable.js';
 import { HttpServer } from './webview/webview-registry.js';
 
 vi.mock(import('./extension/extension-api-version.js'));
+vi.mock(import('/@/chat/chat-manager.js'));
 
 let pluginSystem: TestPluginSystem;
 

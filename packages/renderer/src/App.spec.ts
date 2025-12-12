@@ -30,22 +30,23 @@ import { lastPage } from './stores/breadcrumb';
 import { navigationRegistry, type NavigationRegistryEntry } from './stores/navigation/navigation-registry';
 
 const mocks = vi.hoisted(() => ({
-  DashboardPage: vi.fn(),
   RunImage: vi.fn(),
   ImagesList: vi.fn(),
   SubmenuNavigation: vi.fn(),
   DeploymentsList: vi.fn(),
   KubernetesDashboard: vi.fn(),
+  CustomChat: vi.fn(),
 }));
 
-vi.mock('./lib/dashboard/DashboardPage.svelte', () => ({
-  default: mocks.DashboardPage,
-}));
 vi.mock('./lib/image/RunImage.svelte', () => ({
   default: mocks.RunImage,
 }));
 vi.mock('./lib/image/ImagesList.svelte', () => ({
   default: mocks.ImagesList,
+}));
+
+vi.mock('./lib/chat/route/CustomChat.svelte', () => ({
+  default: mocks.CustomChat,
 }));
 
 vi.mock('./lib/ui/TitleBar.svelte', () => ({
@@ -94,13 +95,14 @@ beforeEach(() => {
   };
   Object.defineProperty(window, 'dispatchEvent', { value: dispatchEventMock });
   (window.getConfigurationValue as unknown) = vi.fn();
+  vi.mocked(window.inferenceGetChats).mockResolvedValue([]);
   vi.mocked(kubernetesNoCurrentContext).kubernetesNoCurrentContext = writable(false);
 });
 
 test('test /image/run/* route', async () => {
   render(App);
   expect(mocks.RunImage).not.toHaveBeenCalled();
-  expect(mocks.DashboardPage).toHaveBeenCalled();
+  expect(mocks.CustomChat).toHaveBeenCalled();
   router.goto('/image/run/basic');
   await tick();
   expect(mocks.RunImage).toHaveBeenCalled();
@@ -109,7 +111,7 @@ test('test /image/run/* route', async () => {
 test('test /images/:id/:engineId route', async () => {
   render(App);
   expect(mocks.ImagesList).not.toHaveBeenCalled();
-  expect(mocks.DashboardPage).toHaveBeenCalled();
+  expect(mocks.CustomChat).toHaveBeenCalled();
   router.goto('/images/an-image/an-engine');
   await tick();
   expect(mocks.ImagesList).toHaveBeenCalled();
@@ -186,10 +188,10 @@ test('receive show-release-notes event from main', async () => {
 
   messages.get('show-release-notes');
 
-  expect(mocks.DashboardPage).toBeCalled();
+  expect(mocks.CustomChat).toBeCalled();
 });
 
-test('leaving Dashboard Page saves it in lastPage storage', async () => {
+test('leaving Chat Page saves it in lastPage storage', async () => {
   navigationRegistry.set([
     {
       name: 'Pods',
@@ -219,7 +221,7 @@ test('leaving Dashboard Page saves it in lastPage storage', async () => {
 
   router.goto('/pods');
   await tick();
-  expect(get(lastPage).name).equals('Dashboard Page');
+  expect(get(lastPage).name).equals('Chat');
 
   router.goto('/images');
   await tick();
@@ -231,7 +233,7 @@ test('leaving Dashboard Page saves it in lastPage storage', async () => {
 
   router.goto('/pods');
   await tick();
-  expect(get(lastPage).name).equals('Dashboard Page');
+  expect(get(lastPage).name).equals('Chat');
 });
 
 describe('Table persistence functionality', () => {
