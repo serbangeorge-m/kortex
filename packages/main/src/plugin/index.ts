@@ -1005,6 +1005,7 @@ export class PluginSystem {
           namespace: string;
           hideSecrets: boolean;
           dryrun: boolean;
+          params: Record<string, string>;
         },
       ): Promise<string> => {
         if (!options.dryrun && options.hideSecrets) throw new Error('cannot apply YAML while hidding secrets');
@@ -1020,6 +1021,7 @@ export class PluginSystem {
           flowId: flow.flowId,
           namespace: options.namespace,
           hideSecrets: options.hideSecrets,
+          params: options.params,
         });
 
         if (options.dryrun) {

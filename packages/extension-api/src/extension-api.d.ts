@@ -431,6 +431,7 @@ declare module '@kortex-app/api' {
     flowId: string;
     hideSecrets: boolean;
     namespace: string;
+    params: Record<string, string>;
   }
 
   export interface FlowGenerateCommandLineOptions {
