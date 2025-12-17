@@ -87,6 +87,7 @@ export const resources = {
   openai: { displayName: 'OpenAI', hasCreateButton: true },
   goose: { displayName: 'goose', hasCreateButton: false },
   gemini: { displayName: 'Gemini', hasCreateButton: true },
+  ollama: { displayName: 'Ollama', hasCreateButton: false },
 } as const;
 
 export type SettingsResourceId = keyof typeof resources;
@@ -129,6 +130,7 @@ export const PROVIDERS = {
   },
   ollama: {
     envVarName: 'OLLAMA_ENABLED',
+    resourceId: 'ollama',
     autoDetected: true,
   },
   'openshift-ai': {
