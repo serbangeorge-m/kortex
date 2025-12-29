@@ -147,7 +147,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@ai-sdk/mcp": "^0.0.5",
+    "@ai-sdk/mcp": "^1.0.1",
     "@docker/extension-api-client-types": "0.4.2",
     "@expo/sudo-prompt": "^9.3.2",
     "@kubernetes/client-node": "^1.4.0",
@@ -160,9 +160,9 @@
     "@types/stream-json": "^1.7.8",
     "@types/winreg": "^1.2.36",
     "adm-zip": "^0.5.16",
-    "ai": "^5.0.86",
-    "bcrypt-ts": "^7.1.0",
-    "better-sqlite3": "^12.4.1",
+    "ai": "^6.0.3",
+    "bcrypt-ts": "^8.0.0",
+    "better-sqlite3": "^12.5.0",
     "check-disk-space": "^3.4.0",
     "chokidar": "^3.6.0",
     "compare-versions": "^6.1.1",
