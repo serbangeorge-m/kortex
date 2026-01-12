@@ -135,6 +135,7 @@ export class MCPManager implements IAsyncDisposable {
     transport: Transport,
     url?: string,
     description?: string,
+    isValidSchema?: boolean,
   ): Promise<void> {
     const key = this.getKey(internalProviderId, serverId, setupType, index);
 
@@ -162,6 +163,7 @@ export class MCPManager implements IAsyncDisposable {
       url: url ?? '',
       description: description ?? '',
       tools,
+      isValidSchema,
     };
     this.#mcps.push(mcpRemoteServerInfo);
 
