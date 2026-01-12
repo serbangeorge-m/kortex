@@ -187,3 +187,56 @@ test.describe
       await chatPage.verifyStopButtonHidden();
     });
   });
+<<<<<<< HEAD
+=======
+
+  test('[CHAT-07] Export chat as Flow', async ({ chatPage, navigationBar, flowsPage, gooseSetup: _gooseSetup }) => {
+    await chatPage.ensureSidebarVisible();
+    await chatPage.clickNewChat();
+
+    const promptForExport =
+      'write a typescript recursive method that calculates the fibonacci number for a given index without using memoization';
+    // Regex pattern to verify the model response contains recursive Fibonacci code
+    const expectedModelResponsePattern = /(\w+)\(\s*(\w+)\s*-\s*1\s*\)\s*\+\s*\1\(\s*\2\s*-\s*2\s*\)/;
+    const flowName = 'export-chat-as-flow';
+
+    await chatPage.sendMessage(promptForExport);
+    await chatPage.verifyConversationMessage(promptForExport);
+    await expect
+      .poll(async () => await chatPage.verifyModelConversationMessage(expectedModelResponsePattern), {
+        timeout: TIMEOUTS.STANDARD,
+        message: 'Model should respond with recursive Fibonacci code pattern',
+      })
+      .toBeTruthy();
+
+    // Capture the current model name before exporting to verify it's preserved in the flow
+    const currentModelName = await chatPage.getSelectedModelName();
+    expect(currentModelName).toBeTruthy();
+
+    const flowCreatePage = await chatPage.exportAsFlow();
+    await flowCreatePage.waitForLoad();
+    await expect(flowCreatePage.selectModelDropdown).toContainText(currentModelName);
+
+    await flowCreatePage.createNewFlow(flowName);
+    await navigationBar.navigateToFlowsPage();
+    await flowsPage.ensureRowExists(flowName, TIMEOUTS.STANDARD, false);
+
+    await flowsPage.deleteAllFlows();
+  });
+
+  test('[CHAT-08] Verify send button state changes during message generation', async ({ chatPage }) => {
+    await chatPage.clickNewChat();
+    await chatPage.verifySendButtonVisible();
+
+    const message = 'What is Podman?';
+    // Pass 0 timeout to avoid waiting for generation to complete before checking stop button
+    await chatPage.sendMessage(message, 0);
+
+    await chatPage.verifyStopButtonVisible();
+    await chatPage.verifySendButtonHidden();
+
+    await chatPage.verifySendButtonVisible(TIMEOUTS.STANDARD);
+    await chatPage.verifyStopButtonHidden();
+  });
+});
+>>>>>>> d0db1807797 (test: add goose CLI installation fixture (#905))
