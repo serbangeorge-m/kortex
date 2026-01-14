@@ -27,8 +27,6 @@ const prompt =
   'write a typescript recursive method that calculates the fibonacci number for a given index without using memoization';
 const expectedTerminalContent = /(\w+)\(\s*(\w+)\s*-\s*1\s*\)\s*\+\s*\1\(\s*\2\s*-\s*2\s*\)/;
 
-test.skip(!!process.env.CI, 'Skipping flow tests on CI');
-
 test.beforeAll(async ({ page, navigationBar, flowsPage, gooseSetup: _gooseSetup }) => {
   await waitForNavigationReady(page);
   await navigationBar.navigateToFlowsPage();
