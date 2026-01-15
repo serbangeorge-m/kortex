@@ -71,11 +71,13 @@ const process = {
 const eventEmitterListeners = [];
 const EventEmitter = vi.fn();
 const Disposable = { dispose: vi.fn() };
+const Uri = { parse: vi.fn(), file: vi.fn() };
 
 const extensions = {
   getExtension: vi.fn(),
 };
 
+<<<<<<< HEAD
 const ProgressLocation = {
   APP_ICON: 1,
   TASK_WIDGET: 2,
@@ -109,4 +111,27 @@ const plugin = {
 beforeEach(() => {
   eventEmitterListeners.length = 0;
 });
+=======
+const rag = {
+  registerChunkProvider: vi.fn(),
+};
+
+const init = () => {
+  EventEmitter.mockImplementation(() => {
+    const listeners = [];
+    return {
+      event: vi.fn(callback => {
+        listeners.push(callback);
+      }),
+      fire: vi.fn(data => {
+        listeners.forEach(listener => listener(data));
+      }),
+      dispose: vi.fn(),
+    };
+  });
+};
+
+const plugin = { init, env, extensions, process, mcpRegistry, provider, rag, EventEmitter, Disposable, Uri };
+init();
+>>>>>>> edcb3bdad06 (feat: add Docling extension (#815))
 module.exports = plugin;
