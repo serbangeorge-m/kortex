@@ -71,9 +71,15 @@ export const test = base.extend<ElectronFixtures>({
     }
   },
 
-  page: async ({ electronApp }, use): Promise<void> => {
+  page: async ({ electronApp }, use, testInfo): Promise<void> => {
     const page = await getFirstPage(electronApp);
+    const logs: string[] = [];
+    const cleanup = setupLogging(page, electronApp, logs);
+
     await use(page);
+
+    cleanup();
+    await attachLogsOnFailure(testInfo, logs);
   },
 
   navigationBar: async ({ page }, use): Promise<void> => {
@@ -239,6 +245,58 @@ export async function getFirstPage(electronApp: ElectronApplication): Promise<Pa
 export async function closeAllWindows(electronApp: ElectronApplication): Promise<void> {
   const windows = electronApp.windows();
   await Promise.allSettled(windows.map(window => window.close().catch(() => {})));
+}
+
+export function setupLogging(page: Page, electronApp: ElectronApplication, logs: string[]): () => void {
+  const handlers = {
+    pageConsole: (msg: { type: () => string; text: () => string }): void => {
+      logs.push(`[renderer ${msg.type()}] ${msg.text()}`);
+    },
+    electronConsole: (msg: { type: () => string; text: () => string }): void => {
+      logs.push(`[main ${msg.type()}] ${msg.text()}`);
+    },
+    stdout: (d: Buffer): void => {
+      const text = d.toString().trim();
+      if (text) logs.push(`[stdout] ${text}`);
+    },
+    stderr: (d: Buffer): void => {
+      const text = d.toString().trim();
+      if (text) logs.push(`[stderr] ${text}`);
+    },
+  };
+
+  page.on('console', handlers.pageConsole);
+  electronApp.on('console', handlers.electronConsole);
+  const proc = electronApp.process();
+  proc?.stdout?.on('data', handlers.stdout);
+  proc?.stderr?.on('data', handlers.stderr);
+
+  return (): void => {
+    page.off('console', handlers.pageConsole);
+    electronApp.off('console', handlers.electronConsole);
+    proc?.stdout?.off('data', handlers.stdout);
+    proc?.stderr?.off('data', handlers.stderr);
+  };
+}
+
+export async function attachLogsOnFailure(
+  testInfo: {
+    status?: string;
+    attach: (name: string, options: { body: string; contentType: string }) => Promise<void>;
+  },
+  logs: string[],
+): Promise<void> {
+  if (logs.length === 0) return;
+
+  await testInfo.attach('console-logs', {
+    body: logs.join('\n'),
+    contentType: 'text/plain',
+  });
+
+  if (testInfo.status !== 'passed') {
+    console.error(`\nConsole logs (${logs.length} entries):`);
+    logs.forEach(log => console.error(log));
+  }
 }
 
 export { expect } from '@playwright/test';

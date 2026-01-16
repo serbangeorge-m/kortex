@@ -21,7 +21,14 @@ import type { ElectronApplication, Page } from '@playwright/test';
 
 import { MCP_SERVERS, type MCPServerId, PROVIDERS, type ResourceId } from '../model/core/types';
 import { NavigationBar } from '../model/navigation/navigation';
-import { type ElectronFixtures, getFirstPage, launchElectronApp, test as base } from './electron-app';
+import {
+  attachLogsOnFailure,
+  type ElectronFixtures,
+  getFirstPage,
+  launchElectronApp,
+  setupLogging,
+  test as base,
+} from './electron-app';
 
 interface WorkerFixtures {
   workerElectronApp: ElectronApplication;
@@ -156,7 +163,7 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
 
         await use();
       } catch (error) {
-        console.warn('Goose setup failed:', error);
+        console.error('Goose setup failed:', error);
         throw error;
       }
     },
@@ -167,8 +174,14 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
     await use(workerElectronApp);
   },
 
-  page: async ({ workerPage }, use): Promise<void> => {
+  page: async ({ workerPage, electronApp }, use, testInfo): Promise<void> => {
+    const logs: string[] = [];
+    const cleanup = setupLogging(workerPage, electronApp, logs);
+
     await use(workerPage);
+
+    cleanup();
+    await attachLogsOnFailure(testInfo, logs);
   },
 });
 
