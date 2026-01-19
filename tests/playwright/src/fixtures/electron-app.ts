@@ -250,15 +250,23 @@ export async function closeAllWindows(electronApp: ElectronApplication): Promise
 export function setupLogging(page: Page, electronApp: ElectronApplication, logs: string[]): () => void {
   const handlers = {
     pageConsole: (msg: { type: () => string; text: () => string }): void => {
+      const msgType = msg.type();
+
+      if (msgType !== 'error') return;
+
       const text = msg.text();
-      // Skip renderer logs that are forwarded from main (they start with "main ↪️")
       if (text.startsWith('main ↪️')) return;
+
       const timestamp = new Date().toISOString();
-      logs.push(`[${timestamp}] [renderer ${msg.type()}] ${text}`);
+      logs.push(`[${timestamp}] [renderer ${msgType}] ${text}`);
     },
     electronConsole: (msg: { type: () => string; text: () => string }): void => {
+      const msgType = msg.type();
+
+      if (msgType !== 'error') return;
+
       const timestamp = new Date().toISOString();
-      logs.push(`[${timestamp}] [main ${msg.type()}] ${msg.text()}`);
+      logs.push(`[${timestamp}] [main ${msgType}] ${msg.text()}`);
     },
   };
 
