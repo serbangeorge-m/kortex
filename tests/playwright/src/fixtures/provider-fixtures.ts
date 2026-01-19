@@ -22,7 +22,7 @@ import type { ElectronApplication, Page } from '@playwright/test';
 import { MCP_SERVERS, type MCPServerId, PROVIDERS, type ResourceId } from '../model/core/types';
 import { NavigationBar } from '../model/navigation/navigation';
 import {
-  attachLogsOnFailure,
+  attachLogs,
   type ElectronFixtures,
   getFirstPage,
   launchElectronApp,
@@ -71,20 +71,7 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
   workerPage: [
     async ({ workerElectronApp }, use): Promise<void> => {
       const page = await getFirstPage(workerElectronApp);
-      const logs: string[] = [];
-      const cleanup = setupLogging(page, workerElectronApp, logs);
-
-      try {
-        await use(page);
-      } finally {
-        cleanup();
-
-        if (logs.length > 0) {
-          console.error(`\n=== Worker logs (${logs.length} entries) ===`);
-          logs.forEach(log => console.error(log));
-          console.error('=== End worker logs ===\n');
-        }
-      }
+      await use(page);
     },
     { scope: 'worker' },
   ],
@@ -194,7 +181,7 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
     await use(workerPage);
 
     cleanup();
-    await attachLogsOnFailure(testInfo, logs);
+    await attachLogs(testInfo, logs);
   },
 });
 

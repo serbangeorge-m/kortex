@@ -79,7 +79,7 @@ export const test = base.extend<ElectronFixtures>({
     await use(page);
 
     cleanup();
-    await attachLogsOnFailure(testInfo, logs);
+    await attachLogs(testInfo, logs);
   },
 
   navigationBar: async ({ page }, use): Promise<void> => {
@@ -279,7 +279,7 @@ export function setupLogging(page: Page, electronApp: ElectronApplication, logs:
   };
 }
 
-export async function attachLogsOnFailure(
+export async function attachLogs(
   testInfo: {
     status?: string;
     attach: (name: string, options: { body: string; contentType: string }) => Promise<void>;
