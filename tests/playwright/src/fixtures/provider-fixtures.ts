@@ -71,7 +71,20 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
   workerPage: [
     async ({ workerElectronApp }, use): Promise<void> => {
       const page = await getFirstPage(workerElectronApp);
-      await use(page);
+      const logs: string[] = [];
+      const cleanup = setupLogging(page, workerElectronApp, logs);
+
+      try {
+        await use(page);
+      } catch (error) {
+        if (logs.length > 0) {
+          logs.forEach(log => console.error(log));
+        }
+
+        throw error;
+      } finally {
+        cleanup();
+      }
     },
     { scope: 'worker' },
   ],
