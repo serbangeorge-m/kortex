@@ -76,14 +76,14 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
 
       try {
         await use(page);
-      } catch (error) {
-        if (logs.length > 0) {
-          logs.forEach(log => console.error(log));
-        }
-
-        throw error;
       } finally {
         cleanup();
+
+        if (logs.length > 0) {
+          console.error(`\n=== Worker logs (${logs.length} entries) ===`);
+          logs.forEach(log => console.error(log));
+          console.error('=== End worker logs ===\n');
+        }
       }
     },
     { scope: 'worker' },
