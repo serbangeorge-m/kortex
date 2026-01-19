@@ -250,32 +250,24 @@ export async function closeAllWindows(electronApp: ElectronApplication): Promise
 export function setupLogging(page: Page, electronApp: ElectronApplication, logs: string[]): () => void {
   const handlers = {
     pageConsole: (msg: { type: () => string; text: () => string }): void => {
-      logs.push(`[renderer ${msg.type()}] ${msg.text()}`);
+      const text = msg.text();
+      // Skip renderer logs that are forwarded from main (they start with "main ↪️")
+      if (text.startsWith('main ↪️')) return;
+      const timestamp = new Date().toISOString();
+      logs.push(`[${timestamp}] [renderer ${msg.type()}] ${text}`);
     },
     electronConsole: (msg: { type: () => string; text: () => string }): void => {
-      logs.push(`[main ${msg.type()}] ${msg.text()}`);
-    },
-    stdout: (d: Buffer): void => {
-      const text = d.toString().trim();
-      if (text) logs.push(`[stdout] ${text}`);
-    },
-    stderr: (d: Buffer): void => {
-      const text = d.toString().trim();
-      if (text) logs.push(`[stderr] ${text}`);
+      const timestamp = new Date().toISOString();
+      logs.push(`[${timestamp}] [main ${msg.type()}] ${msg.text()}`);
     },
   };
 
   page.on('console', handlers.pageConsole);
   electronApp.on('console', handlers.electronConsole);
-  const proc = electronApp.process();
-  proc?.stdout?.on('data', handlers.stdout);
-  proc?.stderr?.on('data', handlers.stderr);
 
   return (): void => {
     page.off('console', handlers.pageConsole);
     electronApp.off('console', handlers.electronConsole);
-    proc?.stdout?.off('data', handlers.stdout);
-    proc?.stderr?.off('data', handlers.stderr);
   };
 }
 
