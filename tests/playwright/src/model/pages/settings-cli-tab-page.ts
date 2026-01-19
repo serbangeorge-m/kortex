@@ -49,8 +49,7 @@ export class SettingsCliPage extends BasePage {
     await expect(this.gooseInstallButton).toBeVisible();
     await this.gooseInstallButton.click();
 
-    // Dialog appears after fetching releases from GitHub API, which can be slow on CI runners
-    await expect(this.versionDropdownDialog).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
+    await expect(this.versionDropdownDialog).toBeVisible();
     await this.latestVersion.click();
 
     await expect.poll(async () => await this.isGooseVersionDetected(), { timeout: TIMEOUTS.DEFAULT }).toBeTruthy();
