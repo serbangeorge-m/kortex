@@ -30,6 +30,10 @@ import {
   test as base,
 } from './electron-app';
 
+interface PageWithLogs extends Page {
+  __workerLogs?: string[];
+}
+
 interface WorkerFixtures {
   workerElectronApp: ElectronApplication;
   workerPage: Page;
@@ -71,7 +75,20 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
   workerPage: [
     async ({ workerElectronApp }, use): Promise<void> => {
       const page = await getFirstPage(workerElectronApp);
-      await use(page);
+      const logs: string[] = [];
+      const cleanup = setupLogging(page, workerElectronApp, logs);
+
+      (page as PageWithLogs).__workerLogs = logs;
+
+      try {
+        await use(page);
+      } finally {
+        cleanup();
+
+        if (logs.length > 0) {
+          logs.forEach(log => console.error(log));
+        }
+      }
     },
     { scope: 'worker' },
   ],
@@ -174,14 +191,16 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
     await use(workerElectronApp);
   },
 
-  page: async ({ workerPage, electronApp }, use, testInfo): Promise<void> => {
-    const logs: string[] = [];
-    const cleanup = setupLogging(workerPage, electronApp, logs);
+  page: async ({ workerPage }, use, testInfo): Promise<void> => {
+    const logs = (workerPage as PageWithLogs).__workerLogs ?? [];
+    const startIndex = logs.length;
 
     await use(workerPage);
 
-    cleanup();
-    await attachLogs(testInfo, logs);
+    const testLogs = logs.slice(startIndex);
+    await attachLogs(testInfo, testLogs);
+
+    logs.length = startIndex;
   },
 });
 
