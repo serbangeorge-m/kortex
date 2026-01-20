@@ -30,13 +30,10 @@ import {
   test as base,
 } from './electron-app';
 
-interface PageWithLogs extends Page {
-  __workerLogs?: string[];
-}
-
 interface WorkerFixtures {
   workerElectronApp: ElectronApplication;
   workerPage: Page;
+  workerLogs: string[];
   workerNavigationBar: NavigationBar;
   resource: ResourceId;
   resourceSetup: void;
@@ -72,22 +69,30 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
-  workerPage: [
-    async ({ workerElectronApp }, use): Promise<void> => {
-      const page = await getFirstPage(workerElectronApp);
+  workerLogs: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use): Promise<void> => {
       const logs: string[] = [];
-      const cleanup = setupLogging(page, workerElectronApp, logs);
+      try {
+        await use(logs);
+      } finally {
+        if (logs.length > 0) {
+          logs.forEach(log => console.error(log));
+        }
+      }
+    },
+    { scope: 'worker' },
+  ],
 
-      (page as PageWithLogs).__workerLogs = logs;
+  workerPage: [
+    async ({ workerElectronApp, workerLogs }, use): Promise<void> => {
+      const page = await getFirstPage(workerElectronApp);
+      const cleanup = setupLogging(page, workerElectronApp, workerLogs);
 
       try {
         await use(page);
       } finally {
         cleanup();
-
-        if (logs.length > 0) {
-          logs.forEach(log => console.error(log));
-        }
       }
     },
     { scope: 'worker' },
@@ -191,16 +196,15 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
     await use(workerElectronApp);
   },
 
-  page: async ({ workerPage }, use, testInfo): Promise<void> => {
-    const logs = (workerPage as PageWithLogs).__workerLogs ?? [];
-    const startIndex = logs.length;
+  page: async ({ workerPage, workerLogs }, use, testInfo): Promise<void> => {
+    const startIndex = workerLogs.length;
 
     await use(workerPage);
 
-    const testLogs = logs.slice(startIndex);
+    const testLogs = workerLogs.slice(startIndex);
     await attachLogs(testInfo, testLogs);
 
-    logs.length = startIndex;
+    workerLogs.length = startIndex;
   },
 });
 
