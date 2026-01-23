@@ -19,6 +19,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
+import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
 import type { IConfigurationRegistry } from '/@api/configuration/models.js';
 
 import type { Certificates } from '../certificates.js';
@@ -58,6 +59,11 @@ global.fetch = globalFetch;
 
 const originalConsoleError = console.error;
 
+const providerRegistry = {
+  onDidRegisterRagConnection: vi.fn(),
+  onDidUnregisterRagConnection: vi.fn(),
+} as unknown as ProviderRegistry;
+
 beforeEach(() => {
   console.error = vi.fn();
 
@@ -70,6 +76,7 @@ beforeEach(() => {
     {} as SafeStorageRegistry,
     configurationRegistry,
     schemaValidator,
+    providerRegistry,
   );
 });
 
