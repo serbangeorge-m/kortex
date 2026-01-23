@@ -41,6 +41,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GEMINI_API_KEY: ${{ !startsWith(inputs.instance, 'ubuntu') && secrets.GEMINI_API_KEY || '' }}
+      OPENAI_API_KEY: ${{ !startsWith(inputs.instance, 'ubuntu') && secrets.OPENAI_API_KEY || '' }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
