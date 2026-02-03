@@ -81,10 +81,10 @@ import type { ExtensionDevelopmentFolderInfo } from '/@api/extension-development
 import type { ExtensionInfo } from '/@api/extension-info';
 import type { FeaturedExtension } from '/@api/featured/featured-api';
 import type { FeedbackMessages, FeedbackProperties, GitHubIssue } from '/@api/feedback';
-import type { ItemInfo } from '/@api/help-menu';
 import type { FlowExecuteInfo } from '/@api/flow-execute-info';
 import type { FlowInfo } from '/@api/flow-info';
 import type { FlowScheduleInfo } from '/@api/flow-schedule-info';
+import type { ItemInfo } from '/@api/help-menu';
 import type { HistoryInfo } from '/@api/history-info';
 import type { IconInfo } from '/@api/icon-info';
 import type { ImageCheckerInfo } from '/@api/image-checker-info';
@@ -131,8 +131,8 @@ import type {
 } from '/@api/provider-info';
 import type { ProxyState } from '/@api/proxy';
 import type { PullEvent } from '/@api/pull-event';
-import type { ExtensionBanner, RecommendedRegistry } from '/@api/recommendations/recommendations';
 import type { ChunkProviderInfo } from '/@api/rag/chunk-provider-info';
+import type { ExtensionBanner, RecommendedRegistry } from '/@api/recommendations/recommendations';
 import type { ReleaseNotesInfo } from '/@api/release-notes-info';
 import type { StatusBarEntryDescriptor } from '/@api/status-bar';
 import type { PinOption } from '/@api/status-bar/pin-option';
@@ -140,6 +140,7 @@ import type { TelemetryMessages } from '/@api/telemetry';
 import type { ViewInfoUI } from '/@api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info';
 import type { WebviewInfo } from '/@api/webview-info';
+import type { WelcomeMessages } from '/@api/welcome-info';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -1983,6 +1984,10 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listExtensions', async (): Promise<ExtensionInfo[]> => {
     return ipcInvoke('extension-loader:listExtensions');
+  });
+
+  contextBridge.exposeInMainWorld('getWelcomeMessages', async (): Promise<WelcomeMessages> => {
+    return ipcInvoke('welcome:getWelcomeMessages');
   });
 
   contextBridge.exposeInMainWorld('stopExtension', async (extensionId: string): Promise<void> => {
