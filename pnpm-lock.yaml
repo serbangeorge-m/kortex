@@ -70,13 +70,13 @@ importers:
         specifier: ^0.5.16
         version: 0.5.16
       ai:
-        specifier: ^6.0.39
+        specifier: ^6.0.91
         version: 6.0.111(zod@4.3.6)
       bcrypt-ts:
-        specifier: ^8.0.0
+        specifier: ^8.0.1
         version: 8.0.1
       better-sqlite3:
-        specifier: ^12.5.0
+        specifier: ^12.6.2
         version: 12.6.2
       check-disk-space:
         specifier: ^3.4.0
@@ -13794,7 +13794,7 @@ snapshots:
       minimist: 1.2.8
       mkdirp-classic: 0.5.3
       napi-build-utils: 2.0.0
-      node-abi: 3.85.0
+      node-abi: 3.87.0
       pump: 3.0.3
       rc: 1.2.8
       simple-get: 4.0.1
