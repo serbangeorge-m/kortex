@@ -23,13 +23,13 @@ import { basename, resolve } from 'node:path';
 import { type ChunkProvider, ProviderRagConnection } from '@kortex-app/api';
 import { inject, injectable } from 'inversify';
 
-import { ApiSenderType } from '/@/plugin/api.js';
 import { ChunkProviderRegistry } from '/@/plugin/chunk-provider-registry.js';
 import { MCPManager } from '/@/plugin/mcp/mcp-manager.js';
 import { INTERNAL_PROVIDER_ID } from '/@/plugin/mcp/mcp-registry.js';
 import { ProviderRegistry } from '/@/plugin/provider-registry.js';
 import { TaskManager } from '/@/plugin/tasks/task-manager.js';
 import { Uri } from '/@/plugin/types/uri.js';
+import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import { FileInfo, RagEnvironment } from '/@api/rag/rag-environment.js';
 
 import { Directories } from './directories.js';

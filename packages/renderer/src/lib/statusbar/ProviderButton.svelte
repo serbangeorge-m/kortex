@@ -27,8 +27,8 @@ let providerStatus = $derived.by(() => {
       return provider.vmConnections[0].status;
     } else if (provider.inferenceConnections.length > 0) {
       return provider.inferenceConnections[0].status;
-    } else if (provider.mcpConnections.length > 0) {
-      return provider.mcpConnections[0].status;
+    } else if (provider.ragConnections.length > 0) {
+      return provider.ragConnections[0].status;
     } else {
       return provider.status;
     }

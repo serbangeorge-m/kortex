@@ -34,6 +34,7 @@ import { PeerProperties } from './PeerProperties';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
+import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
 import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRenderingCopyButton.svelte';
 import ProviderActionButtons from './ProviderActionButtons.svelte';
 import SettingsPage from './SettingsPage.svelte';
@@ -48,7 +49,11 @@ import {
 
 let providers = $state<ProviderInfo[]>([]);
 let containerConnectionStatus = new SvelteMap<string, IConnectionStatus>();
+let providerInstallationInProgress = new SvelteMap<string, boolean>();
 let extensionOnboardingEnablement = new SvelteMap<string, string>();
+let displayInstallModal = $state(false);
+let providerToBeInstalled = $state<{ provider: ProviderInfo; displayName: string }>();
+let doExecuteAfterInstallation: () => void;
 let preflightChecks = $state<CheckStatus[]>([]);
 
 let restartingQueue: IConnectionRestart[] = [];
@@ -70,6 +75,16 @@ onMount(async () => {
     providers = providerInfosValue;
     const connectionNames: string[] = [];
     providers.forEach(provider => {
+      if (
+        providerToBeInstalled &&
+        doExecuteAfterInstallation &&
+        provider.name === providerToBeInstalled.provider.name &&
+        (provider.status === 'ready' || provider.status === 'installed')
+      ) {
+        providerToBeInstalled = undefined;
+        doExecuteAfterInstallation();
+      }
+
       provider.containerConnections.forEach(container => {
         const containerConnectionName = getProviderConnectionName(provider, container);
         connectionNames.push(containerConnectionName);
@@ -275,6 +290,63 @@ async function startConnectionProvider(
   );
 }
 
+async function doCreateNew(provider: ProviderInfo, displayName: string): Promise<void> {
+  displayInstallModal = false;
+  if (provider.status === 'not-installed') {
+    providerInstallationInProgress.set(provider.name, true);
+    providerToBeInstalled = { provider, displayName };
+    doExecuteAfterInstallation = (): void => router.goto(`/preferences/provider/${provider.internalId}`);
+    await performInstallation(provider);
+  } else {
+    await window.telemetryTrack('createNewProviderConnectionPageRequested', {
+      providerId: provider.id,
+      name: provider.name,
+    });
+    router.goto(`/preferences/provider/${provider.internalId}`);
+  }
+}
+
+async function performInstallation(provider: ProviderInfo): Promise<void> {
+  const checksStatus: CheckStatus[] = [];
+  let checkSuccess = false;
+  let currentCheck: CheckStatus;
+  try {
+    checkSuccess = await window.runInstallPreflightChecks(provider.internalId, {
+      endCheck: status => {
+        if (currentCheck) {
+          currentCheck = status;
+        } else {
+          return;
+        }
+        if (currentCheck.successful === false) {
+          checksStatus.push(currentCheck);
+          preflightChecks = checksStatus;
+        }
+      },
+      startCheck: status => {
+        currentCheck = status;
+        if (currentCheck.successful === false) {
+          preflightChecks = [...checksStatus, currentCheck];
+        }
+      },
+    });
+  } catch (err) {
+    console.error(err);
+  }
+  if (checkSuccess) {
+    await window.installProvider(provider.internalId);
+    // reset checks
+    preflightChecks = [];
+  } else {
+    displayInstallModal = true;
+  }
+  providerInstallationInProgress.set(provider.name, false);
+}
+
+function hideInstallModal(): void {
+  displayInstallModal = false;
+}
+
 function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): boolean {
   let whenEnablement = extensionOnboardingEnablement.get(provider.extensionId);
   if (!whenEnablement) {
@@ -425,75 +497,9 @@ $effect(() => {
               {/if}
               <span class="my-auto font-semibold text-[var(--pd-invert-content-card-header-text)] ml-3 break-words"
                 >{provider.name}</span>
-<<<<<<< HEAD
               {#if provider.version}
                 <span class="my-auto text-[var(--pd-content-sub-header)] ml-3 break-words"
                   >v{provider.version}</span>
-=======
-            </div>
-            <div class="text-center mt-10">
-              <!-- Some providers have a status of 'unknown' so that they do not appear in the dashboard, this allows onboarding to still show. -->
-              {#if globalContext && isOnboardingEnabled(provider, globalContext) && (provider.status === 'not-installed' || provider.status === 'unknown')}
-                <Button
-                  aria-label="Setup {provider.name}"
-                  title="Setup {provider.name}"
-                  onclick={(): void => router.goto(`/preferences/onboarding/${provider.extensionId}`)}>
-                  Setup ...
-                </Button>
-              {:else}
-                <div class="flex flex-row justify-around flex-wrap gap-2">
-                  {#if provider.containerProviderConnectionCreation
-                  || provider.kubernetesProviderConnectionCreation
-                  || provider.vmProviderConnectionCreation
-                  || provider.inferenceProviderConnectionCreation
-                  || provider.ragProviderConnectionCreation
-                  }
-                    {@const providerDisplayName =
-                      (provider.containerProviderConnectionCreation
-                        ? (provider.containerProviderConnectionCreationDisplayName ?? undefined)
-                        : provider.kubernetesProviderConnectionCreation
-                          ? provider.kubernetesProviderConnectionCreationDisplayName
-                          : provider.vmProviderConnectionCreation
-                            ? provider.vmProviderConnectionCreationDisplayName
-                            : provider.inferenceProviderConnectionCreation
-                              ? provider.inferenceProviderConnectionCreationDisplayName
-                              : provider.ragProviderConnectionCreation
-                                ? provider.ragProviderConnectionCreationDisplayName
-                                : undefined) ?? provider.name}
-                    {@const buttonTitle =
-                      (provider.containerProviderConnectionCreation
-                        ? (provider.containerProviderConnectionCreationButtonTitle ?? undefined)
-                        : provider.kubernetesProviderConnectionCreation
-                          ? provider.kubernetesProviderConnectionCreationButtonTitle
-                          : provider.vmProviderConnectionCreation
-                            ? provider.vmProviderConnectionCreationButtonTitle
-                            : provider.inferenceProviderConnectionCreation
-                              ? provider.inferenceProviderConnectionCreationButtonTitle
-                              : provider.ragProviderConnectionCreation
-                                ? provider.ragProviderConnectionCreationButtonTitle
-                                : undefined) ?? 'Create new'}
-                    <!-- create new provider button -->
-                    <CreateProviderConnectionButton {provider} {providerDisplayName} {buttonTitle} bind:preflightChecks={preflightChecks} />
-                  {/if}
-                  {#if globalContext && (isOnboardingEnabled(provider, globalContext) || hasAnyConfiguration(provider))}
-                    <Button
-                      aria-label="Setup {provider.name}"
-                      title="Setup {provider.name}"
-                      onclick={(): void => {
-                        if (globalContext && isOnboardingEnabled(provider, globalContext)) {
-                          router.goto(`/preferences/onboarding/${provider.extensionId}`);
-                        } else {
-                          router.goto(`/preferences/default/preferences.${provider.extensionId}`);
-                        }
-                      }}>
-                      <Fa size="0.9x" icon={faGear} />
-                    </Button>
-                  {/if}
-                  {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
-                    <ProviderUpdateButton onPreflightChecks={(checks): CheckStatus[] => (preflightChecks = checks)} provider={provider} />
-                  {/if}
-                </div>
->>>>>>> 56886861ff4 (chore: remove deprecated (#179))
               {/if}
             </div>
             <ProviderActionButtons
@@ -715,32 +721,15 @@ $effect(() => {
             </PreferencesConnectionActions>
           </div>
         {/each}
-        {#each provider.inferenceConnections as inferenceConnection, index (index)}
-          <div class="px-5 py-2 w-[240px]" role="region" aria-label={inferenceConnection.name}>
-            <span>{inferenceConnection.name} (Inference)</span>
-            <PreferencesConnectionActions
-              provider={provider}
-              connection={inferenceConnection}
-              connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, inferenceConnection))}
-              updateConnectionStatus={updateContainerStatus}
-              addConnectionToRestartingQueue={addConnectionToRestartingQueue}
-            />
-          </div>
-        {/each}
-          {#each provider.ragConnections as ragConnection, index (index)}
-            <div class="px-5 py-2 w-[240px]" role="region" aria-label={ragConnection.name}>
-              <span>{ragConnection.name} (RAG)</span>
-              <PreferencesConnectionActions
-                provider={provider}
-                connection={ragConnection}
-                connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, ragConnection))}
-                updateConnectionStatus={updateContainerStatus}
-                addConnectionToRestartingQueue={addConnectionToRestartingQueue}
-              />
-            </div>
-          {/each}
         </div>
       </div>
     {/each}
   </div>
+  {#if displayInstallModal && providerToBeInstalled}
+    <PreferencesProviderInstallationModal
+      providerToBeInstalled={providerToBeInstalled}
+      preflightChecks={preflightChecks}
+      closeCallback={hideInstallModal}
+      doCreateNew={doCreateNew} />
+  {/if}
 </SettingsPage>

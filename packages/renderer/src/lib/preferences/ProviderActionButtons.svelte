@@ -45,8 +45,8 @@ const providerDisplayName = $derived(
         ? provider.vmProviderConnectionCreationDisplayName
         : provider.inferenceProviderConnectionCreation
           ? provider.inferenceProviderConnectionCreationDisplayName
-          : provider.mcpProviderConnectionCreation
-            ? provider.mcpProviderConnectionCreationDisplayName
+          : provider.ragProviderConnectionCreation
+            ? provider.ragProviderConnectionCreationDisplayName
             : undefined) ?? provider.name,
 );
 
@@ -59,8 +59,8 @@ const buttonTitle = $derived(
         ? provider.vmProviderConnectionCreationButtonTitle
         : provider.inferenceProviderConnectionCreation
           ? provider.inferenceProviderConnectionCreationButtonTitle
-          : provider.mcpProviderConnectionCreation
-            ? provider.mcpProviderConnectionCreationButtonTitle
+          : provider.ragProviderConnectionCreation
+            ? provider.ragProviderConnectionCreationButtonTitle
             : undefined) ?? 'Create new',
 );
 
@@ -69,7 +69,7 @@ const showCreateNewButton = $derived(
     provider.kubernetesProviderConnectionCreation ||
     provider.vmProviderConnectionCreation ||
     provider.inferenceProviderConnectionCreation ||
-    provider.mcpProviderConnectionCreation,
+    provider.ragProviderConnectionCreation,
 );
 
 const showSetupButton = $derived(

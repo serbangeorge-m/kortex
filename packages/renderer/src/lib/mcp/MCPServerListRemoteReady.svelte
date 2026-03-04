@@ -1,7 +1,4 @@
 <script lang="ts">
-import { Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
-import McpIcon from '../images/MCPIcon.svelte';
-import SimpleColumn from '@podman-desktop/ui-svelte/TableSimpleColumn';
 import { FilteredEmptyScreen, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
 
 import MCPNameColumn from '/@/lib/mcp/column/MCPNameColumn.svelte';

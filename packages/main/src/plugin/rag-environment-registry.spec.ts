@@ -23,11 +23,11 @@ import { resolve } from 'node:path';
 import type { MockInstance } from 'vitest';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { ApiSenderType } from '/@/plugin/api.js';
 import type { ChunkProviderRegistry } from '/@/plugin/chunk-provider-registry.js';
 import type { MCPManager } from '/@/plugin/mcp/mcp-manager.js';
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
 import type { TaskManager } from '/@/plugin/tasks/task-manager.js';
+import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import type { RagEnvironment } from '/@api/rag/rag-environment.js';
 
 import type { Directories } from './directories.js';

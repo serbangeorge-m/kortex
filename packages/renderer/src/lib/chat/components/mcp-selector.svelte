@@ -1,7 +1,5 @@
 <script lang="ts">
 import { faToolbox } from '@fortawesome/free-solid-svg-icons/faToolbox';
-
-import { providerInfos } from '/@/stores/providers';
 import Fa from 'svelte-fa';
 
 import { cn } from '/@/lib/chat/utils/shadcn';
@@ -25,6 +23,7 @@ interface Props {
   disabled?: boolean;
   open?: boolean;
 }
+
 let { selected = $bindable(), class: className, disabled = false, open = $bindable(false) }: Props = $props();
 
 function onSelect(mcp: MCPRemoteServerInfo, event: Event): void {

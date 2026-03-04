@@ -7,7 +7,6 @@ import { handleNavigation } from '/@/navigation';
 import { isFlowConnectionAvailable } from '/@/stores/flow-provider';
 import { flowsInfos } from '/@/stores/flows';
 import type { FlowInfo } from '/@api/flow-info';
-import { handleNavigation } from '/@/navigation';
 import { NavigationPage } from '/@api/navigation-page';
 
 import FlowIcon from '../images/FlowIcon.svelte';

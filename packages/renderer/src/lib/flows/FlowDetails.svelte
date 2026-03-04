@@ -1,7 +1,6 @@
 <script lang="ts">
 import { Spinner, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
-import type { Terminal } from '@xterm/xterm';
 import { router } from 'tinro';
 
 import DetailsCell from '/@/lib/details/DetailsCell.svelte';
@@ -63,23 +62,6 @@ onMount(() => {
   Promise.allSettled([
     window.readFlow(providerId, connectionName, flowId).then(content => {
       flowContent = content;
-    })
-    .catch(console.error);
-
-  // when a new execute flow is added, select it
-  executeFlowsInfo.subscribe(flows => {
-    const matchingFlows = flows.filter(
-      flow => flow.flowInfo.connectionName === connectionName && flow.flowInfo.providerId === providerId,
-    );
-    if (matchingFlows.length > 0) {
-      const latestFlow = matchingFlows[matchingFlows.length - 1];
-      if (latestFlow.taskId === currentLogFlowId) {
-        return;
-      }
-      currentLogFlowId = latestFlow.taskId;
-      onLogSelectedChange(currentLogFlowId).catch(console.error);
-    }
-  });
     }),
   ])
     .catch(console.error)

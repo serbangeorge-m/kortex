@@ -83,12 +83,6 @@ test('Expect that removing the connection is going back to the previous page', a
     flowConnections: [],
     inferenceProviderConnectionCreation: false,
     inferenceProviderConnectionInitialization: false,
-<<<<<<< HEAD
-    mcpProviderConnectionCreation: false,
-    mcpProviderConnectionInitialization: false,
-    mcpConnections: [],
-=======
->>>>>>> 56886861ff4 (chore: remove deprecated (#179))
     ragProviderConnectionCreation: false,
     ragProviderConnectionInitialization: false,
   };

@@ -4,7 +4,7 @@ import { onMount } from 'svelte';
 
 import MonacoEditor from '/@/lib/editor/MonacoEditor.svelte';
 import RunFlowModal from '/@/lib/flows/RunFlowModal.svelte';
-import KubernetesIcon from '/@/lib/kube/KubernetesIcon.svelte';
+import KubeIcon from '/@/lib/images/KubeIcon.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 import { flowsInfos } from '/@/stores/flows';
 import { kubernetesContextsHealths } from '/@/stores/kubernetes-context-health';
@@ -117,7 +117,7 @@ function handleModalCancel(): void {
       >Hide Secret</Checkbox>
     <div class="flex flex-row gap-x-2">
       <KubernetesCurrentContextConnectionBadge />
-      <Button disabled={!clusterReachable} icon={KubernetesIcon} onclick={handleApplyClick}>Apply</Button>
+      <Button disabled={!clusterReachable} icon={KubeIcon} onclick={handleApplyClick}>Apply</Button>
     </div>
   </div>
   {#if kubernetes}
