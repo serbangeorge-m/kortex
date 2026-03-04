@@ -25,14 +25,7 @@ import { configurationProperties } from '/@/stores/configurationProperties';
 import { EventStore } from '/@/stores/event-store';
 import { createNavigationFlowsEntry } from '/@/stores/navigation/navigation-registry-flows.svelte';
 
-import { createNavigationContainerEntry } from './navigation-registry-container.svelte';
 import { createNavigationExtensionEntry, createNavigationExtensionGroup } from './navigation-registry-extension.svelte';
-import { createNavigationImageEntry } from './navigation-registry-image.svelte';
-import { createNavigationKubernetesGroup } from './navigation-registry-kubernetes.svelte';
-import { createNavigationNetworkEntry } from './navigation-registry-network.svelte';
-import { createNavigationPodEntry } from './navigation-registry-pod.svelte';
-import { createNavigationVolumeEntry } from './navigation-registry-volume.svelte';
-import { createNavigationJobsEntry } from './navigation-registry-jobs.svelte';
 import { createNavigationMcpEntry } from './navigation-registry-mcp.svelte';
 
 export interface NavigationRegistryEntry {
@@ -66,12 +59,14 @@ let hiddenItems: string[] = [];
 let values: NavigationRegistryEntry[] = [];
 let initialized = false;
 const init = (): void => {
+  /*
   values.push(createNavigationContainerEntry());
   values.push(createNavigationPodEntry());
   values.push(createNavigationImageEntry());
   values.push(createNavigationVolumeEntry());
   values.push(createNavigationNetworkEntry());
   values.push(createNavigationKubernetesGroup());
+  */
   values.push(createNavigationMcpEntry());
   values.push(createNavigationFlowsEntry());
   values.push(createNavigationExtensionEntry());

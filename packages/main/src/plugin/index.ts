@@ -499,7 +499,6 @@ export class PluginSystem {
     container.bind<IPCHandle>(IPCHandle).toConstantValue(this.ipcHandle);
     container.bind<IPCMainOn>(IPCMainOn).toConstantValue(this.ipcMainOn);
     container.bind<WebContents>(WebContentsType).toConstantValue(webContentsSender);
-    container.bind<IPCHandle>(IPCHandle).toConstantValue(this.ipcHandle);
     container.bind<TrayMenu>(TrayMenu).toConstantValue(this.trayMenu);
     container.bind<IconRegistry>(IconRegistry).toSelf().inSingletonScope();
     const directoryStrategy = new DirectoryStrategy();
@@ -2317,13 +2316,6 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle(
-      'mcp-registry:createMCPRegistry',
-      async (_listener, registryCreateOptions: containerDesktopAPI.MCPRegistryCreateOptions): Promise<void> => {
-        await mcpRegistry.createRegistry(registryCreateOptions);
-      },
-    );
-
     this.ipcHandle('mcp-registry:getMcpRegistries', async (): Promise<readonly containerDesktopAPI.MCPRegistry[]> => {
       return mcpRegistry.getRegistries();
     });
@@ -2335,9 +2327,6 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('mcp-registry:getMcpRegistries', async (): Promise<readonly containerDesktopAPI.MCPRegistry[]> => {
-      return mcpRegistry.getRegistries();
-    });
 
     this.ipcHandle(
       'mcp-registry:getMcpRegistryServers',
