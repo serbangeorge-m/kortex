@@ -64,7 +64,7 @@ jobs:
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Execute pnpm
@@ -111,13 +111,13 @@ jobs:
           for attempt in {1..5}; do
             echo "Pulling gemma3:1b model (attempt $attempt/5)..."
             ollama rm gemma3:1b 2>/dev/null || true
-            
+
             if ollama pull gemma3:1b 2>&1 && ollama list | grep -q gemma3:1b; then
               echo "Model gemma3:1b is ready"
               echo "OLLAMA_ENABLED=true" >> "$GITHUB_ENV"
               exit 0
             fi
-            
+
             wait_time=$((attempt * 10))
             echo "Pull failed, retrying in ${wait_time} seconds..."
             sleep $wait_time
@@ -148,12 +148,12 @@ jobs:
             echo "::error::Unknown instance: $INSTANCE. Cannot determine binary path."
             exit 1
           fi
-          
+
           if [ "${{ inputs.mode }}" == "prod" ]; then
             echo "Compiling Kortex in production mode"
             export ELECTRON_ENABLE_INSPECT=true
             pnpm compile:current ${{ inputs.compile_args }}
-            
+
             path=$(realpath "$BINARY_PATH")
             echo "Kortex built binary: $path"
             export KORTEX_BINARY="$path"
