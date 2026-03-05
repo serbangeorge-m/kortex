@@ -97,7 +97,7 @@ onMount(() => {
   // Provide micromark + extensions
   html = micromark(text, {
     extensions: [gfmAutolinkLiteral(), directive()],
-    htmlExtensions: [gfmAutolinkLiteralHtml(), directiveHtml({ button, link, warnings })],
+    htmlExtensions: [gfmAutolinkLiteralHtml(), directiveHtml({ button, image, link, warnings })],
   });
 
   // remove href values in each anchor using # for links

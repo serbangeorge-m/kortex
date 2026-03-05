@@ -31,19 +31,15 @@ test('getConnection', async () => {
   const dockerodeHelper = new DockerodeHelper();
   const socketPath = '/var/run/docker.sock';
 
-  const fakeDockerodeInstance = {
-    ping: vi.fn().mockResolvedValue(true),
-  } as unknown as Dockerode;
-
-  // Mock the constructor to return an object with a ping method
-  vi.mocked(Dockerode).mockReturnValue(fakeDockerodeInstance);
+  // Mock the ping method on the prototype so all instances get it
+  vi.mocked(Dockerode.prototype.ping).mockResolvedValue('OK');
 
   const connection = await dockerodeHelper.getConnection(socketPath);
   expect(connection).toBeDefined();
-  expect(connection).toBe(fakeDockerodeInstance);
+  expect(connection).toBeInstanceOf(Dockerode);
 
   // Check that Dockerode was called with the correct socketPath
   expect(vi.mocked(Dockerode)).toHaveBeenCalledWith({ socketPath });
 
-  expect(fakeDockerodeInstance.ping).toHaveBeenCalled();
+  expect(connection.ping).toHaveBeenCalled();
 });

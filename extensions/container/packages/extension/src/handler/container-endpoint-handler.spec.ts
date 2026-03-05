@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as kortexApi from '@kortex-app/api';
 import Dockerode from 'dockerode';
 import { Container, injectFromBase } from 'inversify';
 import { beforeEach, expect, test, vi } from 'vitest';
@@ -57,8 +56,6 @@ let containerEndpointHandler: TestContainerEndpointHandler;
 
 beforeEach(async () => {
   vi.resetAllMocks();
-  const api = kortexApi as unknown as { init: () => void };
-  api.init();
   const container = new Container();
   container.bind(TestContainerEndpointHandler).toSelf().inSingletonScope();
   container.bind(DockerodeHelper).toConstantValue(dockerodeHelperMock);

@@ -23,6 +23,6 @@
     "@kortex-app/api": "workspace:*",
     "@kortex-app/container-extension-api": "workspace:*",
     "vite": "^7.1.2",
-    "vitest": "^3.1.4"
+    "vitest": "^4.0.10"
   }
 }

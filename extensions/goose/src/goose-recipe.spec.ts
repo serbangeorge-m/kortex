@@ -59,7 +59,9 @@ beforeEach(() => {
   vi.resetAllMocks();
   vi.mocked(PROVIDER_API_MOCK.createProvider).mockReturnValue(GOOSE_PROVIDER_MOCK);
   vi.mocked(PROVIDER_API_MOCK.getInferenceConnections).mockReturnValue([]);
-  vi.mocked(EventEmitter).mockReturnValue(EVENT_EMITTER_MOCK);
+  vi.mocked(EventEmitter).mockImplementation(function () {
+    return EVENT_EMITTER_MOCK;
+  } as unknown as () => EventEmitter<void>);
 });
 
 describe('GooseRecipe#init', () => {

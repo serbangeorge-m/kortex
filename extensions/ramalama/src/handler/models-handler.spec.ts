@@ -58,8 +58,6 @@ let modelsHandler: TestModelsHandler;
 
 beforeEach(async () => {
   vi.resetAllMocks();
-  const api = kortexApi as unknown as { init: () => void };
-  api.init();
   const container = new Container();
   container.bind(TestModelsHandler).toSelf().inSingletonScope();
   container.bind(ContainerRamaLamaFinder).toConstantValue(containerRamaLamaFinderMock);
@@ -137,6 +135,8 @@ test('should refresh models when connections have RamaLama containers', async ()
 
   await modelsHandler.init();
 
+  const fireSpy = vi.spyOn(modelsHandler.getModelsChanged(), 'fire');
+
   await modelsHandler.refreshModels();
 
   expect(containerRamaLamaFinderMock.getRamaLamaContainers).toHaveBeenCalledWith([mockContainer1, mockContainer2]);
@@ -144,7 +144,7 @@ test('should refresh models when connections have RamaLama containers', async ()
   expect(containerModelExtractorMock.extractModelInfo).toHaveBeenCalledWith(mockContainer1);
   expect(containerModelExtractorMock.extractModelInfo).toHaveBeenCalledWith(mockContainer2);
   expect(modelsHandler.getModels()).toEqual([mockModelInfo1, mockModelInfo2]);
-  expect(modelsHandler.getModelsChanged().fire).toHaveBeenCalledWith([mockModelInfo1, mockModelInfo2]);
+  expect(fireSpy).toHaveBeenCalledWith([mockModelInfo1, mockModelInfo2]);
 });
 
 test('should refresh models on init', async () => {
@@ -171,10 +171,11 @@ test('should handle connection errors gracefully', async () => {
   await modelsHandler.init();
 
   const consoleErrorSpy = vi.spyOn(console, 'error');
+  const fireSpy = vi.spyOn(modelsHandler.getModelsChanged(), 'fire');
 
   await modelsHandler.refreshModels();
 
   expect(consoleErrorSpy).toHaveBeenCalledWith('Error connecting to socket /var/run/docker.sock:', expect.any(Error));
   expect(modelsHandler.getModels()).toEqual([]);
-  expect(modelsHandler.getModelsChanged().fire).toHaveBeenCalledWith([]);
+  expect(fireSpy).toHaveBeenCalledWith([]);
 });
