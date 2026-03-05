@@ -18,13 +18,8 @@
 
 import type { Component } from 'svelte';
 
-import AuthenticationIcon from '/@/lib/images/AuthenticationIcon.svelte';
 import CLIToolsIcon from '/@/lib/images/CLIToolsIcon.svelte';
-import DockerCompatibilityIcon from '/@/lib/images/DockerCompatibilityIcon.svelte';
-import ExperimentalIcon from '/@/lib/images/ExperimentalIcon.svelte';
-import KubernetesIcon from '/@/lib/images/KubernetesIcon.svelte';
 import ProxyIcon from '/@/lib/images/ProxyIcon.svelte';
-import RegistriesIcon from '/@/lib/images/RegistriesIcon.svelte';
 import ResourcesIcon from '/@/lib/images/ResourcesIcon.svelte';
 
 export interface NavItem {
@@ -43,15 +38,5 @@ export interface SettingsNavItemConfig {
 export const settingsNavigationEntries: SettingsNavItemConfig[] = [
   { title: 'Resources', href: '/preferences/resources', visible: true, icon: ResourcesIcon },
   { title: 'Proxy', href: '/preferences/proxies', visible: true, icon: ProxyIcon },
-  {
-    title: 'Docker Compatibility',
-    href: '/preferences/docker-compatibility',
-    visible: false,
-    icon: DockerCompatibilityIcon,
-  },
-  { title: 'Registries', href: '/preferences/registries', visible: true, icon: RegistriesIcon },
-  { title: 'Authentication', href: '/preferences/authentication-providers', visible: true, icon: AuthenticationIcon },
   { title: 'CLI Tools', href: '/preferences/cli-tools', visible: true, icon: CLIToolsIcon },
-  { title: 'Kubernetes', href: '/preferences/kubernetes-contexts', visible: true, icon: KubernetesIcon },
-  { title: 'Experimental', href: '/preferences/experimental', visible: false, icon: ExperimentalIcon },
 ];
