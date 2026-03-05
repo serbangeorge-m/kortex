@@ -23,6 +23,7 @@ overrides:
   tmp-promise>tmp: ^0.2.5
   tar: ^7.5.3
   cheerio>undici: ^7.18.2
+  cpu-features>nan: ^2.25.0
 
 patchedDependencies:
   dmg-builder:
@@ -5842,6 +5843,9 @@ packages:
   nan@2.22.0:
     resolution: {integrity: sha512-nbajikzWTMwsW+eSsNm3QwlOs7het9gGJU5dDZzRTQGk03vyBOauxgI4VakDzE0PtsGTmXPsXTbbjVhRwR5mpw==}
 
+  nan@2.25.0:
+    resolution: {integrity: sha512-0M90Ag7Xn5KMLLZ7zliPWP3rT90P6PN+IzVFS0VqmnPktBk3700xUVv8Ikm9EUaUE5SDWdp/BIxdENzVznpm1g==}
+
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -10704,7 +10708,7 @@ snapshots:
   cpu-features@0.0.10:
     dependencies:
       buildcheck: 0.0.6
-      nan: 2.22.0
+      nan: 2.25.0
     optional: true
 
   crc-32@1.2.2: {}
@@ -13382,6 +13386,9 @@ snapshots:
   mute-stream@2.0.0: {}
 
   nan@2.22.0:
+    optional: true
+
+  nan@2.25.0:
     optional: true
 
   nanoid@3.3.11: {}
