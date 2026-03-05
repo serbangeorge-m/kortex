@@ -20,20 +20,21 @@ import { waitForNavigationReady } from 'src/utils/app-ready';
 
 import { expect, test } from '../fixtures/electron-app';
 
-test.describe.serial('App start', { tag: '@smoke' }, () => {
-  test.beforeEach(async ({ page }) => {
-    await waitForNavigationReady(page);
+test.describe
+  .serial('App start', { tag: '@smoke' }, () => {
+    test.beforeEach(async ({ page }) => {
+      await waitForNavigationReady(page);
+    });
+
+    test('[APP-01] Navigation bar is visible and contains all expected navigation links', async ({ navigationBar }) => {
+      await expect(navigationBar.navigationLocator).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
+      const expectedLinksCount = 5; // Chat, MCP, Flows, Extensions, Settings
+
+      const allLinks = navigationBar.getAllLinks();
+      expect(allLinks).toHaveLength(expectedLinksCount);
+
+      for (const link of allLinks) {
+        await expect(link).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
+      }
+    });
   });
-
-  test('[APP-01] Navigation bar is visible and contains all expected navigation links', async ({ navigationBar }) => {
-    await expect(navigationBar.navigationLocator).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
-    const expectedLinksCount = 5; // Chat, MCP, Flows, Extensions, Settings
-
-    const allLinks = navigationBar.getAllLinks();
-    expect(allLinks).toHaveLength(expectedLinksCount);
-
-    for (const link of allLinks) {
-      await expect(link).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
-    }
-  });
-});

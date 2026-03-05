@@ -2327,7 +2327,6 @@ export class PluginSystem {
       },
     );
 
-
     this.ipcHandle(
       'mcp-registry:getMcpRegistryServers',
       async (): Promise<readonly components['schemas']['ServerDetail'][]> => {
