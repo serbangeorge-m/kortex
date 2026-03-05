@@ -34,6 +34,7 @@ const PROVIDER_MOCK = {
   kubernetesConnections: [],
   vmConnections: [],
   inferenceConnections: [],
+  ragConnections: [],
   mcpConnections: [],
   status: 'ready' as ProviderStatus,
   images: {

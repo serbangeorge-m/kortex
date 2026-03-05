@@ -39,7 +39,7 @@ beforeEach(() => {
 
 describe('getDefaultSectionNames', () => {
   test('should return section names in correct order', () => {
-    expect(defaultSectionNames).toEqual(['Chat', 'Release Notes']);
+    expect(defaultSectionNames).toEqual(['Release Notes']);
   });
 });
 

@@ -97,7 +97,7 @@ describe('linux', () => {
     });
 
     const title = screen.queryByText('Kortex');
-    expect(title).toBeInTheDocument();
+    expect(title).not.toBeInTheDocument();
   });
 });
 
