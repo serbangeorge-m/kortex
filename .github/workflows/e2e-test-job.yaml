@@ -46,7 +46,7 @@ on:
         description: 'Local inference provider: "ollama", "ramalama", or "none" to skip.'
         required: false
         type: string
-        default: 'ollama'
+        default: 'none'
       inference_model:
         description: 'Model to pull and serve (e.g., granite3.2:2b, phi4-mini, qwen2.5:3b).'
         required: false
