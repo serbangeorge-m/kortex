@@ -201,28 +201,49 @@ export class ChatManager {
     };
   }
 
+  private extractPlaceholderTitle(userMessage: UIMessage): string {
+    const textPart = userMessage.parts.find(p => p.type === 'text');
+    if (textPart && 'text' in textPart) {
+      return textPart.text.slice(0, 80);
+    }
+    return 'New Chat';
+  }
+
+  private generateTitleInBackground(
+    inferenceComponents: Awaited<ReturnType<typeof this.getInferenceComponents>>,
+    chatId: string,
+  ): void {
+    generateText({
+      ...inferenceComponents,
+      system: `\n
+      - you will generate a short title based on the first message a user begins a conversation with
+      - ensure it is not more than 80 characters long
+      - the title should be a summary of the user's message
+      - do not use quotes or colons`,
+    })
+      .then(async result => {
+        await this.chatQueries.updateChatTitleById({ chatId, title: result.text });
+        this.webContents.send('api-sender', 'chat-list-updated');
+      })
+      .catch((error: unknown) => {
+        console.error('Failed to generate chat title', error);
+      });
+  }
+
   async streamText(params: InferenceParameters & { onDataId: number; chatId: string }): Promise<number> {
     const { chatId } = params;
     const chatGetter = await this.chatQueries.getChatById({ id: chatId });
     const inferenceComponents = await this.getInferenceComponents(params);
 
     if (!chatGetter.isOk()) {
-      const title = (
-        await generateText({
-          ...inferenceComponents,
-          system: `\n
-          - you will generate a short title based on the first message a user begins a conversation with
-          - ensure it is not more than 80 characters long
-          - the title should be a summary of the user's message
-          - do not use quotes or colons`,
-        })
-      ).text;
-
+      const placeholderTitle = this.extractPlaceholderTitle(inferenceComponents.userMessage);
       await this.chatQueries.saveChat({
         id: chatId,
         userId: this.userId,
-        title,
+        title: placeholderTitle,
       });
+      this.webContents.send('api-sender', 'chat-list-updated');
+      this.generateTitleInBackground(inferenceComponents, chatId);
     }
 
     const config: MessageConfig = {
