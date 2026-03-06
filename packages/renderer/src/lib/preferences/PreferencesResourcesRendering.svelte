@@ -726,13 +726,6 @@ $effect(() => {
             <div class="font-semibold">
               {inferenceConnection.name} (Inference)
             </div>
-            <div class="flex mt-1" aria-label="Connection Status">
-              <ConnectionStatus status={inferenceConnection.status} />
-              {#if containerConnectionStatus.has(getProviderConnectionName(provider, inferenceConnection))}
-                {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, inferenceConnection))}
-                <ConnectionErrorInfoButton status={status} />
-              {/if}
-            </div>
             <PreferencesConnectionActions
               provider={provider}
               connection={inferenceConnection}
@@ -747,13 +740,6 @@ $effect(() => {
             <div class="font-semibold">
               {ragConnection.name} (RAG)
             </div>
-            <div class="flex mt-1" aria-label="Connection Status">
-              <ConnectionStatus status={ragConnection.status} />
-              {#if containerConnectionStatus.has(getProviderConnectionName(provider, ragConnection))}
-                {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, ragConnection))}
-                <ConnectionErrorInfoButton status={status} />
-              {/if}
-            </div>
             <PreferencesConnectionActions
               provider={provider}
               connection={ragConnection}
@@ -767,13 +753,6 @@ $effect(() => {
           <div class="px-5 py-2 w-[240px] border-r border-[var(--pd-content-divider)]" role="region" aria-label={flowConnection.name}>
             <div class="font-semibold">
               {flowConnection.name} (Flow)
-            </div>
-            <div class="flex mt-1" aria-label="Connection Status">
-              <ConnectionStatus status={flowConnection.status} />
-              {#if containerConnectionStatus.has(getProviderConnectionName(provider, flowConnection))}
-                {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, flowConnection))}
-                <ConnectionErrorInfoButton status={status} />
-              {/if}
             </div>
             <PreferencesConnectionActions
               provider={provider}
