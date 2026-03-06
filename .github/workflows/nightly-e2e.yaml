@@ -67,10 +67,14 @@ jobs:
       matrix:
         os: [ubuntu-24.04]
         mode: [prod, dev]
+        inference_provider: [ollama, ramalama]
     uses: ./.github/workflows/e2e-test-job.yaml
     with:
       instance: ${{ matrix.os }}
       mode: ${{ matrix.mode }}
+      inference_provider: ${{ matrix.inference_provider }}
+      # Use smaller model for dev mode to reduce memory pressure (Electron dev server + model = high RAM)
+      inference_model: ${{ matrix.mode == 'dev' && 'qwen2.5:0.5b' || 'granite3.2:2b' }}
       compile_args: '--linux dir'
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}

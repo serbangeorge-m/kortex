@@ -42,10 +42,20 @@ on:
         required: false
         type: string
         default: ''
+      inference_provider:
+        description: 'Local inference provider: "ollama", "ramalama", or "none" to skip.'
+        required: false
+        type: string
+        default: 'ollama'
+      inference_model:
+        description: 'Model to pull and serve (e.g., granite3.2:2b, phi4-mini, qwen2.5:3b).'
+        required: false
+        type: string
+        default: 'granite3.2:2b'
 
 jobs:
   e2e-test:
-    name: ${{ inputs.instance }}
+    name: ${{ inputs.inference_provider != 'none' && format('{0} ({1})', inputs.instance, inputs.inference_provider) || inputs.instance }}
     runs-on: ${{ inputs.instance }}
     timeout-minutes: 60
     env:
@@ -71,19 +81,19 @@ jobs:
         run: pnpm install
 
       - name: Setup Ollama
-        if: runner.os == 'Linux'
+        if: inputs.inference_provider == 'ollama'
         uses: ai-action/setup-ollama@7c1d2c2a6e6c4f1909bf1d099acda773ca36401d # v1
 
       - name: Cache Ollama models
-        if: runner.os == 'Linux'
+        if: inputs.inference_provider == 'ollama'
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: ollama-cache
         with:
           path: ~/.ollama/models
-          key: ollama-gemma3-1b-${{ runner.os }}
+          key: ollama-${{ inputs.inference_model }}-${{ runner.os }}
 
       - name: Pull Ollama model
-        if: runner.os == 'Linux'
+        if: inputs.inference_provider == 'ollama'
         shell: bash
         run: |
           # Wait for Ollama server to be ready (up to 60 seconds)
@@ -101,19 +111,19 @@ jobs:
           done
 
           # Check if model is already cached and available
-          if ollama list | grep -q gemma3:1b; then
-            echo "Model gemma3:1b is already available (from cache)"
+          if ollama list | grep -q "${{ inputs.inference_model }}"; then
+            echo "Model ${{ inputs.inference_model }} is already available (from cache)"
             echo "OLLAMA_ENABLED=true" >> "$GITHUB_ENV"
             exit 0
           fi
 
           # Pull the model with retries (digest mismatch is a known Ollama issue)
           for attempt in {1..5}; do
-            echo "Pulling gemma3:1b model (attempt $attempt/5)..."
-            ollama rm gemma3:1b 2>/dev/null || true
+            echo "Pulling ${{ inputs.inference_model }} model (attempt $attempt/5)..."
+            ollama rm "${{ inputs.inference_model }}" 2>/dev/null || true
 
-            if ollama pull gemma3:1b 2>&1 && ollama list | grep -q gemma3:1b; then
-              echo "Model gemma3:1b is ready"
+            if ollama pull "${{ inputs.inference_model }}" 2>&1 && ollama list | grep -q "${{ inputs.inference_model }}"; then
+              echo "Model ${{ inputs.inference_model }} is ready"
               echo "OLLAMA_ENABLED=true" >> "$GITHUB_ENV"
               exit 0
             fi
@@ -123,7 +133,58 @@ jobs:
             sleep $wait_time
           done
 
-          echo "::warning::Failed to pull gemma3:1b model after 5 attempts - Ollama tests will be skipped"
+          echo "::warning::Failed to pull ${{ inputs.inference_model }} model after 5 attempts - Ollama tests will be skipped"
+
+      - name: Enable Podman socket (Linux)
+        if: inputs.inference_provider == 'ramalama' && startsWith(inputs.instance, 'ubuntu')
+        run: |
+          systemctl --user enable --now podman.socket
+          echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> "$GITHUB_ENV"
+
+      - name: Install RamaLama
+        if: inputs.inference_provider == 'ramalama'
+        run: pip install ramalama
+
+      - name: Cache RamaLama models
+        if: inputs.inference_provider == 'ramalama'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        id: ramalama-cache
+        with:
+          path: ~/.local/share/ramalama
+          key: ramalama-${{ inputs.inference_model }}-${{ runner.os }}
+
+      - name: Pull RamaLama model
+        if: inputs.inference_provider == 'ramalama'
+        shell: bash
+        env:
+          RAMALAMA_CONTAINER_ENGINE: podman
+        run: |
+          echo "Pulling ${{ inputs.inference_model }} model..."
+          ramalama pull "ollama://${{ inputs.inference_model }}"
+          
+          echo "Available models:"
+          ramalama list || true
+
+      - name: Serve RamaLama model
+        if: inputs.inference_provider == 'ramalama'
+        shell: bash
+        env:
+          RAMALAMA_CONTAINER_ENGINE: podman
+        run: |
+          ramalama serve --detach --port 8080 "ollama://${{ inputs.inference_model }}"
+
+          # Wait for the RamaLama container and API to be ready (up to 120 seconds)
+          for i in {1..60}; do
+            if curl -sf http://localhost:8080/v1/models > /dev/null 2>&1; then
+              echo "RamaLama API is ready"
+              echo "RAMALAMA_ENABLED=true" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "Waiting for RamaLama API... (attempt $i/60)"
+            sleep 2
+          done
+
+          echo "::warning::RamaLama API failed to become ready - RamaLama tests will be skipped"
 
       - name: Run Smoke E2E tests in ${{ inputs.mode == 'prod' && 'Production' || 'Development' }} Mode
         shell: bash
@@ -175,6 +236,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
-          name: results-e2e-${{ inputs.instance }}-${{ inputs.mode }}
+          name: results-e2e-${{ inputs.instance }}-${{ inputs.mode }}-${{ inputs.inference_provider }}
           path: tests/playwright/output/**
           retention-days: 7
