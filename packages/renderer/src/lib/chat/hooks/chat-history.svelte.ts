@@ -31,6 +31,12 @@ export class ChatHistory {
       .catch((error: unknown) => {
         console.error('Failed to load chat history', error);
       });
+
+    window.events?.receive('chat-list-updated', () => {
+      this.refetch().catch((error: unknown) => {
+        console.error('Failed to refetch chat history after chat-list-updated event', error);
+      });
+    });
   }
 
   getChatDetails = (chatId: string): Chat | undefined => {
