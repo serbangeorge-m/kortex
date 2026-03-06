@@ -236,6 +236,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
-          name: results-e2e-${{ inputs.instance }}-${{ inputs.mode }}-${{ inputs.inference_provider }}
+          name: results-e2e-${{ inputs.instance }}-${{ inputs.mode }}${{ inputs.inference_provider != 'none' && format('-{0}', inputs.inference_provider) || '' }}
           path: tests/playwright/output/**
           retention-days: 7
