@@ -162,6 +162,10 @@ This is a pnpm monorepo with workspaces defined in `pnpm-workspace.yaml`:
 - `scripts`: Build and utility scripts
 - `tests/playwright`: E2E test suite
 
+### Import Aliases
+
+Use `/@/` path aliases (e.g., `'/@/plugin/provider-registry.js'`) instead of relative paths (e.g., `'../plugin/provider-registry.js'`) for imports outside the current directory's module group. Relative imports are only used for sibling modules within the same directory (e.g., `'./chat-manager.js'`).
+
 ### IPC Communication Pattern
 
 The main/renderer communication follows a structured pattern:
@@ -179,6 +183,14 @@ Tests are co-located with source files:
 - E2E tests: Located in `tests/playwright/src/`
 - Test configuration: `vitest.config.js` at root defines workspace test projects
 - 627 total test files across the codebase
+
+### Unit Test Conventions
+
+Unit tests use Vitest and follow these conventions:
+
+- **Mocking**: Use `vi.mock(import('...'))` for auto-mocking modules. Avoid manual mock factories (`vi.mock('...', () => ({...}))`) when possible
+- **Resetting mocks**: Use `vi.resetAllMocks()` in `beforeEach`, not `vi.clearAllMocks()`
+- **Customizing auto-mocks**: When an auto-mocked function or class method needs a real implementation, use `vi.mocked(...)`. For class methods, use the prototype pattern: `vi.mocked(MyClass.prototype.myMethod).mockImplementation(...)`
 
 ### Extension Lifecycle
 

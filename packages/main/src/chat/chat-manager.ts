@@ -22,8 +22,9 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import type { LanguageModelV2 } from '@ai-sdk/provider';
 import type { DynamicToolUIPart, ModelMessage, StopCondition, ToolSet, UIMessage } from 'ai';
-import { convertToModelMessages, generateObject, generateText, stepCountIs, streamText } from 'ai';
+import { convertToModelMessages, generateObject, generateText, isTextUIPart, stepCountIs, streamText } from 'ai';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import type { WebContents } from 'electron';
@@ -201,29 +202,70 @@ export class ChatManager {
     };
   }
 
+  /**
+   * Extracts a placeholder title from the first text part of a user message, truncated to 80 characters.
+   */
+  private extractPlaceholderTitle(userMessage: UIMessage): string {
+    const textPart = userMessage.parts.find(p => p.type === 'text');
+    if (textPart && 'text' in textPart) {
+      return textPart.text.slice(0, 80);
+    }
+    return 'New Chat';
+  }
+
+  /**
+   * Asynchronously generates an AI-powered chat title and persists it, notifying the UI on success.
+   */
+  private generateTitleInBackground(model: LanguageModelV2, userMessage: UIMessage, chatId: string): void {
+    generateText({
+      model,
+      prompt: userMessage.parts
+        .filter(isTextUIPart)
+        .map(p => p.text)
+        .join(' '),
+      system: `\n
+      - you will generate a short title based on the first message a user begins a conversation with
+      - ensure it is not more than 80 characters long
+      - the title should be a summary of the user's message
+      - do not use quotes or colons`,
+    })
+      .then(async result => {
+        const updateResult = await this.chatQueries.updateChatTitleById({ chatId, title: result.text });
+        if (updateResult.isOk()) {
+          this.webContents.send('api-sender', 'chat-list-updated');
+        } else {
+          console.error('Failed to update chat title in database', updateResult.error);
+        }
+      })
+      .catch((error: unknown) => {
+        console.error('Failed to generate chat title', error);
+      });
+  }
+
   async streamText(params: InferenceParameters & { onDataId: number; chatId: string }): Promise<number> {
     const { chatId } = params;
     const chatGetter = await this.chatQueries.getChatById({ id: chatId });
-    const inferenceComponents = await this.getInferenceComponents(params);
 
     if (!chatGetter.isOk()) {
-      const title = (
-        await generateText({
-          ...inferenceComponents,
-          system: `\n
-          - you will generate a short title based on the first message a user begins a conversation with
-          - ensure it is not more than 80 characters long
-          - the title should be a summary of the user's message
-          - do not use quotes or colons`,
-        })
-      ).text;
-
+      const userMessage = this.getMostRecentUserMessage(params.messages);
+      if (!userMessage) {
+        throw new Error('No user message found');
+      }
+      const placeholderTitle = this.extractPlaceholderTitle(userMessage);
       await this.chatQueries.saveChat({
         id: chatId,
         userId: this.userId,
-        title,
+        title: placeholderTitle,
       });
+      this.webContents.send('api-sender', 'chat-list-updated');
+
+      const internalProviderId = this.providerRegistry.getMatchingProviderInternalId(params.providerId);
+      const sdk = this.providerRegistry.getInferenceSDK(internalProviderId, params.connectionName);
+      const model = sdk.languageModel(params.modelId);
+      this.generateTitleInBackground(model, userMessage, chatId);
     }
+
+    const inferenceComponents = await this.getInferenceComponents(params);
 
     const config: MessageConfig = {
       tools: params.tools,
