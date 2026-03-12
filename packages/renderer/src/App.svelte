@@ -12,6 +12,8 @@ import FlowDetails from '/@/lib/flows/FlowDetails.svelte';
 import FlowList from '/@/lib/flows/FlowList.svelte';
 import KubernetesRoot from '/@/lib/kube/KubernetesRoot.svelte';
 import MCPDetails from '/@/lib/mcp/MCPDetails.svelte';
+import RAGEnvironmentDetails from '/@/lib/rag/RAGEnvironmentDetails.svelte';
+import RAGEnvironmentList from '/@/lib/rag/RAGEnvironmentList.svelte';
 import PinActions from '/@/lib/statusbar/PinActions.svelte';
 import { handleNavigation } from '/@/navigation';
 import { kubernetesNoCurrentContext } from '/@/stores/kubernetes-no-current-context';
@@ -211,6 +213,15 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         <Route path="/skills/*" breadcrumb="Skills" navigationHint="root" firstmatch>
           <Route path="/" breadcrumb="Skills" navigationHint="root">
             <SkillsList />
+          </Route>
+        </Route>
+        <!-- RAG Environments -->
+        <Route path="/rag-environments/*" breadcrumb="RAG Environments" navigationHint="root" firstmatch>
+          <Route path="/" breadcrumb="RAG Environments" navigationHint="root">
+            <RAGEnvironmentList />
+          </Route>
+          <Route path="/:name/*" let:meta breadcrumb="RAG Environment Details" navigationHint="details">
+            <RAGEnvironmentDetails name={decodeURIComponent(meta.params.name)} />
           </Route>
         </Route>
 
