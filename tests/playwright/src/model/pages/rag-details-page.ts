@@ -92,7 +92,7 @@ export class RagDetailsPage extends BasePage {
     await expect(this.deleteButton).toBeEnabled();
     await this.deleteButton.click();
     await handleDialogIfPresent(this.page);
-    return new RagPage(this.page);
+    return this.closeDetailsPage();
   }
 
   async closeDetailsPage(): Promise<RagPage> {
