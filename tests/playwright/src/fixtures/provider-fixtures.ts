@@ -17,19 +17,16 @@
  ***********************************************************************/
 
 /** biome-ignore-all lint/correctness/noEmptyPattern: Playwright fixture pattern requires empty object when no dependencies are needed */
-import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
+import type { ElectronApplication, Page } from '@playwright/test';
 
 import { MCP_SERVERS, type MCPServerId, PROVIDERS, type ResourceId } from '../model/core/types';
 import { NavigationBar } from '../model/navigation/navigation';
 import { saveTestArtifacts } from '../utils/test-artifacts';
 import {
-  createLaunchConfig,
   type ElectronFixtures,
   getFirstPage,
-  getTestHomeDir,
   launchElectronApp,
   type RagEnvironmentSeed,
-  seedRagEnvironments,
   test as base,
 } from './electron-app';
 
@@ -73,16 +70,7 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
 
   workerElectronApp: [
     async ({ ragEnvironments }, use): Promise<void> => {
-      let electronApp: ElectronApplication;
-
-      if (ragEnvironments.length > 0) {
-        const launchConfig = createLaunchConfig();
-        seedRagEnvironments(getTestHomeDir(), ragEnvironments);
-        electronApp = await electron.launch(launchConfig);
-      } else {
-        electronApp = await launchElectronApp();
-      }
-
+      const electronApp = await launchElectronApp(ragEnvironments.length > 0 ? ragEnvironments : undefined);
       await use(electronApp);
       await electronApp.close();
     },

@@ -72,11 +72,11 @@ export class RagDetailsPage extends BasePage {
   }
 
   getInfoValue(label: string): Locator {
-    return this.tabContentRegion.locator('.info-row').filter({ hasText: label }).locator('.info-value');
+    return this.tabContentRegion.getByLabel(label, { exact: true }).locator('span').last();
   }
 
   getInfoRow(label: string): Locator {
-    return this.tabContentRegion.locator('.info-row').filter({ hasText: label });
+    return this.tabContentRegion.getByLabel(label, { exact: true });
   }
 
   async getSourceFilesCountFromSummary(): Promise<string> {
@@ -84,12 +84,8 @@ export class RagDetailsPage extends BasePage {
   }
 
   async getUploadedFilesHeader(): Promise<string> {
-    const header = this.tabContentRegion.locator('.sources-title');
+    const header = this.tabContentRegion.getByRole('heading', { name: 'Uploaded Files' });
     return (await header.textContent()) ?? '';
-  }
-
-  async getNoFilesMessage(): Promise<Locator> {
-    return this.tabContentRegion.getByText('No files in this RAG environment.');
   }
 
   async deleteEnvironment(): Promise<RagPage> {

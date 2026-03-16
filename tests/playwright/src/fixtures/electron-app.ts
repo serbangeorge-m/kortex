@@ -207,7 +207,7 @@ export interface RagEnvironmentSeed {
   files: Array<{ path: string; status: 'pending' | 'indexed' }>;
 }
 
-export function seedRagEnvironments(homeDir: string, environments: RagEnvironmentSeed[]): void {
+function seedRagEnvironments(homeDir: string, environments: RagEnvironmentSeed[]): void {
   const ragDir = join(homeDir, 'rag');
   mkdirSync(ragDir, { recursive: true });
   for (const env of environments) {
@@ -215,17 +215,11 @@ export function seedRagEnvironments(homeDir: string, environments: RagEnvironmen
   }
 }
 
-let lastTestDataDir = '';
-
-export function getTestHomeDir(): string {
-  return lastTestDataDir;
-}
-
-export function createLaunchConfig(): Parameters<typeof electron.launch>[0] {
+function createLaunchConfig(): { config: Parameters<typeof electron.launch>[0]; homeDir: string } {
   const electronEnv = prepareElectronEnv();
   const recordVideo = { dir: join(tmpdir(), 'kortex-test-videos') };
 
-  lastTestDataDir = setupTestConfigDir(electronEnv);
+  const homeDir = setupTestConfigDir(electronEnv);
 
   const args = ['--no-sandbox'];
   if (process.env.CI) {
@@ -234,26 +228,38 @@ export function createLaunchConfig(): Parameters<typeof electron.launch>[0] {
 
   if (isProductionMode) {
     return {
-      executablePath: process.env.KORTEX_BINARY,
-      args,
-      env: electronEnv,
-      recordVideo,
+      config: {
+        executablePath: process.env.KORTEX_BINARY,
+        args,
+        env: electronEnv,
+        recordVideo,
+      },
+      homeDir,
     };
   }
 
   return {
-    args: ['.', ...args],
-    env: {
-      ...electronEnv,
-      ELECTRON_IS_DEV: '1',
+    config: {
+      args: ['.', ...args],
+      env: {
+        ...electronEnv,
+        ELECTRON_IS_DEV: '1',
+      },
+      cwd: resolve(__dirname, '../../../..'),
+      recordVideo,
     },
-    cwd: resolve(__dirname, '../../../..'),
-    recordVideo,
+    homeDir,
   };
 }
 
-export async function launchElectronApp(): Promise<ElectronApplication> {
-  return electron.launch(createLaunchConfig());
+export async function launchElectronApp(ragEnvironments?: RagEnvironmentSeed[]): Promise<ElectronApplication> {
+  const { config, homeDir } = createLaunchConfig();
+
+  if (ragEnvironments && ragEnvironments.length > 0) {
+    seedRagEnvironments(homeDir, ragEnvironments);
+  }
+
+  return electron.launch(config);
 }
 
 export async function getFirstPage(electronApp: ElectronApplication): Promise<Page> {

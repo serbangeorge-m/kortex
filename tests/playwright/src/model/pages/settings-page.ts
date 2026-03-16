@@ -73,7 +73,7 @@ export class SettingsPage extends BasePage {
     return this.tabs;
   }
 
-  async createResource(providerId: ResourceId, credentials: string): Promise<void> {
+  async createResource(providerId: ResourceId, value: string): Promise<void> {
     const provider = PROVIDERS[providerId];
     const connectionType = 'connectionType' in provider ? provider.connectionType : 'inference';
     const resourcesPage = await this.openResources();
@@ -86,17 +86,17 @@ export class SettingsPage extends BasePage {
     switch (providerId) {
       case 'gemini': {
         const createGeminiPage = await resourcesPage.openCreateGeminiPage();
-        await createGeminiPage.createAndGoBack(credentials);
+        await createGeminiPage.createAndGoBack(value);
         break;
       }
       case 'openai': {
         const createOpenAIPage = await resourcesPage.openCreateOpenAIPage();
-        await createOpenAIPage.createAndGoBack(PROVIDERS.openai.baseURL, credentials);
+        await createOpenAIPage.createAndGoBack(PROVIDERS.openai.baseURL, value);
         break;
       }
       case 'milvus': {
         const createMilvusPage = await resourcesPage.openCreateMilvusPage();
-        await createMilvusPage.createAndGoBack(credentials);
+        await createMilvusPage.createAndGoBack(value);
         break;
       }
       case 'openshift-ai':
