@@ -49,7 +49,7 @@ const chunkProviderName = $derived(getChunkProviderName($chunkProviders, ragEnvi
         <div class="summary-grid grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6 mb-8">
           <div class="info-card bg-[var(--pd-content-card-bg)] border border-[var(--pd-content-divider)] rounded-lg p-5">
             <h3 class="info-card-title text-sm font-semibold text-[var(--pd-content-text-secondary)] mb-4 uppercase tracking-wider">General Information</h3>
-            <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]">
+            <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]" aria-label="Name">
               <span class="info-label text-sm text-[var(--pd-content-text-secondary)]">Name</span>
               <span class="info-value text-sm text-[var(--pd-content-text)] font-medium">{ragEnvironment.name}</span>
             </div>
@@ -57,15 +57,15 @@ const chunkProviderName = $derived(getChunkProviderName($chunkProviders, ragEnvi
 
           <div class="info-card bg-[var(--pd-content-card-bg)] border border-[var(--pd-content-divider)] rounded-lg p-5">
             <h3 class="info-card-title text-sm font-semibold text-[var(--pd-content-text-secondary)] mb-4 uppercase tracking-wider">Configuration</h3>
-            <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]">
+            <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]" aria-label="Vector Store">
               <span class="info-label text-sm text-[var(--pd-content-text-secondary)]">Vector Store</span>
               <span class="info-value text-sm text-[var(--pd-content-text)] font-medium">{databaseName}</span>
             </div>
-            <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]">
+            <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]" aria-label="Embedding Model">
               <span class="info-label text-sm text-[var(--pd-content-text-secondary)]">Embedding Model</span>
               <span class="info-value text-sm text-[var(--pd-content-text)] font-medium">{chunkProviderName}</span>
             </div>
-            <div class="info-row flex justify-between py-3 border-b-0">
+            <div class="info-row flex justify-between py-3 border-b-0" aria-label="Source Files">
               <span class="info-label text-sm text-[var(--pd-content-text-secondary)]">Source Files</span>
               <span class="info-value text-sm text-[var(--pd-content-text)] font-medium">{files.length} files</span>
             </div>
@@ -116,11 +116,11 @@ const chunkProviderName = $derived(getChunkProviderName($chunkProviders, ragEnvi
         <!-- VectorStore Tab -->
         <div class="info-card bg-[var(--pd-content-card-bg)] border border-[var(--pd-content-divider)] rounded-lg p-5 max-w-2xl">
           <h3 class="info-card-title text-sm font-semibold text-[var(--pd-content-text-secondary)] mb-4 uppercase tracking-wider">{databaseName} Configuration</h3>
-          <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]">
+          <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]" aria-label="Database Type">
             <span class="info-label text-sm text-[var(--pd-content-text-secondary)]">Database Type</span>
             <span class="info-value text-sm text-[var(--pd-content-text)] font-medium">{databaseName}</span>
           </div>
-          <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]">
+          <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]" aria-label="Collection Name">
             <span class="info-label text-sm text-[var(--pd-content-text-secondary)]">Collection Name</span>
             <span class="info-value text-sm text-[var(--pd-content-text)] font-medium">{ragEnvironment.name.replace(/\W/g, '_')}</span>
           </div>
@@ -136,7 +136,7 @@ const chunkProviderName = $derived(getChunkProviderName($chunkProviders, ragEnvi
         <!-- Chunker Tab -->
         <div class="info-card bg-[var(--pd-content-card-bg)] border border-[var(--pd-content-divider)] rounded-lg p-5 max-w-2xl">
           <h3 class="info-card-title text-sm font-semibold text-[var(--pd-content-text-secondary)] mb-4 uppercase tracking-wider">{chunkProviderName} Configuration</h3>
-          <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]">
+          <div class="info-row flex justify-between py-3 border-b border-[var(--pd-content-divider)]" aria-label="Model">
             <span class="info-label text-sm text-[var(--pd-content-text-secondary)]">Model</span>
             <span class="info-value text-sm text-[var(--pd-content-text)] font-medium">{chunkProviderName}</span>
           </div>
