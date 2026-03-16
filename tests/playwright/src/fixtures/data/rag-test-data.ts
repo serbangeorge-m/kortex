@@ -16,17 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { _electron as electron } from '@playwright/test';
-
-import {
-  closeAllWindows,
-  createLaunchConfig,
-  type ElectronFixtures,
-  getTestHomeDir,
-  type RagEnvironmentSeed,
-  seedRagEnvironments,
-  test as base,
-} from './electron-app';
+import type { RagEnvironmentSeed } from '../electron-app';
 
 export const TEST_RAG_ENVIRONMENT: RagEnvironmentSeed = {
   name: 'test-knowledge-base',
@@ -38,32 +28,11 @@ export const TEST_RAG_ENVIRONMENT: RagEnvironmentSeed = {
   ],
 };
 
-export const test = base.extend<ElectronFixtures>({
-  // eslint-disable-next-line no-empty-pattern
-  electronApp: async ({}, use): Promise<void> => {
-    const launchConfig = createLaunchConfig();
-    seedRagEnvironments(getTestHomeDir(), [TEST_RAG_ENVIRONMENT]);
+export const MILVUS_CONNECTION_NAME = 'e2e-milvus';
 
-    let electronApp;
-    try {
-      electronApp = await electron.launch(launchConfig);
-      await use(electronApp);
-    } finally {
-      if (electronApp) {
-        try {
-          await closeAllWindows(electronApp);
-          await electronApp.close();
-        } catch (error) {
-          console.error('Error closing Electron app:', error);
-          try {
-            await electronApp.close();
-          } catch {
-            // Ignore errors during forced close
-          }
-        }
-      }
-    }
-  },
-});
-
-export { expect } from '@playwright/test';
+export const CONNECTED_RAG_ENVIRONMENT: RagEnvironmentSeed = {
+  name: 'connected-knowledge-base',
+  ragConnection: { name: MILVUS_CONNECTION_NAME, providerId: 'milvus' },
+  chunkerId: 'docling.docling',
+  files: [],
+};

@@ -17,12 +17,21 @@
  ***********************************************************************/
 
 /** biome-ignore-all lint/correctness/noEmptyPattern: Playwright fixture pattern requires empty object when no dependencies are needed */
-import type { ElectronApplication, Page } from '@playwright/test';
+import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
 
 import { MCP_SERVERS, type MCPServerId, PROVIDERS, type ResourceId } from '../model/core/types';
 import { NavigationBar } from '../model/navigation/navigation';
 import { saveTestArtifacts } from '../utils/test-artifacts';
-import { type ElectronFixtures, getFirstPage, launchElectronApp, test as base } from './electron-app';
+import {
+  createLaunchConfig,
+  type ElectronFixtures,
+  getFirstPage,
+  getTestHomeDir,
+  launchElectronApp,
+  type RagEnvironmentSeed,
+  seedRagEnvironments,
+  test as base,
+} from './electron-app';
 
 interface WorkerFixtures {
   workerElectronApp: ElectronApplication;
@@ -33,6 +42,8 @@ interface WorkerFixtures {
   mcpServers: MCPServerId[];
   mcpSetup: void;
   gooseSetup: void;
+  ragEnvironments: RagEnvironmentSeed[];
+  milvusSetup: void;
 }
 
 export const test = base.extend<ElectronFixtures, WorkerFixtures>({
@@ -52,10 +63,26 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
     },
   ],
 
+  ragEnvironments: [
+    [] as RagEnvironmentSeed[],
+    {
+      scope: 'worker',
+      option: true,
+    },
+  ],
+
   workerElectronApp: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use): Promise<void> => {
-      const electronApp = await launchElectronApp();
+    async ({ ragEnvironments }, use): Promise<void> => {
+      let electronApp: ElectronApplication;
+
+      if (ragEnvironments.length > 0) {
+        const launchConfig = createLaunchConfig();
+        seedRagEnvironments(getTestHomeDir(), ragEnvironments);
+        electronApp = await electron.launch(launchConfig);
+      } else {
+        electronApp = await launchElectronApp();
+      }
+
       await use(electronApp);
       await electronApp.close();
     },
@@ -93,8 +120,14 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
         return;
       }
 
+      const credentials = process.env[provider.envVarName];
+      if (!credentials) {
+        console.log(`${provider.envVarName} not set, skipping ${resource} resource setup`);
+        await use();
+        return;
+      }
+
       try {
-        const credentials = requireEnvVar(provider.envVarName);
         const settingsPage = await workerNavigationBar.navigateToSettingsPage();
         await settingsPage.createResource(resource, credentials);
         await use();
@@ -160,6 +193,29 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
       } catch (error) {
         console.warn('Goose setup failed:', error);
         throw error;
+      }
+    },
+    { scope: 'worker', auto: false },
+  ],
+
+  milvusSetup: [
+    async ({ workerNavigationBar, ragEnvironments }, use): Promise<void> => {
+      if (ragEnvironments.length === 0) {
+        await use();
+        return;
+      }
+
+      const connectionName = ragEnvironments[0].ragConnection.name;
+
+      try {
+        const settingsPage = await workerNavigationBar.navigateToSettingsPage();
+        await settingsPage.createResource('milvus', connectionName);
+        await use();
+      } finally {
+        await safeCleanup(async () => {
+          const settingsPage = await workerNavigationBar.navigateToSettingsPage();
+          await settingsPage.deleteResource('milvus');
+        }, `Failed to delete Milvus connection '${connectionName}'`);
       }
     },
     { scope: 'worker', auto: false },

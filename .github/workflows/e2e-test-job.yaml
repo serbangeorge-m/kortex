@@ -92,6 +92,12 @@ jobs:
         with:
           model: ${{ inputs.inference_model }}
 
+      - name: Enable Podman socket
+        if: runner.os == 'Linux'
+        run: |
+          systemctl --user enable --now podman.socket
+          podman info
+
       - name: Run Smoke E2E tests in ${{ inputs.mode == 'prod' && 'Production' || 'Development' }} Mode
         shell: bash
         run: |

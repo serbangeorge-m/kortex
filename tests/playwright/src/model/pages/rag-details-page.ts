@@ -47,7 +47,7 @@ export class RagDetailsPage extends BasePage {
     this.vectorStoreTabLink = this.pageTabsRegion.getByRole('link', { name: 'VectorStore' });
     this.chunkerTabLink = this.pageTabsRegion.getByRole('link', { name: 'Chunker' });
     this.closeDetailsPageButton = this.header.getByRole('button', { name: 'Close' });
-    this.deleteButton = this.header.getByLabel('Delete', { exact: true });
+    this.deleteButton = this.page.getByRole('button', { name: 'Delete environment' });
   }
 
   async waitForLoad(): Promise<void> {
@@ -71,10 +71,16 @@ export class RagDetailsPage extends BasePage {
     await this.switchTab(this.chunkerTabLink);
   }
 
+  getInfoValue(label: string): Locator {
+    return this.tabContentRegion.locator('.info-row').filter({ hasText: label }).locator('.info-value');
+  }
+
+  getInfoRow(label: string): Locator {
+    return this.tabContentRegion.locator('.info-row').filter({ hasText: label });
+  }
+
   async getSourceFilesCountFromSummary(): Promise<string> {
-    const sourceFilesRow = this.tabContentRegion.locator('.info-row').filter({ hasText: 'Source Files' });
-    const value = sourceFilesRow.locator('.info-value');
-    return (await value.textContent()) ?? '';
+    return (await this.getInfoValue('Source Files').textContent()) ?? '';
   }
 
   async getUploadedFilesHeader(): Promise<string> {

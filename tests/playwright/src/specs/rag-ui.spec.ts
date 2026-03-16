@@ -16,10 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { TIMEOUTS } from 'src/model/core/types';
-import { waitForNavigationReady } from 'src/utils/app-ready';
-
-import { expect, test } from '../fixtures/electron-app';
+import { expect, test } from '../fixtures/provider-fixtures';
+import { TIMEOUTS } from '../model/core/types';
+import { waitForNavigationReady } from '../utils/app-ready';
 
 test.describe
   .serial('RAG page - empty state', { tag: '@smoke' }, () => {
@@ -27,23 +26,25 @@ test.describe
       await waitForNavigationReady(page);
     });
 
-    test('[RAG-01] RAG link is visible in the navigation bar', async ({ navigationBar }) => {
-      await expect(navigationBar.ragLink).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
+    test('[RAG-01] RAG link is visible in the navigation bar', async ({ workerNavigationBar }) => {
+      await expect(workerNavigationBar.ragLink).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
     });
 
-    test('[RAG-02] Navigate to RAG page and verify heading is displayed', async ({ navigationBar }) => {
-      const ragPage = await navigationBar.navigateToRagPage();
+    test('[RAG-02] Navigate to RAG page and verify heading is displayed', async ({ workerNavigationBar }) => {
+      const ragPage = await workerNavigationBar.navigateToRagPage();
       await expect(ragPage.heading).toBeVisible();
     });
 
-    test('[RAG-03] Empty state message is displayed when no RAG environments exist', async ({ navigationBar }) => {
-      const ragPage = await navigationBar.navigateToRagPage();
+    test('[RAG-03] Empty state message is displayed when no RAG environments exist', async ({
+      workerNavigationBar,
+    }) => {
+      const ragPage = await workerNavigationBar.navigateToRagPage();
       await expect(ragPage.noEnvironmentsMessage).toBeVisible();
       await expect(ragPage.noEnvironmentsMessage).toHaveText('No RAG environments are currently configured.');
     });
 
-    test('[RAG-04] Table is not rendered when no environments exist', async ({ navigationBar }) => {
-      const ragPage = await navigationBar.navigateToRagPage();
+    test('[RAG-04] Table is not rendered when no environments exist', async ({ workerNavigationBar }) => {
+      const ragPage = await workerNavigationBar.navigateToRagPage();
       const isEmpty = await ragPage.checkIfRagPageIsEmpty();
       expect(isEmpty).toBeTruthy();
       await expect(ragPage.table).not.toBeVisible();

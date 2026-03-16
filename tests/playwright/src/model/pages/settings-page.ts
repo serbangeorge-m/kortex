@@ -75,9 +75,10 @@ export class SettingsPage extends BasePage {
 
   async createResource(providerId: ResourceId, credentials: string): Promise<void> {
     const provider = PROVIDERS[providerId];
+    const connectionType = 'connectionType' in provider ? provider.connectionType : 'inference';
     const resourcesPage = await this.openResources();
 
-    if ((await resourcesPage.getCreatedResourceFor(provider.resourceId).count()) > 0) {
+    if ((await resourcesPage.getCreatedConnectionFor(provider.resourceId, connectionType).count()) > 0) {
       console.log(`Resource ${providerId} already exists, skipping...`);
       return;
     }
@@ -93,6 +94,11 @@ export class SettingsPage extends BasePage {
         await createOpenAIPage.createAndGoBack(PROVIDERS.openai.baseURL, credentials);
         break;
       }
+      case 'milvus': {
+        const createMilvusPage = await resourcesPage.openCreateMilvusPage();
+        await createMilvusPage.createAndGoBack(credentials);
+        break;
+      }
       case 'openshift-ai':
         throw new Error('OpenShift AI resource creation not yet implemented');
       default:
@@ -100,18 +106,19 @@ export class SettingsPage extends BasePage {
     }
 
     await resourcesPage.waitForLoad();
-    const resource = resourcesPage.getCreatedResourceFor(provider.resourceId);
-    await expect(resource).toBeVisible();
+    const resource = resourcesPage.getCreatedConnectionFor(provider.resourceId, connectionType);
+    await expect(resource).toBeVisible({ timeout: TIMEOUTS.DEFAULT });
   }
 
   async deleteResource(providerId: ResourceId): Promise<void> {
     const provider = PROVIDERS[providerId];
+    const connectionType = 'connectionType' in provider ? provider.connectionType : 'inference';
     const resourcesPage = await this.openResources();
 
     await resourcesPage.waitForLoad();
-    await resourcesPage.deleteCreatedResourceFor(provider.resourceId);
+    await resourcesPage.deleteCreatedConnectionFor(provider.resourceId, connectionType);
 
-    const resource = resourcesPage.getCreatedResourceFor(provider.resourceId);
+    const resource = resourcesPage.getCreatedConnectionFor(provider.resourceId, connectionType);
     await expect(resource).not.toBeVisible();
   }
 

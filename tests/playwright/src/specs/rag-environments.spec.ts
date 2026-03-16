@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { waitForNavigationReady } from 'src/utils/app-ready';
+import { TEST_RAG_ENVIRONMENT } from '../fixtures/data/rag-test-data';
+import { expect, test } from '../fixtures/provider-fixtures';
+import { waitForNavigationReady } from '../utils/app-ready';
 
-import { expect, test, TEST_RAG_ENVIRONMENT } from '../fixtures/rag-fixtures';
+test.use({ ragEnvironments: [TEST_RAG_ENVIRONMENT] });
 
 test.describe
   .serial('RAG page - seeded data', { tag: '@smoke' }, () => {
@@ -26,16 +28,16 @@ test.describe
       await waitForNavigationReady(page);
     });
 
-    test('[RAG-05] Table displays seeded RAG environment row', async ({ navigationBar }) => {
-      const ragPage = await navigationBar.navigateToRagPage();
+    test('[RAG-05] Table displays seeded RAG environment row', async ({ workerNavigationBar }) => {
+      const ragPage = await workerNavigationBar.navigateToRagPage();
       const isEmpty = await ragPage.checkIfRagPageIsEmpty();
       expect(isEmpty).toBeFalsy();
 
       await ragPage.ensureRowExists(TEST_RAG_ENVIRONMENT.name);
     });
 
-    test('[RAG-06] Clicking environment name navigates to details page', async ({ navigationBar }) => {
-      const ragPage = await navigationBar.navigateToRagPage();
+    test('[RAG-06] Clicking environment name navigates to details page', async ({ workerNavigationBar }) => {
+      const ragPage = await workerNavigationBar.navigateToRagPage();
       const detailsPage = await ragPage.openEnvironmentDetails(TEST_RAG_ENVIRONMENT.name);
 
       await expect(detailsPage.heading).toBeVisible();
@@ -46,8 +48,8 @@ test.describe
       await expect(detailsPage.chunkerTabLink).toBeVisible();
     });
 
-    test('[RAG-07] Sources tab shows correct file count', async ({ navigationBar }) => {
-      const ragPage = await navigationBar.navigateToRagPage();
+    test('[RAG-07] Sources tab shows correct file count', async ({ workerNavigationBar }) => {
+      const ragPage = await workerNavigationBar.navigateToRagPage();
       const detailsPage = await ragPage.openEnvironmentDetails(TEST_RAG_ENVIRONMENT.name);
 
       await detailsPage.switchToSourcesTab();
