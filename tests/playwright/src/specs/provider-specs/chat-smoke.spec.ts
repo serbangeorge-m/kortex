@@ -51,6 +51,8 @@ test.describe
     });
 
     test('[CHAT-03] Create and switch between multiple chat sessions without data loss', async ({ chatPage }) => {
+      test.slow();
+
       await chatPage.ensureChatSidebarVisible();
       let messageCount = await chatPage.getChatHistoryCount();
 
@@ -83,8 +85,19 @@ test.describe
       const expectedCountAfterSingleDelete = initialCount - 1;
       await chatPage.waitForChatHistoryCount(expectedCountAfterSingleDelete);
 
+      // Click on a chat to view it before deleting all
+      if (expectedCountAfterSingleDelete > 0) {
+        await chatPage.clickChatHistoryItemByIndex(0);
+        // Verify we're viewing the conversation (no suggested messages)
+        await expect(chatPage.suggestedMessagesGrid).not.toBeVisible();
+      }
+
       await chatPage.deleteAllChatHistoryItems();
       await chatPage.verifyChatHistoryEmpty();
+
+      // Verify the chat view resets to a fresh conversation state
+      await chatPage.verifySuggestedMessagesVisible();
+      await expect(chatPage.conversationMessages).toHaveCount(0);
 
       await chatPage.ensureNotificationsAreNotVisible();
     });
@@ -113,6 +126,8 @@ test.describe
     });
 
     test('[CHAT-06] Change models mid-conversation, verify conversation history is preserved', async ({ chatPage }) => {
+      test.slow();
+
       const modelCount = await chatPage.getAvailableModelsCount();
 
       if (modelCount < 2) {
@@ -243,8 +258,7 @@ test.describe
       await chatPage.verifySendButtonVisible();
 
       const message = 'What is Podman?';
-      // Pass 0 timeout to avoid waiting for generation to complete before checking stop button
-      await chatPage.sendMessage(message, 0);
+      await chatPage.sendMessage(message, { waitForMessage: false });
 
       await chatPage.verifyStopButtonVisible();
       await chatPage.verifySendButtonHidden();

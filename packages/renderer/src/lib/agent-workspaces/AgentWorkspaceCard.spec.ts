@@ -19,11 +19,14 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { AgentWorkspaceSummary } from '/@api/agent-workspace-info';
 
 import AgentWorkspaceCard from './AgentWorkspaceCard.svelte';
+
+vi.mock(import('tinro'));
 
 const workspace: AgentWorkspaceSummary = {
   id: 'ws-1',
@@ -62,7 +65,7 @@ test('Expect card displays configuration path', () => {
 test('Expect card has aria label with workspace name', () => {
   render(AgentWorkspaceCard, { workspace });
 
-  expect(screen.getByRole('region', { name: 'workspace api-refactor' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'workspace api-refactor' })).toBeInTheDocument();
 });
 
 test('Expect remove button is rendered', () => {
@@ -102,4 +105,13 @@ test('Expect workspace not removed when user cancels', async () => {
   await fireEvent.click(removeButton);
 
   expect(window.removeAgentWorkspace).not.toHaveBeenCalled();
+});
+
+test('Expect clicking card navigates to workspace detail view', async () => {
+  render(AgentWorkspaceCard, { workspace });
+
+  const card = screen.getByRole('button', { name: 'workspace api-refactor' });
+  await fireEvent.click(card);
+
+  expect(router.goto).toHaveBeenCalledWith('/agent-workspaces/ws-1/summary');
 });
