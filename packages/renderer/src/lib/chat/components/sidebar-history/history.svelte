@@ -4,6 +4,7 @@ import { toast } from 'svelte-sonner';
 import { router } from 'tinro';
 
 import { ChatHistory } from '/@/lib/chat/hooks/chat-history.svelte';
+import { currentChatId } from '/@/lib/chat/state/current-chat-id.svelte';
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import type { Chat } from '/@api/chat/schema.js';
 
@@ -107,6 +108,11 @@ async function handleDeleteAllChats(): Promise<void> {
     },
     error: 'Failed to delete all chats',
   });
+
+  if (chatId) {
+    currentChatId.value = undefined;
+    router.goto('/');
+  }
 }
 </script>
 
@@ -137,7 +143,7 @@ async function handleDeleteAllChats(): Promise<void> {
 		</SidebarGroupContent>
 	</SidebarGroup>
 {:else}
-	<SidebarGroup>
+	<SidebarGroup class="flex-1 overflow-auto">
 		<SidebarGroupContent>
 			<SidebarMenu>
 				{#each Object.entries(groupedChats) as [group, chats] (group)}
@@ -160,19 +166,16 @@ async function handleDeleteAllChats(): Promise<void> {
 			</SidebarMenu>
 		</SidebarGroupContent>
 	</SidebarGroup>
-  <SidebarGroup class="mt-auto">
-    <SidebarGroupContent>
-      <Button
-        variant="ghost"
-        class="w-full text-zinc-500 hover:text-red-500"
-        onclick={(): void => withConfirmation(handleDeleteAllChats, 'This action cannot be undone. This will permanently delete all of your chats')}
-      >
-        Delete all chats
-      </Button>
-    </SidebarGroupContent>
-  </SidebarGroup>
-
-
-
+	<SidebarGroup class="flex-shrink-0">
+		<SidebarGroupContent>
+			<Button
+				variant="ghost"
+				class="w-full text-zinc-500 hover:text-red-500"
+				onclick={(): void => withConfirmation(handleDeleteAllChats, 'This action cannot be undone. This will permanently delete all of your chats')}
+			>
+				Delete all chats
+			</Button>
+		</SidebarGroupContent>
+	</SidebarGroup>
 {/if}
 
