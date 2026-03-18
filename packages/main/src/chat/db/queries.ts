@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { and, asc, desc, eq, gt, gte, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, sql } from 'drizzle-orm';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import ms from 'ms';
 import type { ResultAsync } from 'neverthrow';
@@ -207,7 +207,7 @@ export class ChatQueries {
 
   getChatsByUserId = ({ id }: { id: string }): ResultAsync<Chat[], DbError> => {
     return fromPromise(
-      this.db.select().from(chat).where(eq(chat.userId, id)).orderBy(desc(chat.createdAt)),
+      this.db.select().from(chat).where(eq(chat.userId, id)).orderBy(desc(chat.createdAt), desc(sql`rowid`)),
       e => new DbInternalError({ cause: e }),
     );
   };
