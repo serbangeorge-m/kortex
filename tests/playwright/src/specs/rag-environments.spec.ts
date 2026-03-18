@@ -16,45 +16,66 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { TEST_RAG_ENVIRONMENT } from '../fixtures/data/rag-test-data';
 import { expect, test } from '../fixtures/provider-fixtures';
 import { waitForNavigationReady } from '../utils/app-ready';
 
-test.use({ ragEnvironments: [TEST_RAG_ENVIRONMENT] });
+const ENVIRONMENT_NAME = 'test-knowledge-base';
+const VECTOR_STORE_NAME = 'e2e-milvus';
+const EMBEDDING_MODEL_NAME = 'docling';
+
+test.use({ milvusConnectionName: VECTOR_STORE_NAME });
 
 test.describe
-  .serial('RAG page - seeded data', { tag: '@smoke' }, () => {
+  .serial('RAG page - UI creation', { tag: '@rag-provider' }, () => {
+    test.skip(
+      process.platform !== 'linux' && !process.env.MILVUS_ENABLED,
+      'RAG UI creation tests require Podman (set MILVUS_ENABLED=true on non-Linux)',
+    );
+
     test.beforeEach(async ({ page }) => {
       await waitForNavigationReady(page);
     });
 
-    test('[RAG-05] Table displays seeded RAG environment row', async ({ workerNavigationBar }) => {
+    test('[RAG-05] Create RAG environment via UI and verify row appears', async ({
+      milvusSetup: _milvusSetup,
+      workerNavigationBar,
+    }) => {
       const ragPage = await workerNavigationBar.navigateToRagPage();
+      await ragPage.createEnvironment(ENVIRONMENT_NAME, VECTOR_STORE_NAME, EMBEDDING_MODEL_NAME);
+
       const isEmpty = await ragPage.checkIfRagPageIsEmpty();
       expect(isEmpty).toBeFalsy();
-
-      await ragPage.ensureRowExists(TEST_RAG_ENVIRONMENT.name);
+      await ragPage.ensureRowExists(ENVIRONMENT_NAME);
     });
 
     test('[RAG-06] Clicking environment name navigates to details page', async ({ workerNavigationBar }) => {
       const ragPage = await workerNavigationBar.navigateToRagPage();
-      const detailsPage = await ragPage.openEnvironmentDetails(TEST_RAG_ENVIRONMENT.name);
+      const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
 
       await expect(detailsPage.heading).toBeVisible();
-      await expect(detailsPage.heading).toContainText(TEST_RAG_ENVIRONMENT.name);
+      await expect(detailsPage.heading).toContainText(ENVIRONMENT_NAME);
       await expect(detailsPage.summaryTabLink).toBeVisible();
       await expect(detailsPage.sourcesTabLink).toBeVisible();
       await expect(detailsPage.vectorStoreTabLink).toBeVisible();
       await expect(detailsPage.chunkerTabLink).toBeVisible();
     });
 
-    test('[RAG-07] Sources tab shows correct file count', async ({ workerNavigationBar }) => {
+    test('[RAG-07] Sources tab shows zero files for freshly created environment', async ({ workerNavigationBar }) => {
       const ragPage = await workerNavigationBar.navigateToRagPage();
-      const detailsPage = await ragPage.openEnvironmentDetails(TEST_RAG_ENVIRONMENT.name);
+      const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
 
       await detailsPage.switchToSourcesTab();
       const headerText = await detailsPage.getUploadedFilesHeader();
-      const expectedCount = TEST_RAG_ENVIRONMENT.files.length;
-      expect(headerText).toContain(`${expectedCount}`);
+      expect(headerText).toContain('0');
+    });
+
+    test('[RAG-13] Delete RAG environment from details page', async ({ workerNavigationBar }) => {
+      const ragPage = await workerNavigationBar.navigateToRagPage();
+      const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
+      await detailsPage.waitForLoad();
+
+      const listPage = await detailsPage.deleteEnvironment();
+      await listPage.waitForLoad();
+      await listPage.ensureRowDoesNotExist(ENVIRONMENT_NAME);
     });
   });

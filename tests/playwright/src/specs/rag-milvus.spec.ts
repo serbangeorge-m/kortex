@@ -16,11 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { CONNECTED_RAG_ENVIRONMENT, MILVUS_CONNECTION_NAME } from '../fixtures/data/rag-test-data';
 import { expect, test } from '../fixtures/provider-fixtures';
 import { waitForNavigationReady } from '../utils/app-ready';
 
-test.use({ ragEnvironments: [CONNECTED_RAG_ENVIRONMENT] });
+const ENVIRONMENT_NAME = 'connected-knowledge-base';
+const VECTOR_STORE_NAME = 'e2e-milvus';
+const EMBEDDING_MODEL_NAME = 'docling';
+
+test.use({ milvusConnectionName: VECTOR_STORE_NAME });
 
 test.describe
   .serial('RAG Pipeline with Milvus', { tag: '@rag-provider' }, () => {
@@ -48,9 +51,9 @@ test.describe
       await expect(connection).toBeVisible();
     });
 
-    test('[RAG-09] Seeded RAG environment appears in the Knowledge Bases list', async ({ workerNavigationBar }) => {
+    test('[RAG-09] Create RAG environment via UI and verify it appears', async ({ workerNavigationBar }) => {
       const ragPage = await workerNavigationBar.navigateToRagPage();
-      await ragPage.waitForLoad();
+      await ragPage.createEnvironment(ENVIRONMENT_NAME, VECTOR_STORE_NAME, EMBEDDING_MODEL_NAME);
 
       const isEmpty = await ragPage.checkIfRagPageIsEmpty();
       expect(isEmpty).toBe(false);
@@ -58,41 +61,33 @@ test.describe
 
     test('[RAG-10] RAG environment details show connected Milvus info', async ({ workerNavigationBar }) => {
       const ragPage = await workerNavigationBar.navigateToRagPage();
-      const detailsPage = await ragPage.openEnvironmentDetails(CONNECTED_RAG_ENVIRONMENT.name);
+      const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
       await detailsPage.waitForLoad();
 
       await detailsPage.switchToSummaryTab();
-      await expect(detailsPage.getInfoValue('Vector Store')).toContainText(MILVUS_CONNECTION_NAME);
+      await expect(detailsPage.getInfoValue('Vector Store')).toContainText(VECTOR_STORE_NAME);
     });
 
     test('[RAG-11] VectorStore tab displays Milvus configuration', async ({ workerNavigationBar }) => {
       const ragPage = await workerNavigationBar.navigateToRagPage();
-      const detailsPage = await ragPage.openEnvironmentDetails(CONNECTED_RAG_ENVIRONMENT.name);
+      const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
       await detailsPage.waitForLoad();
 
       await detailsPage.switchToVectorStoreTab();
 
       await expect(detailsPage.getInfoRow('Database Type')).toBeVisible();
 
-      const expectedCollection = CONNECTED_RAG_ENVIRONMENT.name.replace(/\W/g, '_');
+      const expectedCollection = ENVIRONMENT_NAME.replace(/\W/g, '_');
       await expect(detailsPage.getInfoValue('Collection Name')).toHaveText(expectedCollection);
     });
 
-    test('[RAG-12] Delete seeded RAG environment from details page', async ({ workerNavigationBar }) => {
+    test('[RAG-12] Delete RAG environment from details page', async ({ workerNavigationBar }) => {
       const ragPage = await workerNavigationBar.navigateToRagPage();
-      await ragPage.waitForLoad();
-
-      if (await ragPage.checkIfRagPageIsEmpty()) {
-        return;
-      }
-
-      const detailsPage = await ragPage.openEnvironmentDetails(CONNECTED_RAG_ENVIRONMENT.name);
+      const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
       await detailsPage.waitForLoad();
 
       const listPage = await detailsPage.deleteEnvironment();
       await listPage.waitForLoad();
-
-      const isEmpty = await listPage.checkIfRagPageIsEmpty();
-      expect(isEmpty).toBe(true);
+      await listPage.ensureRowDoesNotExist(ENVIRONMENT_NAME);
     });
   });

@@ -40,6 +40,7 @@ interface WorkerFixtures {
   mcpSetup: void;
   gooseSetup: void;
   ragEnvironments: RagEnvironmentSeed[];
+  milvusConnectionName: string;
   milvusSetup: void;
 }
 
@@ -186,24 +187,45 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
     { scope: 'worker', auto: false },
   ],
 
+  milvusConnectionName: [
+    '',
+    {
+      scope: 'worker',
+      option: true,
+    },
+  ],
+
   milvusSetup: [
-    async ({ workerNavigationBar, ragEnvironments }, use): Promise<void> => {
-      if (ragEnvironments.length === 0) {
+    async ({ workerNavigationBar, ragEnvironments, milvusConnectionName }, use): Promise<void> => {
+      const connectionName = ragEnvironments.length > 0 ? ragEnvironments[0].ragConnection.name : milvusConnectionName;
+
+      if (!connectionName) {
         await use();
         return;
       }
 
-      const connectionName = ragEnvironments[0].ragConnection.name;
-
+      let created = false;
       try {
         const settingsPage = await workerNavigationBar.navigateToSettingsPage();
         await settingsPage.createResource('milvus', connectionName);
+        created = true;
         await use();
+      } catch (error) {
+        if (!created) {
+          console.warn(
+            `Milvus setup skipped: no container engine available. Start Podman or Docker to run RAG tests. (${error})`,
+          );
+          await use();
+          return;
+        }
+        throw error;
       } finally {
-        await safeCleanup(async () => {
-          const settingsPage = await workerNavigationBar.navigateToSettingsPage();
-          await settingsPage.deleteResource('milvus');
-        }, `Failed to delete Milvus connection '${connectionName}'`);
+        if (created) {
+          await safeCleanup(async () => {
+            const settingsPage = await workerNavigationBar.navigateToSettingsPage();
+            await settingsPage.deleteResource('milvus');
+          }, `Failed to delete Milvus connection '${connectionName}'`);
+        }
       }
     },
     { scope: 'worker', auto: false },

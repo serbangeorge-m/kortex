@@ -20,18 +20,21 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { handleDialogIfPresent } from 'src/utils/app-ready';
 
 import { BaseTablePage } from './base-table-page';
+import { RagCreatePage } from './rag-create-page';
 import { RagDetailsPage } from './rag-details-page';
 
 export class RagPage extends BaseTablePage {
   readonly header: Locator;
   readonly heading: Locator;
   readonly noEnvironmentsMessage: Locator;
+  readonly newKnowledgeBaseButton: Locator;
 
   constructor(page: Page) {
     super(page, 'rag-environments');
     this.header = this.page.getByRole('region', { name: 'header' });
     this.heading = this.header.getByRole('heading', { name: 'Knowledge Bases' });
     this.noEnvironmentsMessage = this.content.getByText('No RAG environments are currently configured.');
+    this.newKnowledgeBaseButton = this.header.getByRole('button', { name: 'New Knowledge Base' });
   }
 
   async waitForLoad(): Promise<void> {
@@ -41,6 +44,16 @@ export class RagPage extends BaseTablePage {
   async checkIfRagPageIsEmpty(): Promise<boolean> {
     await this.waitForLoad();
     return (await this.noEnvironmentsMessage.count()) > 0;
+  }
+
+  async createEnvironment(name: string, vectorStoreName: string, embeddingModelName: string): Promise<void> {
+    await this.waitForLoad();
+    await expect(this.newKnowledgeBaseButton).toBeEnabled();
+    await this.newKnowledgeBaseButton.click();
+
+    const createPage = new RagCreatePage(this.page);
+    await createPage.createEnvironment(name, vectorStoreName, embeddingModelName);
+    await this.ensureRowExists(name);
   }
 
   async openEnvironmentDetails(name: string, exact = true): Promise<RagDetailsPage> {

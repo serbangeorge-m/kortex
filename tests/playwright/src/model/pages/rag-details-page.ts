@@ -47,7 +47,7 @@ export class RagDetailsPage extends BasePage {
     this.vectorStoreTabLink = this.pageTabsRegion.getByRole('link', { name: 'VectorStore' });
     this.chunkerTabLink = this.pageTabsRegion.getByRole('link', { name: 'Chunker' });
     this.closeDetailsPageButton = this.header.getByRole('button', { name: 'Close' });
-    this.deleteButton = this.page.getByRole('button', { name: 'Delete environment' });
+    this.deleteButton = this.header.getByRole('button', { name: 'Delete environment' });
   }
 
   async waitForLoad(): Promise<void> {
