@@ -57,9 +57,11 @@ runs:
     - name: Install RamaLama
       shell: bash
       run: |
-        # Pin to major version to prevent breaking changes from upstream
-        pip install 'ramalama>=0.1.0,<1.0.0'
-        echo "RamaLama installed: $(ramalama --version)"
+        # Pin to last known working version to prevent breaking changes from upstream
+        # v0.17.x pulls quay.io/ramalama/ramalama:latest which contains a llama.cpp
+        # build that crashes on GitHub Actions runners (container disappears after ~4s)
+        pip install 'ramalama>=0.1.0,<0.17.0'
+        echo "RamaLama installed: $(ramalama version 2>/dev/null || ramalama --version 2>/dev/null || echo 'unknown')"
 
     - name: Cleanup previous RamaLama containers
       shell: bash
@@ -110,33 +112,37 @@ runs:
       env:
         RAMALAMA_CONTAINER_ENGINE: podman
       run: |
-        ramalama serve --detach --port ${{ inputs.port }} "ollama://${{ inputs.model }}"
+        ramalama serve --detach --port ${{ inputs.port }} "ollama://${{ inputs.model }}" 2>&1 || true
 
         # Give the container a moment to register before we try to find it
-        sleep 2
+        sleep 3
         CONTAINER_ID=$(podman ps -a --filter "label=ramalama" --format "{{.ID}}" | head -1)
         if [ -z "$CONTAINER_ID" ]; then
           CONTAINER_ID=$(podman ps -a --latest --format "{{.ID}}")
         fi
         echo "RamaLama container ID: $CONTAINER_ID"
-        echo "container_id=$CONTAINER_ID" >> "$GITHUB_OUTPUT"
-        echo "RAMALAMA_CONTAINER_ID=$CONTAINER_ID" >> "$GITHUB_ENV"
 
-        # Apply resource limits to prevent the container starving other processes on the runner
+        # Capture early container logs before the container potentially disappears
         if [ -n "$CONTAINER_ID" ]; then
-          podman update --memory 4g --cpus 2.0 "$CONTAINER_ID" 2>/dev/null \
-            && echo "Resource limits applied (4g RAM, 2 CPUs)" \
-            || echo "::warning::Could not apply resource limits to RamaLama container"
+          echo "=== Early container logs ==="
+          podman logs "$CONTAINER_ID" 2>&1 || true
+          echo "=== Container state ==="
+          podman ps -a --filter "id=$CONTAINER_ID" --format "{{.ID}} {{.Status}} {{.Names}}" || true
+        else
+          echo "::warning::No RamaLama container found after serve command"
         fi
 
         # Track model load time for performance visibility
         LOAD_START=$SECONDS
+        FALLBACK_ATTEMPTED=false
 
         # Wait for API readiness with periodic diagnostics
         for i in {1..60}; do
           if curl -sf http://localhost:${{ inputs.port }}/v1/models > /dev/null 2>&1; then
             LOAD_TIME=$((SECONDS - LOAD_START))
             echo "RamaLama API is ready (load time: ${LOAD_TIME}s)"
+            echo "container_id=$CONTAINER_ID" >> "$GITHUB_OUTPUT"
+            echo "RAMALAMA_CONTAINER_ID=$CONTAINER_ID" >> "$GITHUB_ENV"
             echo "enabled=true" >> "$GITHUB_OUTPUT"
             echo "load_time=${LOAD_TIME}" >> "$GITHUB_OUTPUT"
             echo "RAMALAMA_ENABLED=true" >> "$GITHUB_ENV"
@@ -145,11 +151,28 @@ runs:
           fi
 
           # Every 10 attempts (~20s), print container status for live debugging
-          if [ $((i % 10)) -eq 0 ] && [ -n "$CONTAINER_ID" ]; then
-            echo "=== Container status (attempt $i/60) ==="
-            podman ps -a --filter "id=$CONTAINER_ID" || true
-            echo "=== Recent logs ==="
-            podman logs --tail 20 "$CONTAINER_ID" 2>&1 || true
+          if [ $((i % 10)) -eq 0 ]; then
+            if [ -n "$CONTAINER_ID" ]; then
+              echo "=== Container status (attempt $i/60) ==="
+              podman ps -a --filter "id=$CONTAINER_ID" || true
+              CONTAINER_EXISTS=$(podman ps -a --filter "id=$CONTAINER_ID" --format "{{.ID}}" 2>/dev/null)
+              if [ -z "$CONTAINER_EXISTS" ] && [ "$FALLBACK_ATTEMPTED" = false ]; then
+                echo "::warning::Container $CONTAINER_ID disappeared — it likely crashed"
+                echo "=== Attempting fallback: serve with --nocontainer ==="
+                # --nocontainer runs llama.cpp directly on the host (no podman);
+                # --detach is a podman flag so we background the process instead
+                ramalama serve --nocontainer --port ${{ inputs.port }} "ollama://${{ inputs.model }}" > /tmp/ramalama-serve.log 2>&1 &
+                echo "Fallback PID: $!"
+                CONTAINER_ID=""
+                FALLBACK_ATTEMPTED=true
+              elif [ -n "$CONTAINER_EXISTS" ]; then
+                echo "=== Recent logs ==="
+                podman logs --tail 20 "$CONTAINER_ID" 2>&1 || true
+              fi
+            elif [ "$FALLBACK_ATTEMPTED" = true ]; then
+              echo "=== Nocontainer fallback logs (attempt $i/60) ==="
+              tail -20 /tmp/ramalama-serve.log 2>/dev/null || true
+            fi
           fi
 
           echo "Waiting for RamaLama API... (attempt $i/60)"
@@ -164,7 +187,15 @@ runs:
           echo "=== Container inspect ==="
           podman inspect "$CONTAINER_ID" 2>&1 || true
         fi
+        if [ "$FALLBACK_ATTEMPTED" = true ]; then
+          echo "=== Full nocontainer fallback logs ==="
+          cat /tmp/ramalama-serve.log 2>/dev/null || true
+        fi
         echo "=== System resources ==="
         df -h && free -h || true
+        echo "=== All containers ==="
+        podman ps -a || true
+        echo "=== Listening ports ==="
+        ss -tlnp | grep "${{ inputs.port }}" || true
         echo "enabled=false" >> "$GITHUB_OUTPUT"
         echo "::warning::RamaLama tests will be skipped"
