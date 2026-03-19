@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Tab } from '@podman-desktop/ui-svelte';
+import { Button, Tab } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { router } from 'tinro';
 
@@ -28,6 +28,50 @@ const files = $derived.by(() => {
 
 const databaseName = $derived(getDatabaseName($providerInfos, ragEnvironment));
 const chunkProviderName = $derived(getChunkProviderName($chunkProviders, ragEnvironment));
+
+async function handleAddFile(): Promise<void> {
+  if (!ragEnvironment) return;
+
+  try {
+    const selectedFiles = await window.openDialog({
+      title: 'Select file to add to RAG environment',
+      selectors: ['openFile'],
+      filters: [
+        {
+          name: 'Normal text file',
+          extensions: ['txt'],
+        },
+        {
+          name: 'Markdown',
+          extensions: ['md', 'markdown'],
+        },
+        {
+          name: 'Hyper Text Markup Language',
+          extensions: ['htm', 'html', 'shtm', 'shtml', 'xht', 'xhtml', 'hta'],
+        },
+        {
+          name: 'Adobe PDF',
+          extensions: ['pdf'],
+        },
+      ],
+    });
+
+    if (selectedFiles && selectedFiles.length > 0) {
+      const filePath = selectedFiles[0];
+      const result = await window.addFileToPendingFiles(ragEnvironment.name, filePath);
+
+      if (!result) {
+        window
+          .showMessageBox({ title: 'Error', message: 'Error indexing file in RAG environment' })
+          .catch(console.error);
+      }
+    }
+  } catch (error: unknown) {
+    window
+      .showMessageBox({ title: 'Error', message: 'Error indexing file in RAG environment', detail: String(error) })
+      .catch(console.error);
+  }
+}
 </script>
 
 <DetailsPage title={ragEnvironment?.name ?? ''}>
@@ -80,6 +124,18 @@ const chunkProviderName = $derived(getChunkProviderName($chunkProviders, ragEnvi
     <Route path="/sources" breadcrumb="Sources" navigationHint="tab">
       {#if ragEnvironment}
         <!-- Sources Tab -->
+        <div
+          class="upload-area border-2 border-dashed border-[var(--pd-content-divider)] rounded-lg py-12 px-6 text-center hover:border-[var(--pd-button-primary)] hover:bg-[color-mix(in_srgb,var(--pd-button-primary)_5%,transparent)] transition-all duration-200 mb-6"
+        >
+          <Button
+            onclick={handleAddFile} type="link"
+          >
+            <Icon icon="fas fa-upload" class="fa-4x"/>
+            <div class="upload-text text-base text-[var(--pd-content-text)] mb-2">Click to upload</div>
+            <div class="upload-subtext text-sm text-[var(--pd-content-text-secondary)]">Supports PDF, TXT, MD, and more</div>
+          </Button>
+        </div>
+
         <div class="sources-list bg-[var(--pd-content-card-bg)] border border-[var(--pd-content-divider)] rounded-lg overflow-hidden">
           <div class="sources-header px-5 py-4 border-b border-[var(--pd-content-divider)] bg-[var(--pd-content-card-inset-bg)]">
             <h3 class="sources-title text-base font-semibold text-[var(--pd-content-text)]">Uploaded Files ({files.length})</h3>
