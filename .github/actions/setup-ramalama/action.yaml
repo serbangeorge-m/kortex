@@ -57,8 +57,10 @@ runs:
     - name: Install RamaLama
       shell: bash
       run: |
-        # Pin to last known working minor version to prevent breaking changes
-        pip install 'ramalama>=0.1.0,<0.18.0'
+        # Pin to last known working version to prevent breaking changes from upstream
+        # v0.17.x pulls quay.io/ramalama/ramalama:latest which contains a llama.cpp
+        # build that crashes on GitHub Actions runners (container disappears after ~4s)
+        pip install 'ramalama>=0.1.0,<0.17.0'
         echo "RamaLama installed: $(ramalama version 2>/dev/null || ramalama --version 2>/dev/null || echo 'unknown')"
 
     - name: Cleanup previous RamaLama containers
@@ -128,25 +130,14 @@ runs:
           podman ps -a --filter "id=$CONTAINER_ID" --format "{{.ID}} {{.Status}} {{.Names}}" || true
         else
           echo "::warning::No RamaLama container found after serve command"
-          # Fallback: try running without container isolation
-          echo "Retrying with --nocontainer flag..."
-          ramalama serve --nocontainer --detach --port ${{ inputs.port }} "ollama://${{ inputs.model }}" 2>&1 &
-          SERVE_PID=$!
-          echo "RamaLama serve PID: $SERVE_PID"
         fi
 
         echo "container_id=$CONTAINER_ID" >> "$GITHUB_OUTPUT"
         echo "RAMALAMA_CONTAINER_ID=$CONTAINER_ID" >> "$GITHUB_ENV"
 
-        # Apply resource limits to prevent the container starving other processes on the runner
-        if [ -n "$CONTAINER_ID" ]; then
-          podman update --memory 4g --cpus 2.0 "$CONTAINER_ID" 2>/dev/null \
-            && echo "Resource limits applied (4g RAM, 2 CPUs)" \
-            || echo "::warning::Could not apply resource limits to RamaLama container"
-        fi
-
         # Track model load time for performance visibility
         LOAD_START=$SECONDS
+        FALLBACK_ATTEMPTED=false
 
         # Wait for API readiness with periodic diagnostics
         for i in {1..60}; do
@@ -166,15 +157,22 @@ runs:
               echo "=== Container status (attempt $i/60) ==="
               podman ps -a --filter "id=$CONTAINER_ID" || true
               CONTAINER_EXISTS=$(podman ps -a --filter "id=$CONTAINER_ID" --format "{{.ID}}" 2>/dev/null)
-              if [ -z "$CONTAINER_EXISTS" ]; then
+              if [ -z "$CONTAINER_EXISTS" ] && [ "$FALLBACK_ATTEMPTED" = false ]; then
                 echo "::warning::Container $CONTAINER_ID disappeared — it likely crashed"
-                echo "=== Attempting restart with --nocontainer ==="
-                ramalama serve --nocontainer --detach --port ${{ inputs.port }} "ollama://${{ inputs.model }}" 2>&1 &
+                echo "=== Attempting fallback: serve with --nocontainer ==="
+                # --nocontainer runs llama.cpp directly on the host (no podman);
+                # --detach is a podman flag so we background the process instead
+                ramalama serve --nocontainer --port ${{ inputs.port }} "ollama://${{ inputs.model }}" > /tmp/ramalama-serve.log 2>&1 &
+                echo "Fallback PID: $!"
                 CONTAINER_ID=""
-              else
+                FALLBACK_ATTEMPTED=true
+              elif [ -n "$CONTAINER_EXISTS" ]; then
                 echo "=== Recent logs ==="
                 podman logs --tail 20 "$CONTAINER_ID" 2>&1 || true
               fi
+            elif [ "$FALLBACK_ATTEMPTED" = true ]; then
+              echo "=== Nocontainer fallback logs (attempt $i/60) ==="
+              tail -20 /tmp/ramalama-serve.log 2>/dev/null || true
             fi
           fi
 
@@ -189,6 +187,10 @@ runs:
           podman logs "$CONTAINER_ID" 2>&1 || true
           echo "=== Container inspect ==="
           podman inspect "$CONTAINER_ID" 2>&1 || true
+        fi
+        if [ "$FALLBACK_ATTEMPTED" = true ]; then
+          echo "=== Full nocontainer fallback logs ==="
+          cat /tmp/ramalama-serve.log 2>/dev/null || true
         fi
         echo "=== System resources ==="
         df -h && free -h || true
