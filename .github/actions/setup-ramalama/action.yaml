@@ -132,9 +132,6 @@ runs:
           echo "::warning::No RamaLama container found after serve command"
         fi
 
-        echo "container_id=$CONTAINER_ID" >> "$GITHUB_OUTPUT"
-        echo "RAMALAMA_CONTAINER_ID=$CONTAINER_ID" >> "$GITHUB_ENV"
-
         # Track model load time for performance visibility
         LOAD_START=$SECONDS
         FALLBACK_ATTEMPTED=false
@@ -144,6 +141,8 @@ runs:
           if curl -sf http://localhost:${{ inputs.port }}/v1/models > /dev/null 2>&1; then
             LOAD_TIME=$((SECONDS - LOAD_START))
             echo "RamaLama API is ready (load time: ${LOAD_TIME}s)"
+            echo "container_id=$CONTAINER_ID" >> "$GITHUB_OUTPUT"
+            echo "RAMALAMA_CONTAINER_ID=$CONTAINER_ID" >> "$GITHUB_ENV"
             echo "enabled=true" >> "$GITHUB_OUTPUT"
             echo "load_time=${LOAD_TIME}" >> "$GITHUB_OUTPUT"
             echo "RAMALAMA_ENABLED=true" >> "$GITHUB_ENV"
