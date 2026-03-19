@@ -57,9 +57,9 @@ runs:
     - name: Install RamaLama
       shell: bash
       run: |
-        # Pin to major version to prevent breaking changes from upstream
-        pip install 'ramalama>=0.1.0,<1.0.0'
-        echo "RamaLama installed: $(ramalama --version)"
+        # Pin to last known working minor version to prevent breaking changes
+        pip install 'ramalama>=0.1.0,<0.18.0'
+        echo "RamaLama installed: $(ramalama version 2>/dev/null || ramalama --version 2>/dev/null || echo 'unknown')"
 
     - name: Cleanup previous RamaLama containers
       shell: bash
@@ -110,15 +110,31 @@ runs:
       env:
         RAMALAMA_CONTAINER_ENGINE: podman
       run: |
-        ramalama serve --detach --port ${{ inputs.port }} "ollama://${{ inputs.model }}"
+        ramalama serve --detach --port ${{ inputs.port }} "ollama://${{ inputs.model }}" 2>&1 || true
 
         # Give the container a moment to register before we try to find it
-        sleep 2
+        sleep 3
         CONTAINER_ID=$(podman ps -a --filter "label=ramalama" --format "{{.ID}}" | head -1)
         if [ -z "$CONTAINER_ID" ]; then
           CONTAINER_ID=$(podman ps -a --latest --format "{{.ID}}")
         fi
         echo "RamaLama container ID: $CONTAINER_ID"
+
+        # Capture early container logs before the container potentially disappears
+        if [ -n "$CONTAINER_ID" ]; then
+          echo "=== Early container logs ==="
+          podman logs "$CONTAINER_ID" 2>&1 || true
+          echo "=== Container state ==="
+          podman ps -a --filter "id=$CONTAINER_ID" --format "{{.ID}} {{.Status}} {{.Names}}" || true
+        else
+          echo "::warning::No RamaLama container found after serve command"
+          # Fallback: try running without container isolation
+          echo "Retrying with --nocontainer flag..."
+          ramalama serve --nocontainer --detach --port ${{ inputs.port }} "ollama://${{ inputs.model }}" 2>&1 &
+          SERVE_PID=$!
+          echo "RamaLama serve PID: $SERVE_PID"
+        fi
+
         echo "container_id=$CONTAINER_ID" >> "$GITHUB_OUTPUT"
         echo "RAMALAMA_CONTAINER_ID=$CONTAINER_ID" >> "$GITHUB_ENV"
 
@@ -145,11 +161,21 @@ runs:
           fi
 
           # Every 10 attempts (~20s), print container status for live debugging
-          if [ $((i % 10)) -eq 0 ] && [ -n "$CONTAINER_ID" ]; then
-            echo "=== Container status (attempt $i/60) ==="
-            podman ps -a --filter "id=$CONTAINER_ID" || true
-            echo "=== Recent logs ==="
-            podman logs --tail 20 "$CONTAINER_ID" 2>&1 || true
+          if [ $((i % 10)) -eq 0 ]; then
+            if [ -n "$CONTAINER_ID" ]; then
+              echo "=== Container status (attempt $i/60) ==="
+              podman ps -a --filter "id=$CONTAINER_ID" || true
+              CONTAINER_EXISTS=$(podman ps -a --filter "id=$CONTAINER_ID" --format "{{.ID}}" 2>/dev/null)
+              if [ -z "$CONTAINER_EXISTS" ]; then
+                echo "::warning::Container $CONTAINER_ID disappeared — it likely crashed"
+                echo "=== Attempting restart with --nocontainer ==="
+                ramalama serve --nocontainer --detach --port ${{ inputs.port }} "ollama://${{ inputs.model }}" 2>&1 &
+                CONTAINER_ID=""
+              else
+                echo "=== Recent logs ==="
+                podman logs --tail 20 "$CONTAINER_ID" 2>&1 || true
+              fi
+            fi
           fi
 
           echo "Waiting for RamaLama API... (attempt $i/60)"
@@ -166,5 +192,9 @@ runs:
         fi
         echo "=== System resources ==="
         df -h && free -h || true
+        echo "=== All containers ==="
+        podman ps -a || true
+        echo "=== Listening ports ==="
+        ss -tlnp | grep "${{ inputs.port }}" || true
         echo "enabled=false" >> "$GITHUB_OUTPUT"
         echo "::warning::RamaLama tests will be skipped"
