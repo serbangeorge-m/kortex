@@ -26,8 +26,15 @@ export interface SkillInfo extends SkillMetadata {
   enabled: boolean;
 }
 
-export interface SkillCreateOptions extends SkillMetadata {
-  content: string;
+export interface SkillFolderInfo {
+  label: string;
+  badge: string;
+  icon?: string;
+  baseDirectory: string;
+}
+
+export interface SkillFileContent extends SkillMetadata {
+  content?: string;
 }
 
 export const SKILL_SECTION = 'skills';

@@ -137,7 +137,7 @@ import type { ChunkProviderInfo } from '/@api/rag/chunk-provider-info';
 import type { RagEnvironment } from '/@api/rag/rag-environment';
 import type { ExtensionBanner, RecommendedRegistry } from '/@api/recommendations/recommendations';
 import type { ReleaseNotesInfo } from '/@api/release-notes-info';
-import type { SkillCreateOptions, SkillInfo } from '/@api/skill/skill-info';
+import type { SkillFileContent, SkillFolderInfo, SkillInfo } from '/@api/skill/skill-info';
 import type { StatusBarEntryDescriptor } from '/@api/status-bar';
 import type { PinOption } from '/@api/status-bar/pin-option';
 import type { TelemetryMessages } from '/@api/telemetry';
@@ -357,6 +357,10 @@ export function initExposure(): void {
     return ipcInvoke('skill-manager:listSkills');
   });
 
+  contextBridge.exposeInMainWorld('listSkillFolders', async (): Promise<Array<SkillFolderInfo>> => {
+    return ipcInvoke('skill-manager:listSkillFolders');
+  });
+
   contextBridge.exposeInMainWorld('registerSkill', async (folderPath: string): Promise<SkillInfo> => {
     return ipcInvoke('skill-manager:registerSkill', folderPath);
   });
@@ -373,9 +377,12 @@ export function initExposure(): void {
     return ipcInvoke('skill-manager:unregisterSkill', name);
   });
 
-  contextBridge.exposeInMainWorld('createSkill', async (options: SkillCreateOptions): Promise<SkillInfo> => {
-    return ipcInvoke('skill-manager:createSkill', options);
-  });
+  contextBridge.exposeInMainWorld(
+    'createSkill',
+    async (options: SkillFileContent, targetDirectory: string): Promise<SkillInfo> => {
+      return ipcInvoke('skill-manager:createSkill', options, targetDirectory);
+    },
+  );
 
   contextBridge.exposeInMainWorld('getSkillContent', async (name: string): Promise<string> => {
     return ipcInvoke('skill-manager:getSkillContent', name);
@@ -383,6 +390,10 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listSkillFolderContent', async (name: string): Promise<string[]> => {
     return ipcInvoke('skill-manager:listSkillFolderContent', name);
+  });
+
+  contextBridge.exposeInMainWorld('getSkillFileContent', async (filePath: string): Promise<SkillFileContent> => {
+    return ipcInvoke('skill-manager:getSkillFileContent', filePath);
   });
 
   contextBridge.exposeInMainWorld(

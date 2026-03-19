@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
@@ -27,12 +27,15 @@ import type { SkillInfo } from '/@api/skill/skill-info';
 
 import SkillsList from './SkillsList.svelte';
 
-vi.mock('/@/stores/skills');
+vi.mock(import('/@/stores/skills'));
 
 beforeEach(() => {
   vi.resetAllMocks();
   vi.mocked(skillsStore).filteredSkillInfos = writable<SkillInfo[]>([]);
   vi.mocked(skillsStore).skillSearchPattern = writable('');
+  vi.mocked(window.listSkillFolders).mockResolvedValue([
+    { label: 'Kortex Skills', badge: 'Kortex', baseDirectory: '/test/skills' },
+  ]);
 });
 
 test('should show empty screen when no skills', () => {
@@ -59,4 +62,13 @@ test('should show table when skills exist', () => {
 
   expect(screen.getByText('skill-a')).toBeInTheDocument();
   expect(screen.getByText('skill-b')).toBeInTheDocument();
+});
+
+test('should open the create dialog when "New skill" is clicked', async () => {
+  render(SkillsList);
+
+  const buttons = screen.getAllByText('New skill');
+  await fireEvent.click(buttons[0]);
+
+  expect(screen.getByText('Create Skill')).toBeInTheDocument();
 });
