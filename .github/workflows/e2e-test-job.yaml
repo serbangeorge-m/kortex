@@ -53,7 +53,7 @@ on:
         type: string
         default: 'granite3.2:2b'
       inference_second_model:
-        description: 'Optional second model for Ollama (e.g., phi4-mini). Ignored for ramalama.'
+        description: 'Optional second inference model to pull (e.g., granite3.1-dense:2b).'
         required: false
         type: string
         default: ''

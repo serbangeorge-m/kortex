@@ -23,7 +23,7 @@ inputs:
     description: 'Model to pull and serve (e.g., granite3.2:2b)'
     required: true
   second_model:
-    description: 'Optional second model to pull (e.g., phi4-mini). Ollama loads models on demand.'
+    description: 'Optional second inference model to pull (e.g., granite3.1-dense:2b).'
     required: false
     default: ''
 
