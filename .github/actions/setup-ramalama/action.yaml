@@ -22,6 +22,10 @@ inputs:
   model:
     description: 'Model to pull and serve (e.g., granite3.2:2b)'
     required: true
+  second_model:
+    description: 'Optional second inference model to pull (e.g., granite3.1-dense:2b).'
+    required: false
+    default: ''
   port:
     description: 'Port to serve the model on'
     required: false
@@ -75,7 +79,7 @@ runs:
       uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
       with:
         path: ~/.local/share/ramalama
-        key: ramalama-${{ inputs.model }}-${{ runner.os }}
+        key: ramalama-${{ inputs.model }}-${{ inputs.second_model || 'none' }}-${{ runner.os }}
 
     - name: Pull RamaLama model
       id: pull
@@ -104,6 +108,30 @@ runs:
 
         echo "::warning::Failed to pull ${{ inputs.model }} model after 5 attempts - RamaLama tests will be skipped"
         echo "pulled=false" >> "$GITHUB_OUTPUT"
+
+    - name: Pull second RamaLama model
+      if: steps.pull.outputs.pulled == 'true' && inputs.second_model != ''
+      shell: bash
+      env:
+        RAMALAMA_CONTAINER_ENGINE: podman
+      run: |
+        for attempt in {1..5}; do
+          echo "Pulling ${{ inputs.second_model }} model (attempt $attempt/5)..."
+
+          if ramalama pull "ollama://${{ inputs.second_model }}" 2>&1; then
+            echo "Model ${{ inputs.second_model }} pulled successfully"
+            ramalama list
+            exit 0
+          fi
+
+          if [ "$attempt" -lt 5 ]; then
+            wait_time=$((attempt * 15))
+            echo "Pull failed, retrying in ${wait_time} seconds..."
+            sleep $wait_time
+          fi
+        done
+
+        echo "::warning::Failed to pull ${{ inputs.second_model }} after 5 attempts - second model tests will be skipped"
 
     - name: Serve RamaLama model
       id: serve

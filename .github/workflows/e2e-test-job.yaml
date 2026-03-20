@@ -97,6 +97,7 @@ jobs:
         uses: ./.github/actions/setup-ramalama
         with:
           model: ${{ inputs.inference_model }}
+          second_model: ${{ inputs.inference_second_model }}
 
       - name: Run Smoke E2E tests in ${{ inputs.mode == 'prod' && 'Production' || 'Development' }} Mode
         shell: bash
