@@ -121,6 +121,8 @@ pnpm run test:e2e:report     # Show Playwright test report
 pnpm run test:watch
 ```
 
+For detailed Playwright E2E testing guidance (Page Object Model, fixtures, locator conventions, examples), see `.agents/skills/playwright-testing/`.
+
 ### Code Quality
 
 ```bash
