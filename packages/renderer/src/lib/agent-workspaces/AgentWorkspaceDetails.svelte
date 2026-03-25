@@ -1,11 +1,12 @@
 <script lang="ts">
-import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ErrorMessage, Spinner, Tab } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
 import DetailsCell from '/@/lib/details/DetailsCell.svelte';
 import DetailsTable from '/@/lib/details/DetailsTable.svelte';
 import DetailsTitle from '/@/lib/details/DetailsTitle.svelte';
+import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import DetailsPage from '/@/lib/ui/DetailsPage.svelte';
 import ListItemButtonIcon from '/@/lib/ui/ListItemButtonIcon.svelte';
 import { getTabUrl, isTabSelected } from '/@/lib/ui/Util';
@@ -33,6 +34,17 @@ function handleStartStop(): void {
     startAgentWorkspace(workspaceId).catch(console.error);
   }
 }
+
+function handleRemove(name: string): void {
+  withConfirmation(async () => {
+    try {
+      await window.removeAgentWorkspace(workspaceId);
+      router.goto('/agent-workspaces');
+    } catch (error: unknown) {
+      console.error('Failed to remove agent workspace', error);
+    }
+  }, `remove workspace ${name}`);
+}
 </script>
 
 {#await configurationPromise}
@@ -47,6 +59,10 @@ function handleStartStop(): void {
         onClick={handleStartStop}
         icon={isRunning ? faStop : faPlay}
         inProgress={inProgress} />
+      <ListItemButtonIcon
+        title="Remove Workspace"
+        onClick={handleRemove.bind(undefined, configuration.name ?? '')}
+        icon={faTrash} />
     {/snippet}
     {#snippet tabsSnippet()}
       <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
