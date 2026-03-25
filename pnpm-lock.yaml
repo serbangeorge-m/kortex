@@ -207,8 +207,8 @@ importers:
         specifier: 'workspace:'
         version: link:packages/extension-api
       '@kortex-hub/kortex-cli-api':
-        specifier: ^0.1.4
-        version: 0.1.4
+        specifier: ^0.1.6
+        version: 0.1.6
       '@kortex-hub/kortex-workspace-configuration':
         specifier: ^0.1.4
         version: 0.1.4
@@ -1674,8 +1674,8 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kortex-hub/kortex-cli-api@0.1.4':
-    resolution: {integrity: sha512-UqwJsq11TDI90FQPihautoEFGARGIkCvezEJArPR6ZynM6N8a+tgHHBGembuA3VYdJvTeSFAcYjnyEdgJBloUw==}
+  '@kortex-hub/kortex-cli-api@0.1.6':
+    resolution: {integrity: sha512-e0ekovbwR8EzPJww2f0QMc09Sn/8F7xTjMYl5woxZDrIL7oLI6hGJRSWb1r1D3mzpZQIWXlMaSvLJfp0Tz82ug==}
 
   '@kortex-hub/kortex-workspace-configuration@0.1.4':
     resolution: {integrity: sha512-TuSjsPrnu2PkhNbtPFRehoyvEFKE4E/XrGWLd+lwW0ywqKM42mCBfWibCCeo5wBCy+nbKcfPvEWo6Alvy+Cp3Q==}
@@ -8593,7 +8593,7 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kortex-hub/kortex-cli-api@0.1.4': {}
+  '@kortex-hub/kortex-cli-api@0.1.6': {}
 
   '@kortex-hub/kortex-workspace-configuration@0.1.4': {}
 
