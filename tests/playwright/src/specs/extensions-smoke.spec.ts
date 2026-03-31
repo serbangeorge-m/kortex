@@ -17,7 +17,7 @@
  ***********************************************************************/
 import { BADGE_TEXT, builtInExtensions } from 'src/model/core/types';
 
-import { expect, test } from '../fixtures/electron-app';
+import { expect, workerTest as test } from '../fixtures/electron-app';
 import { waitForNavigationReady } from '../utils/app-ready';
 
 test.describe('Extensions page navigation', { tag: '@smoke' }, () => {
