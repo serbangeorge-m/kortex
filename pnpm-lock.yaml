@@ -445,8 +445,8 @@ importers:
   extensions/gemini:
     dependencies:
       '@ai-sdk/google':
-        specifier: ^3.0.53
-        version: 3.0.53(zod@4.3.6)
+        specifier: ^3.0.54
+        version: 3.0.54(zod@4.3.6)
       '@google/genai':
         specifier: ^1.25.0
         version: 1.43.0(@modelcontextprotocol/sdk@1.28.0(zod@4.3.6))
@@ -911,8 +911,8 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/google@3.0.53':
-    resolution: {integrity: sha512-uz8tIlkDgQJG9Js2Wh9JHzd4kI9+hYJqf9XXJLx60vyN5mRIqhr49iwR5zGP5Gl8odp2PeR3Gh2k+5bh3Z1HHw==}
+  '@ai-sdk/google@3.0.54':
+    resolution: {integrity: sha512-EgYYdA2LpHZefLDU/FIpmeTlL5Hi4WKQZY3nACMh0wVhrS1fAvlfrdwnD1G4ISCOKWMWrMcRZX9ubs3NM/KHfA==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -7765,7 +7765,7 @@ snapshots:
       '@vercel/oidc': 3.1.0
       zod: 4.3.6
 
-  '@ai-sdk/google@3.0.53(zod@4.3.6)':
+  '@ai-sdk/google@3.0.54(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
       '@ai-sdk/provider-utils': 4.0.21(zod@4.3.6)
@@ -8736,7 +8736,7 @@ snapshots:
 
   '@npmcli/fs@4.0.0':
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@npmcli/move-file@2.0.1':
     dependencies:
