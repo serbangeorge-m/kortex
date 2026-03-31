@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 /** biome-ignore-all lint/correctness/noEmptyPattern: Playwright fixture pattern requires empty object when no dependencies are needed */
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -191,9 +191,23 @@ function prepareElectronEnv(): Record<string, string> {
 
 function setupTestConfigDir(electronEnv: Record<string, string>): void {
   const testDataDir = mkdtempSync(join(tmpdir(), 'kortex-test-'));
-  electronEnv.KORTEX_HOME_DIR = testDataDir;
+  // realpathSync resolves macOS /var → /private/var symlinks so all paths match what the Goose CLI returns.
+  const realTestDataDir = realpathSync(testDataDir);
+  electronEnv.KORTEX_HOME_DIR = realTestDataDir;
+  // Redirect home-dir env vars to the isolated temp dir so homedir() and Goose CLI use it instead of ~/.config/goose.
+  electronEnv.HOME = realTestDataDir;
+  // Do NOT override USERPROFILE on Windows — Electron uses it to derive AppData paths and
+  // overriding it causes singleton-lock conflicts. Goose is not supported on Windows GHA runners anyway.
+  if (process.platform !== 'win32') {
+    electronEnv.USERPROFILE = realTestDataDir;
+  }
+  // On Linux, LinuxXDGDirectories prefers XDG_CONFIG_HOME/XDG_DATA_HOME over homedir() — point them at the temp dir.
+  if (process.platform === 'linux') {
+    electronEnv.XDG_CONFIG_HOME = join(realTestDataDir, '.config');
+    electronEnv.XDG_DATA_HOME = join(realTestDataDir, '.local', 'share');
+  }
 
-  const configDir = join(testDataDir, 'configuration');
+  const configDir = join(realTestDataDir, 'configuration');
   mkdirSync(configDir, { recursive: true });
 
   writeFileSync(join(configDir, 'settings.json'), JSON.stringify({ 'preferences.OpenDevTools': 'none' }));
@@ -206,10 +220,8 @@ function createLaunchConfig(): Parameters<typeof electron.launch>[0] {
   setupTestConfigDir(electronEnv);
 
   const args = ['--no-sandbox'];
-  if (process.env.CI) {
-    if (process.platform !== 'linux') {
-      args.push('--use-mock-keychain');
-    }
+  if (process.platform !== 'linux') {
+    args.push('--use-mock-keychain');
   }
 
   if (isProductionMode) {

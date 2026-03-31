@@ -106,7 +106,9 @@ export class ChatPage extends BasePage {
 
   async verifyHeaderElementsVisible(): Promise<void> {
     await expect(this.toggleSidebarButton).toBeVisible();
-    await expect(this.newChatButton).toBeVisible();
+    // newChatButton is in the header only when the sidebar is collapsed; when open it moves into the sidebar
+    const isSidebarOpen = await this.sidebarNewChatButton.isVisible();
+    await expect(isSidebarOpen ? this.sidebarNewChatButton : this.newChatButton).toBeVisible();
     await expect(this.modelDropdownSelector).toBeVisible();
   }
 
@@ -326,9 +328,9 @@ export class ChatPage extends BasePage {
   async exportAsFlow(): Promise<FlowsCreatePage> {
     await expect(this.exportAsFlowButton).toBeEnabled({ timeout: TIMEOUTS.STANDARD });
     await this.exportAsFlowButton.click();
-    await expect(this.exportAsFlowButton).not.toBeVisible({ timeout: TIMEOUTS.STANDARD });
-
-    return new FlowsCreatePage(this.page);
+    const flowCreatePage = new FlowsCreatePage(this.page);
+    await flowCreatePage.waitForLoad();
+    return flowCreatePage;
   }
 
   async ensureToolsSidebarVisible(): Promise<void> {

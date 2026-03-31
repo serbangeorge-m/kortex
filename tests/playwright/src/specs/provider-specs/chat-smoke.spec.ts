@@ -20,33 +20,36 @@ import { MCP_SERVERS, TIMEOUTS } from 'src/model/core/types';
 import { expect, test } from '../../fixtures/provider-fixtures';
 import { waitForNavigationReady } from '../../utils/app-ready';
 
-const isCI = !!process.env.CI;
 const hasGithubToken = !!process.env[MCP_SERVERS.github.envVarName];
 
 test.use({
   mcpServers: process.env[MCP_SERVERS.github.envVarName] ? ['github'] : [],
 });
 
-test.describe
-  .serial('Chat page navigation', { tag: '@smoke' }, () => {
-    test.beforeEach(async ({ page, navigationBar, chatPage }) => {
-      await waitForNavigationReady(page);
-      await navigationBar.navigateToChatPage();
-      const existingCount = await chatPage.getChatHistoryCount();
-      if (existingCount > 0) {
-        await chatPage.deleteAllChatHistoryItems();
-        await chatPage.verifyChatHistoryEmpty();
-        await chatPage.ensureNotificationsAreNotVisible();
-      }
-    });
+test.beforeEach(async ({ page, navigationBar, chatPage }) => {
+  await waitForNavigationReady(page);
+  await navigationBar.navigateToChatPage();
+  await chatPage.ensureChatSidebarVisible();
+  const existingCount = await chatPage.getChatHistoryCount();
+  if (existingCount > 0) {
+    await chatPage.deleteAllChatHistoryItems();
+    await chatPage.verifyChatHistoryEmpty();
+    await chatPage.ensureNotificationsAreNotVisible();
+  }
+});
 
-    test('[CHAT-01] All chat UI elements are visible', async ({ chatPage }) => {
+test.describe
+  .serial('Chat UI elements', { tag: '@smoke' }, () => {
+    test('[CHAT-UI-01] All chat UI elements are visible', async ({ chatPage }) => {
       await chatPage.verifyHeaderElementsVisible();
       await chatPage.verifyInputAreaVisible();
       await chatPage.verifySuggestedMessagesVisible();
     });
+  });
 
-    test('[CHAT-02] Create and check new chat history item', async ({ chatPage }) => {
+test.describe
+  .serial('Chat history management', { tag: '@smoke' }, () => {
+    test('[CHAT-HIST-01] Create and check new chat history item', async ({ chatPage }) => {
       await chatPage.ensureChatSidebarVisible();
       const initialCount = await chatPage.getChatHistoryCount();
       await chatPage.getSuggestedMessages().last().click();
@@ -55,7 +58,7 @@ test.describe
         .toBe(initialCount + 1);
     });
 
-    test('[CHAT-03] Create and switch between multiple chat sessions without data loss', async ({ chatPage }) => {
+    test('[CHAT-HIST-02] Create and switch between multiple chat sessions without data loss', async ({ chatPage }) => {
       test.slow();
 
       await chatPage.ensureChatSidebarVisible();
@@ -88,7 +91,7 @@ test.describe
       }
     });
 
-    test('[CHAT-04] Delete single chat item and then delete all remaining items', async ({ chatPage }) => {
+    test('[CHAT-HIST-03] Delete single chat item and then delete all remaining items', async ({ chatPage }) => {
       await chatPage.ensureChatSidebarVisible();
       let initialCount = await chatPage.getChatHistoryCount();
 
@@ -135,7 +138,42 @@ test.describe
       await chatPage.ensureNotificationsAreNotVisible();
     });
 
-    test('[CHAT-05] Switch between all available models and verify each selection', async ({ chatPage }) => {
+    test('[CHAT-HIST-04] Delete all button remains visible without scrolling', async ({ chatPage }) => {
+      await chatPage.ensureChatSidebarVisible();
+
+      const expectedChats = 15;
+      const initialCount = await chatPage.getChatHistoryCount();
+
+      // Create missing chats to reach the expected count
+      if (initialCount < expectedChats) {
+        const chatsToCreate = expectedChats - initialCount;
+        for (let i = 0; i < chatsToCreate; i++) {
+          await chatPage.clickNewChat();
+          await chatPage.sendMessage(`Reply "OK ${i + 1}", nothing else.`, { waitForMessage: false });
+        }
+
+        // Wait for all chats to appear in history
+        await expect
+          .poll(async () => await chatPage.getChatHistoryCount(), { timeout: TIMEOUTS.MODEL_RESPONSE })
+          .toBeGreaterThanOrEqual(expectedChats);
+      }
+
+      // Verify delete all button is visible in viewport without scrolling
+      await expect(chatPage.deleteAllChatsButton).toBeInViewport();
+
+      // Wait for send button to ensure all pending model generations have completed
+      await chatPage.verifySendButtonVisible(TIMEOUTS.MODEL_RESPONSE);
+
+      // Clean up - delete all chats
+      await chatPage.deleteAllChatHistoryItems();
+      await chatPage.verifyChatHistoryEmpty();
+      await chatPage.ensureNotificationsAreNotVisible();
+    });
+  });
+
+test.describe
+  .serial('Chat model selection', { tag: '@smoke' }, () => {
+    test('[CHAT-MODEL-01] Switch between all available models and verify each selection', async ({ chatPage }) => {
       const chatModelNames = await chatPage.getChatModelNames();
 
       if (chatModelNames.length < 2) {
@@ -158,7 +196,9 @@ test.describe
       }
     });
 
-    test('[CHAT-06] Change models mid-conversation, verify conversation history is preserved', async ({ chatPage }) => {
+    test('[CHAT-MODEL-02] Change models mid-conversation, verify conversation history is preserved', async ({
+      chatPage,
+    }) => {
       test.slow();
 
       const chatModelNames = await chatPage.getChatModelNames();
@@ -196,142 +236,7 @@ test.describe
       }
     });
 
-    test('[CHAT-07] Verify MCP tool list visibility and sidebar interaction', async ({
-      mcpSetup: _mcpSetup,
-      navigationBar,
-      chatPage,
-    }) => {
-      const skipConditions: Array<{ condition: boolean; reason: string }> = [
-        { condition: !hasGithubToken, reason: `${MCP_SERVERS.github.envVarName} environment variable is not set` },
-      ];
-
-      for (const { condition, reason } of skipConditions) {
-        test.skip(condition, reason);
-      }
-
-      if (!isCI) {
-        test.fail();
-      }
-
-      await navigationBar.navigateToChatPage();
-
-      await expect(chatPage.toolsSelectionButton).toBeVisible({ timeout: TIMEOUTS.MODEL_RESPONSE });
-      await expect(chatPage.configureMcpServersButton).not.toBeVisible();
-
-      await chatPage.ensureToolsSidebarVisible();
-      await expect(chatPage.filterToolsInput).toBeVisible();
-
-      await expect(chatPage.getMcpServerLabel(MCP_SERVERS.github.serverName)).toBeVisible();
-      const toolCount = await chatPage.getToolCount();
-      expect(toolCount).toBeGreaterThan(1);
-
-      const toolName = 'create_branch';
-      await chatPage.filterTools(toolName);
-      await expect(chatPage.getToolByName(toolName)).toBeVisible();
-
-      await chatPage.filterToolsInput.clear();
-      await expect.poll(async () => chatPage.getToolCount()).toBe(toolCount);
-
-      await chatPage.ensureToolsSidebarHidden();
-      await expect(chatPage.showMcpPanelButton).toBeVisible();
-    });
-
-    test('[CHAT-08] Export chat as Flow', async ({
-      chatPage,
-      navigationBar,
-      flowsPage,
-      resource,
-      gooseSetup: _gooseSetup,
-    }) => {
-      test.skip(resource === 'ollama', 'Flows not supported for Ollama');
-      test.skip(resource === 'ramalama', 'Flows not supported for RamaLama');
-      test.skip(
-        !!process.env.CI && process.platform === 'win32' && process.arch === 'arm64',
-        'Goose not supported on Windows ARM gha runners',
-      );
-
-      await navigationBar.navigateToChatPage();
-
-      await chatPage.ensureChatSidebarVisible();
-      await chatPage.clickNewChat();
-
-      const promptForExport =
-        'write a typescript recursive method that calculates the fibonacci number for a given index without using memoization';
-      // Regex pattern to verify the model response contains recursive Fibonacci code
-      const expectedModelResponsePattern = /(\w+)\(\s*(\w+)\s*-\s*1\s*\)\s*\+\s*\1\(\s*\2\s*-\s*2\s*\)/;
-      const flowName = 'export-chat-as-flow';
-
-      await chatPage.sendMessage(promptForExport);
-      await chatPage.verifyConversationMessage(promptForExport);
-      await expect
-        .poll(async () => await chatPage.verifyModelConversationMessage(expectedModelResponsePattern), {
-          timeout: TIMEOUTS.MODEL_RESPONSE,
-          message: 'Model should respond with recursive Fibonacci code pattern',
-        })
-        .toBeTruthy();
-
-      // Capture the current model name before exporting to verify it's preserved in the flow
-      const currentModelName = await chatPage.getSelectedModelName();
-      expect(currentModelName).toBeTruthy();
-
-      const flowCreatePage = await chatPage.exportAsFlow();
-      await flowCreatePage.waitForLoad();
-      await expect(flowCreatePage.selectModelDropdown).toContainText(currentModelName);
-
-      await flowCreatePage.createNewFlow(flowName);
-      await navigationBar.navigateToFlowsPage();
-      await flowsPage.ensureRowExists(flowName, TIMEOUTS.STANDARD, false);
-
-      await flowsPage.deleteAllFlows();
-    });
-
-    test('[CHAT-09] Verify send button state changes during message generation', async ({ chatPage }) => {
-      await chatPage.clickNewChat();
-      await chatPage.verifySendButtonVisible();
-
-      const message = 'What is Podman?';
-      await chatPage.sendMessage(message, { waitForMessage: false });
-
-      await chatPage.verifyStopButtonVisible();
-      await chatPage.verifySendButtonHidden();
-
-      await chatPage.verifySendButtonVisible(TIMEOUTS.MODEL_RESPONSE);
-      await chatPage.verifyStopButtonHidden();
-    });
-
-    test('[CHAT-10] Delete all button remains visible without scrolling', async ({ chatPage }) => {
-      await chatPage.ensureChatSidebarVisible();
-
-      const expectedChats = 15;
-      const initialCount = await chatPage.getChatHistoryCount();
-
-      // Create missing chats to reach the expected count
-      if (initialCount < expectedChats) {
-        const chatsToCreate = expectedChats - initialCount;
-        for (let i = 0; i < chatsToCreate; i++) {
-          await chatPage.clickNewChat();
-          await chatPage.sendMessage(`Reply "OK ${i + 1}", nothing else.`, { waitForMessage: false });
-        }
-
-        // Wait for all chats to appear in history
-        await expect
-          .poll(async () => await chatPage.getChatHistoryCount(), { timeout: TIMEOUTS.MODEL_RESPONSE })
-          .toBeGreaterThanOrEqual(expectedChats);
-      }
-
-      // Verify delete all button is visible in viewport without scrolling
-      await expect(chatPage.deleteAllChatsButton).toBeInViewport();
-
-      // Wait for send button to ensure all pending model generations have completed
-      await chatPage.verifySendButtonVisible(TIMEOUTS.MODEL_RESPONSE);
-
-      // Clean up - delete all chats
-      await chatPage.deleteAllChatHistoryItems();
-      await chatPage.verifyChatHistoryEmpty();
-      await chatPage.ensureNotificationsAreNotVisible();
-    });
-
-    test('[CHAT-11] Last used model is remembered when starting a new chat', async ({ chatPage }) => {
+    test('[CHAT-MODEL-03] Last used model is remembered when starting a new chat', async ({ chatPage }) => {
       const modelCount = await chatPage.getAvailableModelsCount();
 
       if (modelCount < 2) {
@@ -349,8 +254,11 @@ test.describe
       const modelAfterNewChat = await chatPage.getSelectedModelName();
       expect(modelAfterNewChat).toBe(selectedModelName);
     });
+  });
 
-    test('[CHAT-12] Edit button enters editing mode and ESC cancels it', async ({ chatPage }) => {
+test.describe
+  .serial('Chat message editing', { tag: '@smoke' }, () => {
+    test('[CHAT-EDIT-01] Edit button enters editing mode and ESC cancels it', async ({ chatPage }) => {
       test.slow();
       await chatPage.clickNewChat();
       await chatPage.verifySendButtonVisible();
@@ -370,7 +278,7 @@ test.describe
       await chatPage.verifyMessagesAfterEditAreNotDimmed();
     });
 
-    test('[CHAT-13] Edit message and submit triggers regeneration', async ({ chatPage }) => {
+    test('[CHAT-EDIT-02] Edit message and submit triggers regeneration', async ({ chatPage }) => {
       test.slow();
       await chatPage.clickNewChat();
       await chatPage.verifySendButtonVisible();
@@ -389,8 +297,11 @@ test.describe
       await expect(chatPage.getConversationMessage(originalMessage)).not.toBeVisible();
       await chatPage.waitForModelResponse();
     });
+  });
 
-    test('[CHAT-15] Rename chat from history sidebar', async ({ chatPage }) => {
+test.describe
+  .serial('Chat renaming', { tag: '@smoke' }, () => {
+    test('[CHAT-RENAME-01] Rename chat from history sidebar', async ({ chatPage }) => {
       await chatPage.ensureChatSidebarVisible();
       await chatPage.clickNewChat();
 
@@ -425,7 +336,7 @@ test.describe
       await chatPage.ensureNotificationsAreNotVisible();
     });
 
-    test('[CHAT-16] Cancel rename with Escape key preserves original title', async ({ chatPage }) => {
+    test('[CHAT-RENAME-02] Cancel rename with Escape key preserves original title', async ({ chatPage }) => {
       await chatPage.ensureChatSidebarVisible();
       await chatPage.clickNewChat();
 
@@ -457,8 +368,25 @@ test.describe
 
       await chatPage.ensureNotificationsAreNotVisible();
     });
+  });
 
-    test('[CHAT-17] Stop generation cancels the AI response stream', async ({ chatPage }) => {
+test.describe
+  .serial('Chat message generation control', { tag: '@smoke' }, () => {
+    test('[CHAT-GEN-01] Verify send button state changes during message generation', async ({ chatPage }) => {
+      await chatPage.clickNewChat();
+      await chatPage.verifySendButtonVisible();
+
+      const message = 'What is Podman?';
+      await chatPage.sendMessage(message, { waitForMessage: false });
+
+      await chatPage.verifyStopButtonVisible();
+      await chatPage.verifySendButtonHidden();
+
+      await chatPage.verifySendButtonVisible(TIMEOUTS.MODEL_RESPONSE);
+      await chatPage.verifyStopButtonHidden();
+    });
+
+    test('[CHAT-GEN-02] Stop generation cancels the AI response stream', async ({ chatPage }) => {
       await chatPage.clickNewChat();
 
       // Send a message that should generate a long response
@@ -478,5 +406,100 @@ test.describe
 
       // Verify the user message is still visible in the conversation
       await chatPage.verifyConversationMessage(message);
+    });
+  });
+
+test.describe
+  .serial('Chat integrations', { tag: '@smoke' }, () => {
+    test('[CHAT-INTG-01] Verify MCP tool list visibility and sidebar interaction', async ({
+      mcpSetup: _mcpSetup,
+      navigationBar,
+      chatPage,
+    }) => {
+      const skipConditions: Array<{ condition: boolean; reason: string }> = [
+        { condition: !hasGithubToken, reason: `${MCP_SERVERS.github.envVarName} environment variable is not set` },
+      ];
+
+      for (const { condition, reason } of skipConditions) {
+        test.skip(condition, reason);
+      }
+
+      await navigationBar.navigateToChatPage();
+
+      await expect(chatPage.toolsSelectionButton).toBeVisible({ timeout: TIMEOUTS.MODEL_RESPONSE });
+      await expect(chatPage.configureMcpServersButton).not.toBeVisible();
+
+      await chatPage.ensureToolsSidebarVisible();
+      await expect(chatPage.filterToolsInput).toBeVisible();
+
+      await expect(chatPage.getMcpServerLabel(MCP_SERVERS.github.serverName)).toBeVisible();
+      const toolCount = await chatPage.getToolCount();
+      expect(toolCount).toBeGreaterThan(1);
+
+      const toolName = 'create_branch';
+      await chatPage.filterTools(toolName);
+      await expect(chatPage.getToolByName(toolName)).toBeVisible();
+
+      await chatPage.filterToolsInput.clear();
+      await expect.poll(async () => chatPage.getToolCount()).toBe(toolCount);
+
+      await chatPage.ensureToolsSidebarHidden();
+      await expect(chatPage.showMcpPanelButton).toBeVisible();
+    });
+
+    test('[CHAT-INTG-02] Export chat as Flow', async ({
+      chatPage,
+      navigationBar,
+      flowsPage,
+      resource,
+      gooseSetup: _gooseSetup,
+    }) => {
+      test.skip(resource === 'ollama', 'Flows not supported for Ollama');
+      test.skip(resource === 'ramalama', 'Flows not supported for RamaLama');
+      test.skip(
+        !!process.env.CI && process.platform === 'win32' && process.arch === 'arm64',
+        'Goose not supported on Windows ARM gha runners',
+      );
+
+      await navigationBar.navigateToChatPage();
+
+      await chatPage.ensureChatSidebarVisible();
+      await chatPage.clickNewChat();
+
+      // Flow export requires structured output — prefer a non-lite model if available
+      const availableModels = await chatPage.getChatModelNames();
+      const capableModel = availableModels.find(name => !name.toLowerCase().includes('lite'));
+      if (capableModel) {
+        await chatPage.selectModelByName(capableModel);
+      }
+
+      const promptForExport =
+        'write a typescript recursive method that calculates the fibonacci number for a given index without using memoization';
+      // Regex pattern to verify the model response contains recursive Fibonacci code
+      const expectedModelResponsePattern = /(\w+)\(\s*(\w+)\s*-\s*1\s*\)\s*\+\s*\1\(\s*\2\s*-\s*2\s*\)/;
+      const flowName = 'export-chat-as-flow';
+
+      await chatPage.sendMessage(promptForExport);
+      await chatPage.verifyConversationMessage(promptForExport);
+      await expect
+        .poll(async () => await chatPage.verifyModelConversationMessage(expectedModelResponsePattern), {
+          timeout: TIMEOUTS.MODEL_RESPONSE,
+          message: 'Model should respond with recursive Fibonacci code pattern',
+        })
+        .toBeTruthy();
+
+      // Capture the current model name before exporting to verify it's preserved in the flow
+      const currentModelName = await chatPage.getSelectedModelName();
+      expect(currentModelName).toBeTruthy();
+
+      const flowCreatePage = await chatPage.exportAsFlow();
+      await flowCreatePage.waitForLoad();
+      await expect(flowCreatePage.selectModelDropdown).toContainText(currentModelName);
+
+      await flowCreatePage.createNewFlow(flowName);
+      await navigationBar.navigateToFlowsPage();
+      await flowsPage.ensureRowExists(flowName, TIMEOUTS.STANDARD, false);
+
+      await flowsPage.deleteAllFlows();
     });
   });
