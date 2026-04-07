@@ -22,7 +22,7 @@ import {
   resourcesWithCreateButton,
 } from 'src/model/core/types';
 
-import { expect, test } from '../fixtures/electron-app';
+import { expect, workerTest as test } from '../fixtures/electron-app';
 import { waitForNavigationReady } from '../utils/app-ready';
 
 test.describe('Settings page navigation', { tag: '@smoke' }, () => {

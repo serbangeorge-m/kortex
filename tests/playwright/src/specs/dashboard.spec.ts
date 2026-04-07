@@ -18,7 +18,7 @@
 import { TIMEOUTS } from 'src/model/core/types';
 import { waitForNavigationReady } from 'src/utils/app-ready';
 
-import { expect, test } from '../fixtures/electron-app';
+import { expect, workerTest as test } from '../fixtures/electron-app';
 
 test.describe
   .serial('App start', { tag: '@smoke' }, () => {

@@ -17,16 +17,13 @@
  ***********************************************************************/
 
 /** biome-ignore-all lint/correctness/noEmptyPattern: Playwright fixture pattern requires empty object when no dependencies are needed */
-import { type ElectronApplication, expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 import { MCP_SERVERS, type MCPServerId, PROVIDERS, type ResourceId, TIMEOUTS } from '../model/core/types';
 import { NavigationBar } from '../model/navigation/navigation';
-import { saveTestArtifacts } from '../utils/test-artifacts';
-import { type ElectronFixtures, getFirstPage, launchElectronApp, test as base } from './electron-app';
+import { type ElectronFixtures, type WorkerElectronFixtures, workerTest as base } from './electron-app';
 
-interface WorkerFixtures {
-  workerElectronApp: ElectronApplication;
-  workerPage: Page;
+interface WorkerFixtures extends WorkerElectronFixtures {
   workerNavigationBar: NavigationBar;
   resource: ResourceId;
   resourceSetup: void;
@@ -52,29 +49,6 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
       scope: 'worker',
       option: true,
     },
-  ],
-
-  workerElectronApp: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use): Promise<void> => {
-      const electronApp = await launchElectronApp();
-      await use(electronApp);
-      await electronApp.close();
-    },
-    { scope: 'worker' },
-  ],
-
-  workerPage: [
-    async ({ workerElectronApp }, use): Promise<void> => {
-      const page = await getFirstPage(workerElectronApp);
-      await page.context().tracing.start({ screenshots: true, snapshots: true, sources: true });
-      await use(page);
-      await page
-        .context()
-        .tracing.stop()
-        .catch(() => {});
-    },
-    { scope: 'worker' },
   ],
 
   workerNavigationBar: [
@@ -235,16 +209,6 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
     },
     { scope: 'worker', auto: false },
   ],
-
-  electronApp: async ({ workerElectronApp }, use): Promise<void> => {
-    await use(workerElectronApp);
-  },
-
-  page: async ({ workerPage }, use, testInfo): Promise<void> => {
-    await workerPage.context().tracing.startChunk();
-    await use(workerPage);
-    await saveTestArtifacts(workerPage, testInfo);
-  },
 });
 
 function requireEnvVar(envVarName: string): string {

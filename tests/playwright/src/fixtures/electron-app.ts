@@ -52,6 +52,11 @@ export interface ElectronFixtures {
   chatPage: ChatPage;
 }
 
+export interface WorkerElectronFixtures {
+  workerElectronApp: ElectronApplication;
+  workerPage: Page;
+}
+
 export const test = base.extend<ElectronFixtures>({
   // eslint-disable-next-line no-empty-pattern
   electronApp: async ({}, use): Promise<void> => {
@@ -125,6 +130,41 @@ export const test = base.extend<ElectronFixtures>({
   chatPage: async ({ page }, use): Promise<void> => {
     const chatPage = new ChatPage(page);
     await use(chatPage);
+  },
+});
+
+export const workerTest = test.extend<ElectronFixtures, WorkerElectronFixtures>({
+  workerElectronApp: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use): Promise<void> => {
+      const app = await launchElectronApp();
+      await use(app);
+      await app.close().catch(() => {});
+    },
+    { scope: 'worker' },
+  ],
+
+  workerPage: [
+    async ({ workerElectronApp }, use): Promise<void> => {
+      const page = await getFirstPage(workerElectronApp);
+      await page.context().tracing.start({ screenshots: true, snapshots: true, sources: true });
+      await use(page);
+      await page
+        .context()
+        .tracing.stop()
+        .catch(() => {});
+    },
+    { scope: 'worker' },
+  ],
+
+  electronApp: async ({ workerElectronApp }, use): Promise<void> => {
+    await use(workerElectronApp);
+  },
+
+  page: async ({ workerPage }, use, testInfo): Promise<void> => {
+    await workerPage.context().tracing.startChunk();
+    await use(workerPage);
+    await saveTestArtifacts(workerPage, testInfo);
   },
 });
 
