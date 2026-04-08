@@ -37,7 +37,9 @@ function isCompleteRepositoryForBundledSchema(repository: unknown): boolean {
     return false;
   }
   const r = repository as Record<string, unknown>;
-  return typeof r.url === 'string' && r.url.length > 0 && typeof r.source === 'string' && r.source.length > 0;
+  return (
+    typeof r['url'] === 'string' && r['url'].length > 0 && typeof r['source'] === 'string' && r['source'].length > 0
+  );
 }
 
 /**
@@ -57,13 +59,13 @@ function normalizeServerResponseForSchemaValidation(jsonData: unknown): unknown 
   }
   const response = jsonData as Record<string, unknown>;
 
-  const server = response.server;
+  const server = response['server'];
   const serverIsObject = server !== null && typeof server === 'object' && !Array.isArray(server);
   const serverObj = serverIsObject ? (server as Record<string, unknown>) : null;
 
   const needsNestedOmit = serverObj && SERVER_NESTED_KEYS_TO_OMIT_FOR_VALIDATION.some(key => key in serverObj);
   const needsRepositoryOmit =
-    serverObj && 'repository' in serverObj && !isCompleteRepositoryForBundledSchema(serverObj.repository);
+    serverObj && 'repository' in serverObj && !isCompleteRepositoryForBundledSchema(serverObj['repository']);
 
   let nextServer = server;
   if (serverObj && (needsNestedOmit || needsRepositoryOmit)) {
@@ -74,12 +76,12 @@ function normalizeServerResponseForSchemaValidation(jsonData: unknown): unknown 
       }
     }
     if (needsRepositoryOmit) {
-      delete stripped.repository;
+      delete stripped['repository'];
     }
     nextServer = stripped;
   }
 
-  const meta = response._meta;
+  const meta = response['_meta'];
   const metaIsObject = meta !== null && typeof meta === 'object' && !Array.isArray(meta);
   const metaObj = metaIsObject ? (meta as Record<string, unknown>) : null;
 
