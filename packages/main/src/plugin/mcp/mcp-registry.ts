@@ -357,15 +357,18 @@ export class MCPRegistry {
   }
 
   unsuggestMCPRegistry(registry: kaidenAPI.MCPRegistrySuggestedProvider): void {
-    const url = normalizeMcpRegistryServerUrl(registry.url);
+    const normalized: kaidenAPI.MCPRegistrySuggestedProvider = {
+      ...registry,
+      url: normalizeMcpRegistryServerUrl(registry.url),
+    };
     // Find the registry within this.suggestedRegistries[] and remove it
-    const index = this.suggestedRegistries.findIndex(reg => reg.url === url && reg.name === registry.name);
+    const index = this.suggestedRegistries.findIndex(reg => reg.url === normalized.url && reg.name === normalized.name);
     if (index > -1) {
       this.suggestedRegistries.splice(index, 1);
     }
 
     // Fire an update to the UI to remove the suggested registry
-    this.apiSender.send('mcp-registry-update', registry);
+    this.apiSender.send('mcp-registry-update', normalized);
   }
 
   unregisterMCPRegistry(registry: kaidenAPI.MCPRegistry, save: boolean): void {
@@ -734,17 +737,22 @@ export class MCPRegistry {
   }
 
   async updateMCPRegistry(registry: kaidenAPI.MCPRegistry): Promise<void> {
-    const serverUrl = normalizeMcpRegistryServerUrl(registry.serverUrl);
-    const matchingRegistry = this.registries.find(existingRegistry => serverUrl === existingRegistry.serverUrl);
+    const normalized: kaidenAPI.MCPRegistry = {
+      ...registry,
+      serverUrl: normalizeMcpRegistryServerUrl(registry.serverUrl),
+    };
+    const matchingRegistry = this.registries.find(
+      existingRegistry => normalized.serverUrl === existingRegistry.serverUrl,
+    );
     if (!matchingRegistry) {
-      throw new Error(`MCP Registry ${serverUrl} was not found`);
+      throw new Error(`MCP Registry ${normalized.serverUrl} was not found`);
     }
     this.telemetryService.track('updateMCPRegistry', {
       serverUrl: this.getRegistryHash(matchingRegistry),
       total: this.registries.length,
     });
-    this.apiSender.send('mcp-registry-update', registry);
-    this._onDidUpdateRegistry.fire(Object.freeze(registry));
+    this.apiSender.send('mcp-registry-update', normalized);
+    this._onDidUpdateRegistry.fire(Object.freeze(normalized));
   }
 
   getOptions(insecure?: boolean): OptionsOfTextResponseBody {

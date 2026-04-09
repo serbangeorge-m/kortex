@@ -70,7 +70,7 @@ beforeEach(() => {
 
   mcpRegistry = new MCPRegistry(
     apiSender,
-    {} as Telemetry,
+    { track: vi.fn() } as unknown as Telemetry,
     {} as Certificates,
     proxy,
     {} as MCPManager,
@@ -130,6 +130,39 @@ test('listMCPServersFromRegistries strips trailing slashes from registry base UR
   expect(globalFetch).toHaveBeenCalledWith(
     'https://registry.example.com/base/v0/servers?version=latest',
     expect.anything(),
+  );
+});
+
+test('updateMCPRegistry sends normalized URL in API event and fire', async () => {
+  // Register with a normalized URL so the registry exists internally
+  mcpRegistry.registerMCPRegistry({ serverUrl: 'https://registry.example.com' }, false);
+
+  // Update using a non-normalized URL (trailing slash)
+  await mcpRegistry.updateMCPRegistry({ serverUrl: 'https://registry.example.com/' });
+
+  expect(apiSender.send).toHaveBeenCalledWith(
+    'mcp-registry-update',
+    expect.objectContaining({ serverUrl: 'https://registry.example.com' }),
+  );
+});
+
+test('updateMCPRegistry throws when registry not found after normalization', async () => {
+  await expect(mcpRegistry.updateMCPRegistry({ serverUrl: 'https://unknown.example.com/' })).rejects.toThrow(
+    'MCP Registry https://unknown.example.com was not found',
+  );
+});
+
+test('unsuggestMCPRegistry sends normalized URL in API event', () => {
+  // Suggest with a host-only URL (gets normalized to https://)
+  mcpRegistry.suggestMCPRegistry({ name: 'Test', url: 'registry.example.com' });
+  vi.mocked(apiSender.send).mockClear();
+
+  // Unsuggest using the non-normalized form
+  mcpRegistry.unsuggestMCPRegistry({ name: 'Test', url: 'registry.example.com/' });
+
+  expect(apiSender.send).toHaveBeenCalledWith(
+    'mcp-registry-update',
+    expect.objectContaining({ url: 'https://registry.example.com', name: 'Test' }),
   );
 });
 
