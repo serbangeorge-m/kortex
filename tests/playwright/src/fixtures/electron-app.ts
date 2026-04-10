@@ -31,6 +31,7 @@ import { FlowsPage } from 'src/model/pages/flows-page';
 import { McpPage } from 'src/model/pages/mcp-page';
 import { RagPage } from 'src/model/pages/rag-page';
 import { SettingsPage } from 'src/model/pages/settings-page';
+import { SkillsPage } from 'src/model/pages/skills-page';
 
 import { waitForAppReady } from '../utils/app-ready';
 import { saveTestArtifacts } from '../utils/test-artifacts';
@@ -48,6 +49,7 @@ export interface ElectronFixtures {
   flowsPage: FlowsPage;
   ragPage: RagPage;
   mcpPage: McpPage;
+  skillsPage: SkillsPage;
   extensionsPage: ExtensionsPage;
   chatPage: ChatPage;
 }
@@ -120,6 +122,11 @@ export const test = base.extend<ElectronFixtures>({
   mcpPage: async ({ page }, use): Promise<void> => {
     const mcpPage = new McpPage(page);
     await use(mcpPage);
+  },
+
+  skillsPage: async ({ page }, use): Promise<void> => {
+    const skillsPage = new SkillsPage(page);
+    await use(skillsPage);
   },
 
   extensionsPage: async ({ page }, use): Promise<void> => {

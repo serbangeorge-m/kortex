@@ -1,3 +1,8 @@
+---
+name: playwright-testing
+description: Guide for writing, organizing, and maintaining Playwright end-to-end tests using the Page Object Model pattern
+---
+
 # Playwright Test Automation Guide for Kaiden
 
 ## Core Principles
