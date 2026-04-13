@@ -37,7 +37,7 @@ test.describe('Skills page - initial state', { tag: '@smoke' }, () => {
     await navigationBar.navigateToSkillsPage();
   });
 
-  test('[SKILLS-01] Skills page renders correctly with all expected elements in empty state', async ({
+  test('[SKL-INIT-01] Skills page renders correctly with all expected elements in empty state', async ({
     skillsPage,
   }) => {
     await expect(skillsPage.heading).toBeVisible();
@@ -52,7 +52,7 @@ test.describe('Skills page - initial state', { tag: '@smoke' }, () => {
     await expect(skillsPage.table).not.toBeVisible();
   });
 
-  test('[SKILLS-02] Create Skill dialog can be opened from either entry point and cancelled', async ({
+  test('[SKL-INIT-02] Create Skill dialog can be opened from either entry point and cancelled', async ({
     skillsPage,
   }) => {
     const entryPoints: Array<{ label: string; open: () => Promise<SkillsCreatePage> }> = [
@@ -92,7 +92,7 @@ test.describe
       await waitForNavigationReady(page);
     });
 
-    test('[SKILLS-03] Create a skill manually and verify it appears in the table', async ({
+    test('[SKL-CRUD-01] Create a skill manually and verify it appears in the table', async ({
       navigationBar,
       skillsPage,
     }) => {
@@ -104,7 +104,7 @@ test.describe
       await expect(skillsPage.table).toBeVisible();
     });
 
-    test('[SKILLS-04] Created skill row displays the correct name and description', async ({
+    test('[SKL-CRUD-02] Created skill row displays the correct name and description', async ({
       navigationBar,
       skillsPage,
     }) => {
@@ -114,7 +114,7 @@ test.describe
       await expect(row).toContainText(MANUAL_SKILL_DESCRIPTION);
     });
 
-    test('[SKILLS-05] Searching by skill name filters the list to matching results', async ({
+    test('[SKL-CRUD-03] Searching by skill name filters the list to matching results', async ({
       navigationBar,
       skillsPage,
     }) => {
@@ -123,7 +123,7 @@ test.describe
       await expect.poll(async () => await skillsPage.countRowsFromTable()).toBe(1);
     });
 
-    test('[SKILLS-06] Searching for a non-existent skill name shows the no-results state', async ({
+    test('[SKL-CRUD-04] Searching for a non-existent skill name shows the no-results state', async ({
       navigationBar,
       skillsPage,
     }) => {
@@ -135,7 +135,7 @@ test.describe
       await skillsPage.ensureRowExists(MANUAL_SKILL_NAME);
     });
 
-    test('[SKILLS-07] Skill can be disabled and re-enabled using the row toggle', async ({
+    test('[SKL-CRUD-05] Skill can be disabled and re-enabled using the row toggle', async ({
       navigationBar,
       skillsPage,
     }) => {
@@ -157,7 +157,7 @@ test.describe
       });
     });
 
-    test('[SKILLS-08] Deleting the last skill restores the empty state', async ({ navigationBar, skillsPage }) => {
+    test('[SKL-CRUD-06] Deleting the last skill restores the empty state', async ({ navigationBar, skillsPage }) => {
       await navigationBar.navigateToSkillsPage();
       await skillsPage.deleteSkillByName(MANUAL_SKILL_NAME);
       await skillsPage.ensureRowDoesNotExist(MANUAL_SKILL_NAME);
@@ -173,7 +173,7 @@ test.describe
       await waitForNavigationReady(page);
     });
 
-    test('[SKILLS-09] Importing each SKILL.md file adds a new entry to the skills table', async ({
+    test('[SKL-IMPORT-01] Importing each SKILL.md file adds a new entry to the skills table', async ({
       electronApp,
       navigationBar,
       skillsPage,
@@ -190,12 +190,15 @@ test.describe
       }
     });
 
-    test(`[SKILLS-10] Table shows ${SKILL_FILES.length} imported skills`, async ({ navigationBar, skillsPage }) => {
+    test(`[SKL-IMPORT-02] Table shows ${SKILL_FILES.length} imported skills`, async ({ navigationBar, skillsPage }) => {
       await navigationBar.navigateToSkillsPage();
       await expect.poll(async () => await skillsPage.countRowsFromTable()).toBe(SKILL_FILES.length);
     });
 
-    test('[SKILLS-11] Deleting all imported skills restores the empty state', async ({ navigationBar, skillsPage }) => {
+    test('[SKL-IMPORT-03] Deleting all imported skills restores the empty state', async ({
+      navigationBar,
+      skillsPage,
+    }) => {
       await navigationBar.navigateToSkillsPage();
       for (const name of await skillsPage.getSkillNames()) {
         await skillsPage.deleteSkillByName(name);
