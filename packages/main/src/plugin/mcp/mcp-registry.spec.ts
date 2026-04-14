@@ -66,6 +66,7 @@ const providerRegistry = {
 } as unknown as ProviderRegistry;
 
 beforeEach(() => {
+  vi.resetAllMocks();
   console.error = vi.fn();
 
   mcpRegistry = new MCPRegistry(

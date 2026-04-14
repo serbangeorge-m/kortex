@@ -20,6 +20,24 @@ import type * as kaidenAPI from '@openkaiden/api';
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
+/**
+ * Compares MCP registry base URLs in a stable host/path form so suggested vs configured
+ * entries match whether the main process stored `https://…` (after normalization) or host-only.
+ */
+function comparableMcpRegistryBaseUrl(url: string): string {
+  let s = url.trim();
+  const lower = s.toLowerCase();
+  if (lower.startsWith('https://')) {
+    s = s.slice(8);
+  } else if (lower.startsWith('http://')) {
+    s = s.slice(7);
+  }
+  while (s.endsWith('/')) {
+    s = s.slice(0, -1);
+  }
+  return s;
+}
+
 export async function fetchRegistries(): Promise<void> {
   const registries = await window.getMcpRegistries();
   const suggestedRegistries = await window.getMcpSuggestedRegistries();
@@ -29,7 +47,9 @@ export async function fetchRegistries(): Promise<void> {
   // this means that Podman Desktop has a suggested icon and name for this registry.
   // If so, let's update the list.
   registries.forEach(registry => {
-    const found = suggestedRegistries.find(suggested => suggested.url === registry.serverUrl.replace('https://', ''));
+    const found = suggestedRegistries.find(
+      suggested => comparableMcpRegistryBaseUrl(suggested.url) === comparableMcpRegistryBaseUrl(registry.serverUrl),
+    );
     if (found) {
       registry.icon = found.icon;
       registry.name = found.name;
@@ -40,8 +60,9 @@ export async function fetchRegistries(): Promise<void> {
   // Filter out registries from suggestedRegistries so we do not repeat suggesting them when the user already has
   // credentials added.
   const filteredSuggested = suggestedRegistries.filter(suggested => {
-    // Ignore 'https' because we don't support http anyways and user may input https into list of registries
-    const found = registries.find(registry => registry.serverUrl.replace('https://', '') === suggested.url);
+    const found = registries.find(
+      registry => comparableMcpRegistryBaseUrl(registry.serverUrl) === comparableMcpRegistryBaseUrl(suggested.url),
+    );
     return !found;
   });
   mcpRegistriesSuggestedInfos.set(filteredSuggested);
