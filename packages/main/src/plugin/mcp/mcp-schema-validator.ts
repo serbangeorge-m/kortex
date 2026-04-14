@@ -16,13 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type components, createValidator } from '@kortex-hub/mcp-registry-types';
+import { type components, createValidator } from '@openkaiden/mcp-registry-types';
 import { injectable } from 'inversify';
 
 /**
  * Keys allowed on `_meta['io.modelcontextprotocol.registry/official']` for validation normalization.
  * When the official registry adds new properties, sync this set with the bundled OpenAPI in
- * `@kortex-hub/mcp-registry-types` (e.g. `components.schemas` / ServerResponse `_meta`).
+ * `@openkaiden/mcp-registry-types` (e.g. `components.schemas` / ServerResponse `_meta`).
  */
 const OFFICIAL_REGISTRY_META_KEYS = new Set(['status', 'publishedAt', 'updatedAt', 'isLatest']);
 
@@ -44,7 +44,7 @@ function isCompleteRepositoryForBundledSchema(repository: unknown): boolean {
 
 /**
  * Build a shallow copy of a registry `ServerResponse` suitable for AJV validation against the
- * bundled `@kortex-hub/mcp-registry-types` schema:
+ * bundled `@openkaiden/mcp-registry-types` schema:
  * - Official registry `_meta` may include keys not yet in the OpenAPI (e.g. `statusChangedAt`).
  * - `server.packages` / `remotes` / `icons` follow the live MCP server.json schema and may use
  *   shapes our package has not picked up yet.
