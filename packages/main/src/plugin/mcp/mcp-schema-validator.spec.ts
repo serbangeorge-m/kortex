@@ -25,6 +25,7 @@ const originalConsoleWarn = console.warn;
 let validator: MCPSchemaValidator;
 
 beforeEach(() => {
+  vi.resetAllMocks();
   validator = new MCPSchemaValidator();
   console.warn = vi.fn();
 });
@@ -63,7 +64,6 @@ describe('validateSchemaData', () => {
             description: 'Test',
             version: '1.0.0',
           },
-          // Missing _meta field
         },
       ],
     };
@@ -86,7 +86,6 @@ describe('validateSchemaData', () => {
         description: 'Test',
         version: '1.0.0',
       },
-      // Missing _meta field
     };
 
     const result = validator.validateSchemaData(invalidServerResponse, 'ServerResponse', 'test-registry');
@@ -98,6 +97,22 @@ describe('validateSchemaData', () => {
       'errors:',
       expect.anything(),
     );
+  });
+
+  test('should fail when server.description is missing even with tolerable errors present', () => {
+    const serverResponse = {
+      server: {
+        name: 'com.github.mcp',
+        version: '1.0.0',
+        packages: [{ registryType: 'npm', identifier: 'x', transport: { type: 'stdio' } }],
+      },
+      _meta: {},
+    };
+
+    const result = validator.validateSchemaData(serverResponse, 'ServerResponse', 'test-registry');
+
+    expect(result).toBe(false);
+    expect(console.warn).toHaveBeenCalled();
   });
 
   test('should accept ServerResponse when only server name fails bundled reverse-DNS pattern', () => {
@@ -116,10 +131,10 @@ describe('validateSchemaData', () => {
     expect(console.warn).not.toHaveBeenCalled();
   });
 
-  test('should still validate core server fields when packages/remotes are omitted from validation copy', () => {
+  test('should tolerate volatile server fields (packages, remotes, icons) with non-conforming shapes', () => {
     const serverResponse = {
       server: {
-        name: 'invalid-name-without-slash',
+        name: 'io.github.example/test-server',
         description: 'Test',
         version: '1.0.0',
         remotes: [{ type: 'invalid-type', url: 'https://example.com' }],
@@ -128,6 +143,7 @@ describe('validateSchemaData', () => {
             registryType: 'npm',
             identifier: '@scope/pkg',
             transport: { type: 'stdio' },
+            runtimeArguments: [{ type: 'future-argument-kind', value: 'x' }],
           },
         ],
       },
@@ -162,7 +178,7 @@ describe('validateSchemaData', () => {
     expect(console.warn).not.toHaveBeenCalled();
   });
 
-  test('should validate ServerResponse when official registry _meta includes API-only fields (e.g. statusChangedAt)', () => {
+  test('should tolerate unknown _meta fields from official registry (e.g. statusChangedAt)', () => {
     const serverResponse = {
       server: {
         name: 'zone.example/registry-test',
@@ -188,51 +204,15 @@ describe('validateSchemaData', () => {
 
     expect(result).toBe(true);
     expect(console.warn).not.toHaveBeenCalled();
-    expect(
-      (serverResponse._meta['io.modelcontextprotocol.registry/official'] as { statusChangedAt?: string })
-        .statusChangedAt,
-    ).toBe('2026-03-13T03:50:03.628037Z');
   });
 
-  test('should validate ServerResponse when server.json packages/runtimeArguments are ahead of bundled schema', () => {
-    const serverResponse = {
-      server: {
-        name: 'io.github.example/memphora',
-        description: 'Memory',
-        version: '0.1.3',
-        packages: [
-          {
-            registryType: 'npm',
-            identifier: '@scope/pkg',
-            transport: { type: 'stdio' },
-            runtimeArguments: [{ type: 'future-argument-kind', value: 'x' }],
-          },
-        ],
-      },
-      _meta: {},
-    };
-
-    const result = validator.validateSchemaData(
-      serverResponse,
-      'ServerResponse',
-      'https://registry.modelcontextprotocol.io',
-    );
-
-    expect(result).toBe(true);
-    expect(console.warn).not.toHaveBeenCalled();
-    expect(serverResponse.server.packages?.[0]).toMatchObject({
-      runtimeArguments: [{ type: 'future-argument-kind', value: 'x' }],
-    });
-  });
-
-  test('should validate ServerResponse when repository is an empty object (registry placeholder)', () => {
+  test('should tolerate repository as an empty object (registry placeholder)', () => {
     const serverResponse = {
       server: {
         name: 'io.github.example/scrimba-teaching',
         description: 'Teaching',
         version: '2.0.0',
         repository: {},
-        packages: [{ registryType: 'npm', identifier: 'x', transport: { type: 'stdio' } }],
       },
       _meta: {},
     };
@@ -245,7 +225,6 @@ describe('validateSchemaData', () => {
 
     expect(result).toBe(true);
     expect(console.warn).not.toHaveBeenCalled();
-    expect(serverResponse.server.repository).toEqual({});
   });
 
   test('should validate valid ServerDetail', () => {
@@ -264,7 +243,6 @@ describe('validateSchemaData', () => {
   test('should warn when ServerDetail is missing required fields', () => {
     const invalidServerDetail = {
       name: 'io.github.example/test-server',
-      // Missing description and version
     };
 
     const result = validator.validateSchemaData(invalidServerDetail, 'ServerDetail');
@@ -287,7 +265,6 @@ describe('validateSchemaData', () => {
             description: 'test',
             version: '1.0.0',
           },
-          // Missing required '_meta' field
         },
       ],
     };
@@ -335,13 +312,11 @@ describe('validateSchemaData', () => {
     const result = validator.validateSchemaData(validRepository, 'Repository');
 
     expect(result).toBe(true);
-    // Note: AJV may warn about unknown formats like "uri", but validation still passes
   });
 
   test('should warn on invalid Repository missing required fields', () => {
     const invalidRepository = {
       url: 'https://github.com/example/repo',
-      // Missing 'source' field
     };
 
     const result = validator.validateSchemaData(invalidRepository, 'Repository');
@@ -353,7 +328,6 @@ describe('validateSchemaData', () => {
   test('should not warn when suppressWarnings is true', () => {
     const invalidRepository = {
       url: 'https://github.com/example/repo',
-      // Missing 'source' field
     };
 
     const result = validator.validateSchemaData(invalidRepository, 'Repository', undefined, true);
@@ -368,8 +342,6 @@ describe('validateSchemaData', () => {
 
 describe('validateSchemaData with individual ServerResponse validation', () => {
   test('should identify all invalid servers when validating each ServerResponse individually', () => {
-    // This test validates each server individually (as done in mcp-registry.ts)
-    // to properly detect all invalid servers
     const servers = [
       {
         server: {
@@ -377,7 +349,6 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
           description: 'Invalid server 1',
           version: '1.0.0',
         },
-        // Missing _meta
       },
       {
         server: {
@@ -393,7 +364,6 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
           description: 'Invalid server 2',
           version: '1.0.0',
         },
-        // Missing _meta
       },
     ];
 

@@ -20,120 +20,30 @@ import { type components, createValidator } from '@openkaiden/mcp-registry-types
 import { injectable } from 'inversify';
 
 /**
- * Keys allowed on `_meta['io.modelcontextprotocol.registry/official']` for validation normalization.
- * When the official registry adds new properties, sync this set with the bundled OpenAPI in
- * `@openkaiden/mcp-registry-types` (e.g. `components.schemas` / ServerResponse `_meta`).
+ * Sub-paths under `server` that track the upstream MCP server.json spec and frequently
+ * drift ahead of the bundled OpenAPI schema. Errors rooted at these paths are tolerated
+ * so that live registry data doesn't produce noisy validation warnings.
  */
-const OFFICIAL_REGISTRY_META_KEYS = new Set(['status', 'publishedAt', 'updatedAt', 'isLatest']);
-
-const OFFICIAL_REGISTRY_META_KEY = 'io.modelcontextprotocol.registry/official';
-
-/** Nested `server` fields that track the upstream MCP server.json spec and often drift ahead of our bundled OpenAPI. */
-const SERVER_NESTED_KEYS_TO_OMIT_FOR_VALIDATION = ['packages', 'remotes', 'icons'] as const;
-
-/** `repository` is optional on ServerDetail; registries sometimes send `{}` which is invalid for bundled `Repository` (requires url + source). */
-function isCompleteRepositoryForBundledSchema(repository: unknown): boolean {
-  if (repository === null || typeof repository !== 'object' || Array.isArray(repository)) {
-    return false;
-  }
-  const r = repository as Record<string, unknown>;
-  return (
-    typeof r['url'] === 'string' && r['url'].length > 0 && typeof r['source'] === 'string' && r['source'].length > 0
-  );
-}
+const VOLATILE_SERVER_SUBPATHS = ['/server/packages', '/server/remotes', '/server/icons', '/server/repository'];
 
 /**
- * Build a shallow copy of a registry `ServerResponse` suitable for AJV validation against the
- * bundled `@openkaiden/mcp-registry-types` schema:
- * - Official registry `_meta` may include keys not yet in the OpenAPI (e.g. `statusChangedAt`).
- * - `server.packages` / `remotes` / `icons` follow the live MCP server.json schema and may use
- *   shapes our package has not picked up yet.
- * - `server.repository` may be `{}` or otherwise incomplete; we omit it for validation only when it
- *   does not satisfy the bundled `Repository` schema.
+ * Determines whether a single AJV validation error can be tolerated for `ServerResponse`
+ * payloads from live MCP registries. This replaces per-field payload stripping with a
+ * generic, maintenance-free error filter.
  *
- * The original payload is never mutated; install/runtime code still sees the full server object.
+ * Tolerated errors:
+ * - `additionalProperties` at any path — live schemas add fields faster than the bundled
+ *   OpenAPI tracks them (e.g. `_meta` gains `statusChangedAt`, `server` gains new keys).
+ * - `pattern` on `/server/name` — third-party registries use names that don't match the
+ *   bundled reverse-DNS pattern (e.g. `com.github.mcp` without a `/`).
+ * - Any error under volatile sub-paths — `packages`, `remotes`, `icons`, and `repository`
+ *   evolve independently and may use shapes the bundled schema hasn't adopted yet.
  */
-function normalizeServerResponseForSchemaValidation(jsonData: unknown): unknown {
-  if (jsonData === null || typeof jsonData !== 'object' || Array.isArray(jsonData)) {
-    return jsonData;
-  }
-  const response = jsonData as Record<string, unknown>;
-
-  const server = response['server'];
-  const serverIsObject = server !== null && typeof server === 'object' && !Array.isArray(server);
-  const serverObj = serverIsObject ? (server as Record<string, unknown>) : null;
-
-  const needsNestedOmit = serverObj && SERVER_NESTED_KEYS_TO_OMIT_FOR_VALIDATION.some(key => key in serverObj);
-  const needsRepositoryOmit =
-    serverObj && 'repository' in serverObj && !isCompleteRepositoryForBundledSchema(serverObj['repository']);
-
-  let nextServer = server;
-  if (serverObj && (needsNestedOmit || needsRepositoryOmit)) {
-    const stripped: Record<string, unknown> = { ...serverObj };
-    if (needsNestedOmit) {
-      for (const key of SERVER_NESTED_KEYS_TO_OMIT_FOR_VALIDATION) {
-        delete stripped[key];
-      }
-    }
-    if (needsRepositoryOmit) {
-      delete stripped['repository'];
-    }
-    nextServer = stripped;
-  }
-
-  const meta = response['_meta'];
-  const metaIsObject = meta !== null && typeof meta === 'object' && !Array.isArray(meta);
-  const metaObj = metaIsObject ? (meta as Record<string, unknown>) : null;
-
-  let nextMeta = meta;
-  if (metaObj) {
-    const official = metaObj[OFFICIAL_REGISTRY_META_KEY];
-    const officialIsObject = official !== null && typeof official === 'object' && !Array.isArray(official);
-    const officialObj = officialIsObject ? (official as Record<string, unknown>) : null;
-
-    if (officialObj) {
-      const hasUnknownOfficialKey = Object.keys(officialObj).some(key => !OFFICIAL_REGISTRY_META_KEYS.has(key));
-      if (hasUnknownOfficialKey) {
-        const normalizedOfficial: Record<string, unknown> = {};
-        for (const key of OFFICIAL_REGISTRY_META_KEYS) {
-          if (key in officialObj) {
-            normalizedOfficial[key] = officialObj[key];
-          }
-        }
-        nextMeta = {
-          ...metaObj,
-          [OFFICIAL_REGISTRY_META_KEY]: normalizedOfficial,
-        };
-      }
-    }
-  }
-
-  const changedServer = Boolean(needsNestedOmit) || Boolean(needsRepositoryOmit);
-  const changedMeta = nextMeta !== meta;
-
-  if (!changedServer && !changedMeta) {
-    return jsonData;
-  }
-
-  return {
-    ...response,
-    server: nextServer,
-    _meta: nextMeta,
-  };
-}
-
-/**
- * Third-party registries sometimes publish `server.name` values that do not match the bundled
- * reverse-DNS pattern (e.g. `com.github.mcp` with no `/`). Treat pattern-only failures on
- * `server.name` as acceptable so listing works without console noise; the real name is unchanged.
- */
-function isOnlyServerNamePatternFailure(errors: unknown): boolean {
-  if (!Array.isArray(errors) || errors.length === 0) {
-    return false;
-  }
-  return errors.every((e: { instancePath?: string; keyword?: string }) => {
-    return e.instancePath === '/server/name' && e.keyword === 'pattern';
-  });
+function isTolerableValidationError(error: { keyword?: string; instancePath?: string }): boolean {
+  if (error.keyword === 'additionalProperties') return true;
+  if (error.keyword === 'pattern' && error.instancePath === '/server/name') return true;
+  if (VOLATILE_SERVER_SUBPATHS.some(prefix => error.instancePath?.startsWith(prefix))) return true;
+  return false;
 }
 
 /**
@@ -157,13 +67,10 @@ export class MCPSchemaValidator {
     contextName?: string,
     suppressWarnings: boolean = false,
   ): boolean {
-    const payloadForValidation =
-      schemaName === 'ServerResponse' ? normalizeServerResponseForSchemaValidation(jsonData) : jsonData;
-
     const validator = createValidator(schemaName);
-    let isValid = validator(payloadForValidation);
+    let isValid = validator(jsonData);
 
-    if (!isValid && schemaName === 'ServerResponse' && isOnlyServerNamePatternFailure(validator.errors)) {
+    if (!isValid && schemaName === 'ServerResponse' && validator.errors?.every(isTolerableValidationError)) {
       isValid = true;
     }
 
