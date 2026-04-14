@@ -42,7 +42,8 @@ const VOLATILE_SERVER_SUBPATHS = ['/server/packages', '/server/remotes', '/serve
 function isTolerableValidationError(error: { keyword?: string; instancePath?: string }): boolean {
   if (error.keyword === 'additionalProperties') return true;
   if (error.keyword === 'pattern' && error.instancePath === '/server/name') return true;
-  if (VOLATILE_SERVER_SUBPATHS.some(prefix => error.instancePath?.startsWith(prefix))) return true;
+  const path = error.instancePath;
+  if (path && VOLATILE_SERVER_SUBPATHS.some(prefix => path === prefix || path.startsWith(`${prefix}/`))) return true;
   return false;
 }
 
