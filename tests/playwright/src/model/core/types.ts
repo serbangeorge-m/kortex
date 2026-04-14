@@ -108,7 +108,7 @@ export interface MCPServerConfig {
 export const MCP_SERVERS = {
   github: {
     envVarName: 'GITHUB_TOKEN',
-    serverName: 'com.github.mcp',
+    serverName: 'ai.openkaiden.registry/github',
   },
 } as const satisfies Record<string, MCPServerConfig>;
 
