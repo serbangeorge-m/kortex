@@ -28,4 +28,6 @@ function onUnregister(): void {
 }
 </script>
 
+{#if object.managed}
 <ListItemButtonIcon inProgress={deleting} title="Delete" icon={faTrash} onClick={onUnregister} {detailed} enabled={!deleting} />
+{/if}

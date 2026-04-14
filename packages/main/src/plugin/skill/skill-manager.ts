@@ -231,6 +231,7 @@ export class SkillManager {
       ...metadata,
       path: resolvedPath,
       enabled: true,
+      managed: this.isInsideManagedDirectory(resolvedPath),
     };
 
     this.skills = [...this.skills, skill];
@@ -271,6 +272,7 @@ export class SkillManager {
       ...metadata,
       path: skillDir,
       enabled: true,
+      managed: this.isInsideManagedDirectory(skillDir),
     };
     this.skills = [...this.skills, skill];
     this.saveAndNotifySkills();
@@ -320,15 +322,15 @@ export class SkillManager {
   }
 
   /**
-   * Removes a skill from the registry and config. If the skill lives inside
-   * the managed skills directory (created via createSkill), its folder is
-   * deleted. External skills registered via registerSkill are only dereferenced.
+   * Removes a managed skill from the registry, deleting it from disk.
+   * Extension-contributed skills cannot be deleted.
    */
   async unregisterSkill(name: string): Promise<void> {
     const skill = this.findSkillByName(name);
-    if (this.isManagedSkill(skill)) {
-      await rm(skill.path, { recursive: true, force: true });
+    if (!skill.managed) {
+      throw new Error(`Cannot delete extension-contributed skill '${name}'`);
     }
+    await rm(skill.path, { recursive: true, force: true });
     this.skills = this.skills.filter(s => s.name !== name);
     this.saveAndNotifySkills();
   }
@@ -389,12 +391,10 @@ export class SkillManager {
     this.apiSender.send('skill-manager-update');
   }
 
-  private isManagedSkill(skill: SkillInfo): boolean {
-    const resolvedSkillPath = resolve(skill.path);
-    return this.skillFolders.some(folder => {
-      const resolvedRoot = resolve(folder.baseDirectory);
-      return resolvedSkillPath === resolvedRoot || resolvedSkillPath.startsWith(`${resolvedRoot}${sep}`);
-    });
+  private isInsideManagedDirectory(skillPath: string): boolean {
+    const resolvedSkillPath = resolve(skillPath);
+    const resolvedRoot = resolve(this.directories.getSkillsDirectory());
+    return resolvedSkillPath === resolvedRoot || resolvedSkillPath.startsWith(`${resolvedRoot}${sep}`);
   }
 
   /**
@@ -449,6 +449,7 @@ export class SkillManager {
           ...metadata,
           path: folderPath,
           enabled: enabledNames.has(metadata.name) || !enabledNames.size,
+          managed: this.isInsideManagedDirectory(folderPath),
         });
       } catch (error: unknown) {
         console.warn(`[SkillManager] Skipping invalid skill at ${folderPath}: ${error}`);
@@ -469,12 +470,12 @@ export class SkillManager {
     }
   }
 
-  /** Persists enabled skill names and external skill path references to config. */
+  /** Persists enabled skill names and external skill paths to config. */
   private saveSkillsToConfig(): void {
     const enabledNames = this.skills.filter(s => s.enabled).map(s => s.name);
     this.configuration?.update(SKILL_ENABLED, enabledNames).catch(console.error);
 
-    const registeredPaths = this.skills.filter(s => !this.isManagedSkill(s)).map(s => s.path);
+    const registeredPaths = this.skills.filter(s => !s.managed).map(s => s.path);
     this.configuration?.update(SKILL_REGISTERED, registeredPaths).catch(console.error);
   }
 
