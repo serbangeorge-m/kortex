@@ -56,7 +56,7 @@ export function normalizeMcpRegistryServerUrl(serverUrl: string): string {
     return trimmed;
   }
   let result = trimmed;
-  if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(result)) {
+  if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(result)) {
     result = `https://${result}`;
   }
   // Strip trailing slashes so `/v0/servers` is appended cleanly.
@@ -747,6 +747,7 @@ export class MCPRegistry {
     if (!matchingRegistry) {
       throw new Error(`MCP Registry ${normalized.serverUrl} was not found`);
     }
+    this.registries = this.registries.map(r => (r.serverUrl === normalized.serverUrl ? { ...r, ...normalized } : r));
     this.telemetryService.track('updateMCPRegistry', {
       serverUrl: this.getRegistryHash(matchingRegistry),
       total: this.registries.length,

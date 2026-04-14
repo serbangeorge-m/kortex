@@ -94,6 +94,11 @@ test('normalizeMcpRegistryServerUrl adds https for host-only input', () => {
   expect(normalizeMcpRegistryServerUrl('http://localhost:8080')).toBe('http://localhost:8080');
 });
 
+test('normalizeMcpRegistryServerUrl prepends https for host:port input', () => {
+  expect(normalizeMcpRegistryServerUrl('localhost:8080')).toBe('https://localhost:8080');
+  expect(normalizeMcpRegistryServerUrl('registry.example.com:8443')).toBe('https://registry.example.com:8443');
+});
+
 test('normalizeMcpRegistryServerUrl strips trailing slashes', () => {
   expect(normalizeMcpRegistryServerUrl('https://registry.example.com/base///')).toBe(
     'https://registry.example.com/base',
@@ -145,6 +150,17 @@ test('updateMCPRegistry sends normalized URL in API event and fire', async () =>
     'mcp-registry-update',
     expect.objectContaining({ serverUrl: 'https://registry.example.com' }),
   );
+});
+
+test('updateMCPRegistry persists normalized update to internal registry store', async () => {
+  mcpRegistry.registerMCPRegistry({ serverUrl: 'https://registry.example.com' }, false);
+
+  await mcpRegistry.updateMCPRegistry({ serverUrl: 'https://registry.example.com/', name: 'Updated Name' });
+
+  const registries = mcpRegistry.getRegistries();
+  const updated = registries.find(r => r.serverUrl === 'https://registry.example.com');
+  expect(updated).toBeDefined();
+  expect(updated?.name).toBe('Updated Name');
 });
 
 test('updateMCPRegistry throws when registry not found after normalization', async () => {
