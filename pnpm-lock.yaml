@@ -727,8 +727,8 @@ importers:
   packages/renderer:
     dependencies:
       '@ai-sdk/svelte':
-        specifier: ^4.0.158
-        version: 4.0.158(svelte@5.47.0)(zod@4.3.6)
+        specifier: ^4.0.159
+        version: 4.0.159(svelte@5.47.0)(zod@4.3.6)
       '@ai-sdk/ui-utils':
         specifier: ^1.2.11
         version: 1.2.11(zod@4.3.6)
@@ -1005,8 +1005,8 @@ packages:
     resolution: {integrity: sha512-oGMAgGoQdBXbZqNG0Ze56CHjDZ1IDYOwGYxYjO5KLSlz5HiNQ9udIXsPZ61VWaHGZ5XW/jyjmr6t2xz2jGVwbQ==}
     engines: {node: '>=18'}
 
-  '@ai-sdk/svelte@4.0.158':
-    resolution: {integrity: sha512-SJl8YWjDRxHy6m9UDxNLYqUiyQ9nZbJL8P3gBn5g9zFU5fjX+MXN6aFiAs4B9vSXoB8Nv1J9ckZbv56glOUnHA==}
+  '@ai-sdk/svelte@4.0.159':
+    resolution: {integrity: sha512-4/9I9HZpQox4LsdXSIeAZtbPbHavumixs3gbnmwEV8Qoj7aTM1sXpNFK91kHB2Ntc6L5phPCCtBl/aGVwBCYNQ==}
     peerDependencies:
       svelte: ^5.31.0
 
@@ -7939,10 +7939,10 @@ snapshots:
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/svelte@4.0.158(svelte@5.47.0)(zod@4.3.6)':
+  '@ai-sdk/svelte@4.0.159(svelte@5.47.0)(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider-utils': 4.0.23(zod@4.3.6)
-      ai: 6.0.158(zod@4.3.6)
+      ai: 6.0.159(zod@4.3.6)
       svelte: 5.47.0
     transitivePeerDependencies:
       - zod
