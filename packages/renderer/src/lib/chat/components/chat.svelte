@@ -4,7 +4,11 @@ import type { ModelInfo } from '/@/lib/chat/components/model-info';
 export function findModel(models: ModelInfo[], model: ModelInfo | undefined): ModelInfo | undefined {
   if (!model) return undefined;
   return models.find(
-    m => m.label === model.label && m.providerId === model.providerId && m.connectionName === model.connectionName,
+    m =>
+      m.label === model.label &&
+      m.providerId === model.providerId &&
+      m.connectionName === model.connectionName &&
+      m.type === model.type,
   );
 }
 </script>
@@ -57,6 +61,7 @@ let selectedModel = $derived<ModelInfo | undefined>(
         connectionName: config.connectionName,
         label: config.modelId,
         providerId: config.providerId,
+        type: config.type ?? 'cloud',
       }
     : findModel(models, lastUsedModel.value) ?? models[0],
 );
