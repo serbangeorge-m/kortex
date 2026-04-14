@@ -24,6 +24,7 @@ export interface SkillMetadata {
 export interface SkillInfo extends SkillMetadata {
   path: string;
   enabled: boolean;
+  managed: boolean;
 }
 
 export interface SkillFolderInfo {

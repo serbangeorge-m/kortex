@@ -29,15 +29,30 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-const skill: SkillInfo = {
+const managedSkill: SkillInfo = {
   name: 'my-skill',
   description: 'A test skill',
   path: '/skills/my-skill',
   enabled: true,
+  managed: true,
 };
 
-test('should render the delete button', () => {
-  render(SkillActions, { object: skill });
+const contributedSkill: SkillInfo = {
+  name: 'ext-skill',
+  description: 'An extension skill',
+  path: '/ext/skills/ext-skill',
+  enabled: true,
+  managed: false,
+};
+
+test('should render the delete button for managed skills', () => {
+  render(SkillActions, { object: managedSkill });
 
   expect(screen.getByTitle('Delete')).toBeInTheDocument();
+});
+
+test('should not render the delete button for extension-contributed skills', () => {
+  render(SkillActions, { object: contributedSkill });
+
+  expect(screen.queryByTitle('Delete')).not.toBeInTheDocument();
 });
