@@ -52,7 +52,7 @@ export class NavigationBar {
     this.links = [
       this.chatLink,
       this.mcpLink,
-      this.flowsLink,
+      // this.flowsLink, // Flows feature removed (PR #1319)
       this.skillsLink,
       this.ragLink,
       this.extensionsLink,

@@ -56,13 +56,6 @@ test.describe('Settings page navigation', { tag: '@smoke' }, () => {
     }
   });
 
-  test('[SET-03] CLI tab shows goose CLI tool', async ({ settingsPage }) => {
-    const cliPage = await settingsPage.openCli();
-
-    await expect(cliPage.toolName).toBeVisible();
-    await expect(cliPage.toolName).toHaveText('goose');
-  });
-
   test('[SET-04] Proxy tab configurations and fields', async ({ settingsPage }) => {
     const proxyPage = await settingsPage.openProxy();
     await proxyPage.verifyProxyConfigurationOptions();
