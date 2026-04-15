@@ -27,10 +27,7 @@ const prompt =
   'write a typescript recursive method that calculates the fibonacci number for a given index without using memoization';
 const expectedTerminalContent = /(\w+)\(\s*(\w+)\s*-\s*1\s*\)\s*\+\s*\1\(\s*\2\s*-\s*2\s*\)/;
 
-test.skip(
-  !!process.env.CI && process.platform === 'win32' && process.arch === 'arm64',
-  'Goose not supported on Windows ARM gha runners',
-);
+test.skip(true, 'Flows feature removed');
 
 test.beforeAll(async ({ page, navigationBar, flowsPage, gooseSetup: _gooseSetup }) => {
   await waitForNavigationReady(page);

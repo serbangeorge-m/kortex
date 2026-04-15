@@ -27,7 +27,6 @@ export interface FlowParameters {
 export const builtInExtensions = [
   { name: 'Default MCP Registries', locator: 'kaiden.mcp-registries' },
   { name: 'Gemini', locator: 'kaiden.gemini' },
-  { name: 'goose', locator: 'kaiden.goose' },
   { name: 'Ollama', locator: 'kaiden.ollama' },
   { name: 'OpenAI Compatible', locator: 'kaiden.openai-compatible' },
   { name: 'RamaLama', locator: 'kaiden.ramalama' },
@@ -86,7 +85,6 @@ export const preferenceOptions = (): PreferenceOption[] => Object.values(Prefere
 export const resources = {
   openshiftai: { displayName: 'OpenShift AI', hasCreateButton: true },
   openai: { displayName: 'OpenAI', hasCreateButton: true },
-  goose: { displayName: 'goose', hasCreateButton: false },
   gemini: { displayName: 'Gemini', hasCreateButton: true },
   ollama: { displayName: 'Ollama', hasCreateButton: false },
   ramalama: { displayName: 'RamaLama', hasCreateButton: false },

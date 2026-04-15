@@ -417,7 +417,7 @@ test.describe
     test('[CHAT-STREAM-01] Background streaming continues when returning to chat', async ({
       chatPage,
       navigationBar,
-      flowsPage,
+      settingsPage,
     }) => {
       await chatPage.clickNewChat();
 
@@ -430,8 +430,8 @@ test.describe
       await chatPage.verifySendButtonHidden();
 
       // Navigate away from the chat page while streaming is active
-      await navigationBar.navigateToFlowsPage();
-      await flowsPage.waitForLoad();
+      await navigationBar.navigateToSettingsPage();
+      await settingsPage.waitForLoad();
 
       // Return to the chat page and select the conversation from history
       await navigationBar.navigateToChatPage();
@@ -500,61 +500,5 @@ test.describe
 
       await chatPage.ensureToolsSidebarHidden();
       await expect(chatPage.showMcpPanelButton).toBeVisible();
-    });
-
-    test('[CHAT-INTG-02] Export chat as Flow', async ({
-      chatPage,
-      navigationBar,
-      flowsPage,
-      resource,
-      gooseSetup: _gooseSetup,
-    }) => {
-      test.skip(resource === 'ollama', 'Flows not supported for Ollama');
-      test.skip(resource === 'ramalama', 'Flows not supported for RamaLama');
-      test.skip(
-        !!process.env.CI && process.platform === 'win32' && process.arch === 'arm64',
-        'Goose not supported on Windows ARM gha runners',
-      );
-
-      await navigationBar.navigateToChatPage();
-
-      await chatPage.ensureChatSidebarVisible();
-      await chatPage.clickNewChat();
-
-      // Flow export requires structured output — prefer a non-lite model if available
-      const availableModels = await chatPage.getChatModelNames();
-      const capableModel = availableModels.find(name => !name.toLowerCase().includes('lite'));
-      if (capableModel) {
-        await chatPage.selectModelByName(capableModel);
-      }
-
-      const promptForExport =
-        'write a typescript recursive method that calculates the fibonacci number for a given index without using memoization';
-      // Regex pattern to verify the model response contains recursive Fibonacci code
-      const expectedModelResponsePattern = /(\w+)\(\s*(\w+)\s*-\s*1\s*\)\s*\+\s*\1\(\s*\2\s*-\s*2\s*\)/;
-      const flowName = 'export-chat-as-flow';
-
-      await chatPage.sendMessage(promptForExport);
-      await chatPage.verifyConversationMessage(promptForExport);
-      await expect
-        .poll(async () => await chatPage.verifyModelConversationMessage(expectedModelResponsePattern), {
-          timeout: TIMEOUTS.MODEL_RESPONSE,
-          message: 'Model should respond with recursive Fibonacci code pattern',
-        })
-        .toBeTruthy();
-
-      // Capture the current model name before exporting to verify it's preserved in the flow
-      const currentModelName = await chatPage.getSelectedModelName();
-      expect(currentModelName).toBeTruthy();
-
-      const flowCreatePage = await chatPage.exportAsFlow();
-      await flowCreatePage.waitForLoad();
-      await expect(flowCreatePage.selectModelDropdown).toContainText(currentModelName);
-
-      await flowCreatePage.createNewFlow(flowName);
-      await navigationBar.navigateToFlowsPage();
-      await flowsPage.ensureRowExists(flowName, TIMEOUTS.STANDARD, false);
-
-      await flowsPage.deleteAllFlows();
     });
   });
