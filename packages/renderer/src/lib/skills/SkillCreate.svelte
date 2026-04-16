@@ -24,9 +24,20 @@ let creating = $state(false);
 let error = $state<string | undefined>();
 let dragging = $state(false);
 let selectedFile = $state('');
+let sourceFilePath = $state('');
+let errorEl = $state<HTMLDivElement>();
+
+$effect(() => {
+  if (error && errorEl?.scrollIntoView) {
+    errorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+});
 
 const isValid = $derived(
-  target.length > 0 && name.trim().length > 0 && description.trim().length > 0 && skillContent.trim().length > 0,
+  target.length > 0 &&
+    name.trim().length > 0 &&
+    description.trim().length > 0 &&
+    (sourceFilePath.length > 0 || skillContent.trim().length > 0),
 );
 
 async function create(): Promise<void> {
@@ -41,7 +52,7 @@ async function create(): Promise<void> {
         name: name.trim(),
         description: description.trim(),
         content: skillContent.trim() || undefined,
-        sourcePath: selectedFile || undefined,
+        sourcePath: sourceFilePath || undefined,
       },
       target,
     );
@@ -98,13 +109,15 @@ async function handleDrop(e: DragEvent): Promise<void> {
 
   try {
     const raw = await file.text();
-    selectedFile = file.name;
 
     const parsed = parseSkillContent(raw);
     if (parsed) {
+      error = undefined;
+      sourceFilePath = '';
+      selectedFile = file.name;
       prefillFromParsed(parsed);
     } else {
-      skillContent = raw;
+      error = `No metadata found in ${file.name}. The file must contain YAML frontmatter (---).`;
     }
   } catch {
     error = 'Failed to read the dropped file.';
@@ -120,13 +133,15 @@ async function handleBrowse(): Promise<void> {
   const selected = result?.[0];
   if (!selected) return;
 
-  selectedFile = selected;
-
   try {
     const parsed = await window.getSkillFileContent(selected);
+    error = undefined;
+    selectedFile = selected;
+    sourceFilePath = selected;
     prefillFromParsed(parsed);
   } catch {
-    skillContent = '';
+    const fileName = selected.split(/[/\\]/).pop() ?? selected;
+    error = `No metadata found in ${fileName}. The file must contain YAML frontmatter (---).`;
   }
 }
 </script>
@@ -199,7 +214,9 @@ async function handleBrowse(): Promise<void> {
         rows="4"
         disabled={creating}></textarea>
       {#if error}
-        <ErrorMessage {error} />
+        <div bind:this={errorEl}>
+          <ErrorMessage {error} />
+        </div>
       {/if}
     </div>
   {/snippet}

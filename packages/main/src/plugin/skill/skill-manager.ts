@@ -18,7 +18,7 @@
 
 import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve, sep } from 'node:path';
+import { basename, dirname, join, resolve, sep } from 'node:path';
 
 import type { Configuration } from '@openkaiden/api';
 import { inject, injectable, preDestroy } from 'inversify';
@@ -245,7 +245,11 @@ export class SkillManager {
    * enabled immediately and persisted to config.
    */
   async createSkill(options: SkillFileContent, targetDirectory: string): Promise<SkillInfo> {
-    if (!options.content) {
+    let content = options.content;
+    if (!content && options.sourcePath) {
+      content = (await readFile(options.sourcePath, 'utf-8')).trimStart();
+    }
+    if (!content) {
       throw new Error('Content must be provided');
     }
 
@@ -263,18 +267,23 @@ export class SkillManager {
 
     await mkdir(skillDir, { recursive: true });
 
-    const body = this.stripFrontmatter(options.content);
-    const frontmatter = dump({ name: metadata.name, description: metadata.description }).trimEnd();
-    const fileContent = `---\n${frontmatter}\n---\n\n${body}`;
-    await writeFile(join(skillDir, SKILL_FILE_NAME), fileContent, 'utf-8');
+    try {
+      const body = this.stripFrontmatter(content);
+      const frontmatter = dump({ name: metadata.name, description: metadata.description }).trimEnd();
+      const fileContent = `---\n${frontmatter}\n---\n\n${body}`;
+      await writeFile(join(skillDir, SKILL_FILE_NAME), fileContent, 'utf-8');
 
-    if (options.sourcePath) {
-      const sourceDir = dirname(options.sourcePath);
-      const entries = await readdir(sourceDir);
-      for (const entry of entries) {
-        if (entry === SKILL_FILE_NAME) continue;
-        await cp(join(sourceDir, entry), join(skillDir, entry), { recursive: true });
+      if (options.sourcePath && basename(options.sourcePath) === SKILL_FILE_NAME) {
+        const sourceDir = dirname(options.sourcePath);
+        const entries = await readdir(sourceDir);
+        for (const entry of entries) {
+          if (entry === SKILL_FILE_NAME) continue;
+          await cp(join(sourceDir, entry), join(skillDir, entry), { recursive: true });
+        }
       }
+    } catch (err: unknown) {
+      await rm(skillDir, { recursive: true, force: true });
+      throw err;
     }
 
     const skill: SkillInfo = {
