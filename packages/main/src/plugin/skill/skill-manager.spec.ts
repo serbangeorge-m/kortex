@@ -812,12 +812,17 @@ test('getSkillFileContent should return parsed metadata and body from a SKILL.md
   expect(readFile).toHaveBeenCalledWith('/path/to/SKILL.md', 'utf-8');
 });
 
-test('getSkillFileContent should throw when file has no frontmatter', async () => {
+test('getSkillFileContent should return raw content with empty metadata when file has no frontmatter', async () => {
   vi.mocked(readFile).mockResolvedValue(noFrontmatterSkillMd);
 
   const skillManager = createSkillManager();
 
-  await expect(skillManager.getSkillFileContent('/path/to/SKILL.md')).rejects.toThrow('No metadata found');
+  const result = await skillManager.getSkillFileContent('/path/to/SKILL.md');
+  expect(result).toEqual({
+    name: '',
+    description: '',
+    content: noFrontmatterSkillMd.trimStart(),
+  });
 });
 
 test('saveSkillsToConfig should write only enabled skill names', async () => {

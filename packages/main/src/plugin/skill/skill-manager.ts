@@ -245,7 +245,11 @@ export class SkillManager {
    * enabled immediately and persisted to config.
    */
   async createSkill(options: SkillFileContent, targetDirectory: string): Promise<SkillInfo> {
-    if (!options.content) {
+    let content = options.content;
+    if (!content && options.sourcePath) {
+      content = (await readFile(options.sourcePath, 'utf-8')).trimStart();
+    }
+    if (!content) {
       throw new Error('Content must be provided');
     }
 
@@ -263,18 +267,23 @@ export class SkillManager {
 
     await mkdir(skillDir, { recursive: true });
 
-    const body = this.stripFrontmatter(options.content);
-    const frontmatter = dump({ name: metadata.name, description: metadata.description }).trimEnd();
-    const fileContent = `---\n${frontmatter}\n---\n\n${body}`;
-    await writeFile(join(skillDir, SKILL_FILE_NAME), fileContent, 'utf-8');
+    try {
+      const body = this.stripFrontmatter(content);
+      const frontmatter = dump({ name: metadata.name, description: metadata.description }).trimEnd();
+      const fileContent = `---\n${frontmatter}\n---\n\n${body}`;
+      await writeFile(join(skillDir, SKILL_FILE_NAME), fileContent, 'utf-8');
 
-    if (options.sourcePath) {
-      const sourceDir = dirname(options.sourcePath);
-      const entries = await readdir(sourceDir);
-      for (const entry of entries) {
-        if (entry === SKILL_FILE_NAME) continue;
-        await cp(join(sourceDir, entry), join(skillDir, entry), { recursive: true });
+      if (options.sourcePath) {
+        const sourceDir = dirname(options.sourcePath);
+        const entries = await readdir(sourceDir);
+        for (const entry of entries) {
+          if (entry === SKILL_FILE_NAME) continue;
+          await cp(join(sourceDir, entry), join(skillDir, entry), { recursive: true });
+        }
       }
+    } catch (err: unknown) {
+      await rm(skillDir, { recursive: true, force: true });
+      throw err;
     }
 
     const skill: SkillInfo = {
@@ -362,9 +371,15 @@ export class SkillManager {
    */
   async getSkillFileContent(filePath: string): Promise<SkillFileContent> {
     const rawContent = (await readFile(filePath, 'utf-8')).trimStart();
-    const metadata = this.extractFrontmatter(rawContent, filePath);
-    const body = this.stripFrontmatter(rawContent);
-    return { name: metadata.name, description: metadata.description, content: body };
+    try {
+      const metadata = this.extractFrontmatter(rawContent, filePath);
+      const body = this.stripFrontmatter(rawContent);
+      return { name: metadata.name ?? '', description: metadata.description ?? '', content: body };
+    } catch {
+      // File has no valid frontmatter — return raw content so the user
+      // can fill in name/description manually in the dialog.
+      return { name: '', description: '', content: rawContent };
+    }
   }
 
   /** Lists all file/directory names inside the skill's folder. */

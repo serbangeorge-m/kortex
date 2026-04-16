@@ -24,9 +24,13 @@ let creating = $state(false);
 let error = $state<string | undefined>();
 let dragging = $state(false);
 let selectedFile = $state('');
+let sourceFilePath = $state('');
 
 const isValid = $derived(
-  target.length > 0 && name.trim().length > 0 && description.trim().length > 0 && skillContent.trim().length > 0,
+  target.length > 0 &&
+    name.trim().length > 0 &&
+    description.trim().length > 0 &&
+    (selectedFile.length > 0 || skillContent.trim().length > 0),
 );
 
 async function create(): Promise<void> {
@@ -41,7 +45,7 @@ async function create(): Promise<void> {
         name: name.trim(),
         description: description.trim(),
         content: skillContent.trim() || undefined,
-        sourcePath: selectedFile || undefined,
+        sourcePath: sourceFilePath || undefined,
       },
       target,
     );
@@ -121,12 +125,13 @@ async function handleBrowse(): Promise<void> {
   if (!selected) return;
 
   selectedFile = selected;
+  sourceFilePath = selected;
 
   try {
     const parsed = await window.getSkillFileContent(selected);
     prefillFromParsed(parsed);
-  } catch {
-    skillContent = '';
+  } catch (err: unknown) {
+    error = String(err);
   }
 }
 </script>

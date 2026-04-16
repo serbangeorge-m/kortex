@@ -1,3 +1,8 @@
+---
+name: ui-components
+description: UI Component Development Guide for Kortex
+---
+
 # UI Component Development Guide for Kortex
 
 ## Core Rules
