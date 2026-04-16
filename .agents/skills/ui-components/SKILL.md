@@ -1,9 +1,9 @@
 ---
 name: ui-components
-description: UI Component Development Guide for Kortex
+description: UI Component Development Guide for Kaiden
 ---
 
-# UI Component Development Guide for Kortex
+# UI Component Development Guide for Kaiden
 
 ## Core Rules
 

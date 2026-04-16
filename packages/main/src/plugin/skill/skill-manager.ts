@@ -371,15 +371,9 @@ export class SkillManager {
    */
   async getSkillFileContent(filePath: string): Promise<SkillFileContent> {
     const rawContent = (await readFile(filePath, 'utf-8')).trimStart();
-    try {
-      const metadata = this.extractFrontmatter(rawContent, filePath);
-      const body = this.stripFrontmatter(rawContent);
-      return { name: metadata.name ?? '', description: metadata.description ?? '', content: body };
-    } catch {
-      // File has no valid frontmatter — return raw content so the user
-      // can fill in name/description manually in the dialog.
-      return { name: '', description: '', content: rawContent };
-    }
+    const metadata = this.extractFrontmatter(rawContent, filePath);
+    const body = this.stripFrontmatter(rawContent);
+    return { name: metadata.name, description: metadata.description, content: body };
   }
 
   /** Lists all file/directory names inside the skill's folder. */

@@ -25,6 +25,13 @@ let error = $state<string | undefined>();
 let dragging = $state(false);
 let selectedFile = $state('');
 let sourceFilePath = $state('');
+let errorEl = $state<HTMLDivElement>();
+
+$effect(() => {
+  if (error && errorEl?.scrollIntoView) {
+    errorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+});
 
 const isValid = $derived(
   target.length > 0 &&
@@ -102,13 +109,13 @@ async function handleDrop(e: DragEvent): Promise<void> {
 
   try {
     const raw = await file.text();
-    selectedFile = file.name;
 
     const parsed = parseSkillContent(raw);
     if (parsed) {
+      selectedFile = file.name;
       prefillFromParsed(parsed);
     } else {
-      skillContent = raw;
+      error = `No metadata found in ${file.name}. The file must contain YAML frontmatter (---).`;
     }
   } catch {
     error = 'Failed to read the dropped file.';
@@ -124,14 +131,14 @@ async function handleBrowse(): Promise<void> {
   const selected = result?.[0];
   if (!selected) return;
 
-  selectedFile = selected;
-  sourceFilePath = selected;
-
   try {
     const parsed = await window.getSkillFileContent(selected);
+    selectedFile = selected;
+    sourceFilePath = selected;
     prefillFromParsed(parsed);
-  } catch (err: unknown) {
-    error = String(err);
+  } catch {
+    const fileName = selected.split('/').pop() ?? selected;
+    error = `No metadata found in ${fileName}. The file must contain YAML frontmatter (---).`;
   }
 }
 </script>
@@ -204,7 +211,9 @@ async function handleBrowse(): Promise<void> {
         rows="4"
         disabled={creating}></textarea>
       {#if error}
-        <ErrorMessage {error} />
+        <div bind:this={errorEl}>
+          <ErrorMessage {error} />
+        </div>
       {/if}
     </div>
   {/snippet}
