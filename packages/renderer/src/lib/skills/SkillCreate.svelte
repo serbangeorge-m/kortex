@@ -112,6 +112,8 @@ async function handleDrop(e: DragEvent): Promise<void> {
 
     const parsed = parseSkillContent(raw);
     if (parsed) {
+      error = undefined;
+      sourceFilePath = '';
       selectedFile = file.name;
       prefillFromParsed(parsed);
     } else {
@@ -133,6 +135,7 @@ async function handleBrowse(): Promise<void> {
 
   try {
     const parsed = await window.getSkillFileContent(selected);
+    error = undefined;
     selectedFile = selected;
     sourceFilePath = selected;
     prefillFromParsed(parsed);
