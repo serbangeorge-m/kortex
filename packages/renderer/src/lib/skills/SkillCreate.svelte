@@ -37,7 +37,7 @@ const isValid = $derived(
   target.length > 0 &&
     name.trim().length > 0 &&
     description.trim().length > 0 &&
-    (selectedFile.length > 0 || skillContent.trim().length > 0),
+    (sourceFilePath.length > 0 || skillContent.trim().length > 0),
 );
 
 async function create(): Promise<void> {
@@ -137,7 +137,7 @@ async function handleBrowse(): Promise<void> {
     sourceFilePath = selected;
     prefillFromParsed(parsed);
   } catch {
-    const fileName = selected.split('/').pop() ?? selected;
+    const fileName = selected.split(/[/\\]/).pop() ?? selected;
     error = `No metadata found in ${fileName}. The file must contain YAML frontmatter (---).`;
   }
 }

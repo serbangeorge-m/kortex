@@ -18,7 +18,7 @@
 
 import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve, sep } from 'node:path';
+import { basename, dirname, join, resolve, sep } from 'node:path';
 
 import type { Configuration } from '@openkaiden/api';
 import { inject, injectable, preDestroy } from 'inversify';
@@ -273,7 +273,7 @@ export class SkillManager {
       const fileContent = `---\n${frontmatter}\n---\n\n${body}`;
       await writeFile(join(skillDir, SKILL_FILE_NAME), fileContent, 'utf-8');
 
-      if (options.sourcePath) {
+      if (options.sourcePath && basename(options.sourcePath) === SKILL_FILE_NAME) {
         const sourceDir = dirname(options.sourcePath);
         const entries = await readdir(sourceDir);
         for (const entry of entries) {
