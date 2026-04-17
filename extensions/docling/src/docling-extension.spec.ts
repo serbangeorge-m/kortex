@@ -111,6 +111,7 @@ describe('DoclingExtension', () => {
 
   describe('activate', () => {
     test('should activate successfully with existing container', async () => {
+      vi.useFakeTimers();
       // Mock existing container
       vi.mocked(dockerodeMock.listContainers).mockResolvedValue([
         {
@@ -122,13 +123,16 @@ describe('DoclingExtension', () => {
           State: 'running',
         },
       ] as unknown as Dockerode.ContainerInfo[]);
+      vi.mocked(global.fetch).mockResolvedValue({ ok: true } as Response);
       const spy = vi.spyOn(extensionContext.subscriptions, 'push');
 
       await doclingExtension.activate();
+      await vi.advanceTimersByTimeAsync(1000);
 
       // Verify chunk provider was registered
       expect(rag.registerChunkProvider).toHaveBeenCalled();
       expect(spy).toHaveBeenCalled();
+      vi.useRealTimers();
     });
 
     test('should activate successfully by launching new container', async () => {
@@ -177,6 +181,7 @@ describe('DoclingExtension', () => {
     });
 
     test('should restart stopped container', async () => {
+      vi.useFakeTimers();
       // Mock existing but stopped container
       vi.mocked(dockerodeMock.listContainers).mockResolvedValue([
         {
@@ -189,17 +194,21 @@ describe('DoclingExtension', () => {
           State: 'exited',
         },
       ] as unknown as Dockerode.ContainerInfo[]);
+      vi.mocked(global.fetch).mockResolvedValue({ ok: true } as Response);
 
       await doclingExtension.activate();
+      await vi.advanceTimersByTimeAsync(1000);
 
       // Verify container was started
       expect(containerMock.start).toHaveBeenCalled();
       expect(rag.registerChunkProvider).toHaveBeenCalled();
+      vi.useRealTimers();
     });
   });
 
   describe('deactivate', () => {
     beforeEach(async () => {
+      vi.useFakeTimers();
       // Set up container info
       vi.mocked(dockerodeMock.listContainers).mockResolvedValue([
         {
@@ -212,8 +221,11 @@ describe('DoclingExtension', () => {
           State: 'running',
         },
       ] as unknown as Dockerode.ContainerInfo[]);
+      vi.mocked(global.fetch).mockResolvedValue({ ok: true } as Response);
 
       await doclingExtension.activate();
+      await vi.advanceTimersByTimeAsync(1000);
+      vi.useRealTimers();
     });
 
     test('should stop container', async () => {
@@ -248,6 +260,7 @@ describe('DoclingExtension', () => {
 
   describe('convertDocument', () => {
     beforeEach(async () => {
+      vi.useFakeTimers();
       // Set up container info
       vi.mocked(dockerodeMock.listContainers).mockResolvedValue([
         {
@@ -261,8 +274,11 @@ describe('DoclingExtension', () => {
         },
       ] as unknown as Dockerode.ContainerInfo[]);
       vi.mocked(openAsBlob).mockResolvedValue(new Blob(['data']));
+      vi.mocked(global.fetch).mockResolvedValue({ ok: true } as Response);
 
       await doclingExtension.activate();
+      await vi.advanceTimersByTimeAsync(1000);
+      vi.useRealTimers();
     });
 
     test('should convert document successfully', async () => {
@@ -601,6 +617,7 @@ describe('DoclingExtension', () => {
 
   describe('chunk provider', () => {
     test('should register chunk provider with correct implementation', async () => {
+      vi.useFakeTimers();
       let registeredProvider: ChunkProvider;
       vi.mocked(rag.registerChunkProvider).mockImplementation(provider => {
         registeredProvider = provider;
@@ -617,15 +634,19 @@ describe('DoclingExtension', () => {
           State: 'running',
         },
       ] as unknown as Dockerode.ContainerInfo[]);
+      vi.mocked(global.fetch).mockResolvedValue({ ok: true } as Response);
 
       await doclingExtension.activate();
+      await vi.advanceTimersByTimeAsync(1000);
 
       expect(registeredProvider!).toBeDefined();
       expect(registeredProvider!.name).toBe('docling');
       expect(typeof registeredProvider!.chunk).toBe('function');
+      vi.useRealTimers();
     });
 
     test('should handle chunk provider errors', async () => {
+      vi.useFakeTimers();
       vi.mocked(Uri.file).mockReturnValue({ fsPath: '/path/to/document.pdf' } as unknown as Uri);
       let registeredProvider: ChunkProvider;
       vi.mocked(rag.registerChunkProvider).mockImplementation(provider => {
@@ -644,11 +665,15 @@ describe('DoclingExtension', () => {
         },
       ] as unknown as Dockerode.ContainerInfo[]);
       vi.mocked(openAsBlob).mockResolvedValue(new Blob(['data']));
+      vi.mocked(global.fetch).mockResolvedValue({ ok: true } as Response);
 
       await doclingExtension.activate();
+      await vi.advanceTimersByTimeAsync(1000);
+
+      vi.mocked(global.fetch).mockRejectedValue(new Error('Conversion error'));
+      vi.useRealTimers();
 
       const docUri = Uri.file('/path/to/document.pdf');
-      vi.mocked(global.fetch).mockRejectedValue(new Error('Conversion error'));
 
       await expect(registeredProvider!.chunk(docUri)).rejects.toThrow('Conversion error');
 

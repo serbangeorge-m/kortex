@@ -184,6 +184,11 @@ export class DoclingExtension {
 
     if (existingContainer) {
       this.containerInfo = existingContainer;
+      this.readyPromise = this.waitForReady(existingContainer.port).catch((err: unknown) => {
+        const error = err instanceof Error ? err : new Error(String(err));
+        this.healthCheckError = error;
+        console.warn('Docling service did not become healthy:', error);
+      });
     } else {
       try {
         this.containerInfo = await this.launchContainer(containerExtensionAPI);
