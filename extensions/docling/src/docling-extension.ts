@@ -40,6 +40,8 @@ type DoclingContainerInfo = {
 export class DoclingExtension {
   private containerInfo: DoclingContainerInfo | undefined = undefined;
   private processedDocuments: number = 0;
+  private readyPromise: Promise<void> = Promise.resolve();
+  private healthCheckError: Error | undefined;
 
   constructor(private extensionContext: api.ExtensionContext) {}
 
@@ -127,8 +129,10 @@ export class DoclingExtension {
     // Health check runs in the background so activation is not blocked.
     // On slow hosts (e.g. ARM Mac emulating x86), the Python server can take
     // well over 20 seconds to boot — longer than the extension activation timeout.
-    this.waitForReady(containerPort).catch((err: unknown) => {
-      console.warn('Docling service did not become healthy:', err);
+    this.readyPromise = this.waitForReady(containerPort).catch((err: unknown) => {
+      const error = err instanceof Error ? err : new Error(String(err));
+      this.healthCheckError = error;
+      console.warn('Docling service did not become healthy:', error);
     });
 
     return containerInfo;
@@ -148,11 +152,11 @@ export class DoclingExtension {
           console.log('Docling service is healthy and ready');
           return;
         }
-      } catch {
-        // Not ready yet — keep polling
+      } catch (err: unknown) {
+        console.debug(`Health check attempt ${retries + 1}/${MAX_RETRIES}:`, err);
       }
     }
-    console.warn(`Docling service did not become healthy after ${MAX_RETRIES} seconds`);
+    throw new Error(`Docling service did not become healthy after ${MAX_RETRIES} seconds`);
   }
 
   /**
@@ -242,6 +246,11 @@ export class DoclingExtension {
   async convertDocument(docUri: api.Uri): Promise<api.Chunk[]> {
     if (!this.containerInfo) {
       throw new Error('Docling container is not running');
+    }
+
+    await this.readyPromise;
+    if (this.healthCheckError) {
+      throw this.healthCheckError;
     }
 
     // Copy the document to the folder

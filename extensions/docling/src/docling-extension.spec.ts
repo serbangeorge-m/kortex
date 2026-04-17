@@ -283,6 +283,100 @@ describe('DoclingExtension', () => {
       expect(global.fetch).toHaveBeenCalled();
     });
 
+    test('should wait for readiness before making request', async () => {
+      vi.useFakeTimers();
+      let healthCheckCount = 0;
+
+      // No existing container — force launchContainer path
+      vi.mocked(dockerodeMock.listContainers).mockResolvedValue([]);
+
+      // Health check succeeds on 3rd attempt
+      vi.mocked(global.fetch).mockImplementation(async (input: string | URL | Request) => {
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+        if (url.includes('/health')) {
+          healthCheckCount++;
+          if (healthCheckCount < 3) {
+            throw new Error('Not ready yet');
+          }
+          return { ok: true } as Response;
+        }
+        // convertDocument request
+        return {
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            chunks: [{ text: 'chunk1' }],
+          }),
+        } as unknown as Response;
+      });
+
+      vi.mocked(Uri.file).mockReturnValue({ fsPath: '/path/to/document.pdf' } as unknown as Uri);
+      vi.mocked(openAsBlob).mockResolvedValue(new Blob(['data']));
+
+      // Re-activate via launchContainer path
+      const freshExtension = new DoclingExtension(extensionContext);
+      await freshExtension.activate();
+
+      const docUri = Uri.file('/path/to/document.pdf');
+      let convertResolved = false;
+      const convertPromise = freshExtension.convertDocument(docUri).then(result => {
+        convertResolved = true;
+        return result;
+      });
+
+      // convertDocument should be blocked — health check hasn't completed
+      await vi.advanceTimersByTimeAsync(500);
+      expect(convertResolved).toBe(false);
+
+      // Let health check retries complete (3 x 1000ms)
+      for (let i = 0; i < 3; i++) {
+        await vi.advanceTimersByTimeAsync(1000);
+      }
+
+      const chunks = await convertPromise;
+      expect(convertResolved).toBe(true);
+      expect(chunks).toHaveLength(1);
+
+      vi.useRealTimers();
+    });
+
+    test('should reject when health check ultimately fails', async () => {
+      vi.useFakeTimers();
+      const originalDebug = console.debug;
+      console.debug = vi.fn();
+
+      // No existing container — force launchContainer path
+      vi.mocked(dockerodeMock.listContainers).mockResolvedValue([]);
+
+      // Health check always fails
+      vi.mocked(global.fetch).mockImplementation(async () => {
+        throw new Error('Connection refused');
+      });
+
+      vi.mocked(Uri.file).mockReturnValue({ fsPath: '/path/to/document.pdf' } as unknown as Uri);
+
+      const freshExtension = new DoclingExtension(extensionContext);
+      await freshExtension.activate();
+
+      const docUri = Uri.file('/path/to/document.pdf');
+      const convertPromise = freshExtension.convertDocument(docUri);
+
+      // Attach rejection handler before advancing timers to avoid vitest's
+      // unhandled rejection detection firing during timer advancement.
+      let convertError: Error | undefined;
+      convertPromise.catch((err: unknown) => {
+        convertError = err as Error;
+      });
+
+      // Advance through all 120 retries in one jump
+      await vi.advanceTimersByTimeAsync(120 * 1000);
+
+      expect(convertError).toBeDefined();
+      expect(convertError!.message).toBe('Docling service did not become healthy after 120 seconds');
+
+      console.debug = originalDebug;
+      vi.useRealTimers();
+    });
+
     test('should throw error if container is not running', async () => {
       const freshExtension = new DoclingExtension(extensionContext);
       const docUri = Uri.file('/path/to/document.pdf');
@@ -406,7 +500,8 @@ describe('DoclingExtension', () => {
       expect(result).toBeDefined();
     });
 
-    test('should wait for health check to pass', async () => {
+    test('should return immediately without waiting for health check', async () => {
+      vi.useFakeTimers();
       let healthCheckCount = 0;
       vi.mocked(global.fetch).mockImplementation(async () => {
         healthCheckCount++;
@@ -419,7 +514,16 @@ describe('DoclingExtension', () => {
       const result = await doclingExtension.launchContainer(containerExtensionAPI);
 
       expect(result).toBeDefined();
+      expect(result.containerId).toBe('test-container-id');
+      expect(healthCheckCount).toBe(0);
+
+      // Let the background health check complete
+      for (let i = 0; i < 3; i++) {
+        await vi.advanceTimersByTimeAsync(1000);
+      }
       expect(healthCheckCount).toBe(3);
+
+      vi.useRealTimers();
     });
 
     test('should throw error when no endpoints available', async () => {
