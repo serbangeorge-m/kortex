@@ -4,6 +4,8 @@ import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import IconImage from '/@/lib/appearance/IconImage.svelte';
+import { guidedSetupSteps } from '/@/lib/guided-setup/guided-setup-steps';
+import GuidedSetup from '/@/lib/guided-setup/GuidedSetup.svelte';
 import DesktopIcon from '/@/lib/images/DesktopIcon.svelte';
 import { onboardingList } from '/@/stores/onboarding';
 import { providerInfos } from '/@/stores/providers';
@@ -16,6 +18,7 @@ import { WelcomeUtils } from './welcome-utils';
 
 export let showWelcome = false;
 export let showTelemetry = false;
+let showGuidedSetup = false;
 
 let telemetry = true;
 let telemetryMessages: TelemetryMessages;
@@ -97,6 +100,15 @@ function startOnboardingQueue(): void {
   const extensionIds = selectedProviders.map(provider => provider.extension);
   const queryParams = new URLSearchParams({ ids: extensionIds.join(',') }).toString();
   router.goto(`/global-onboarding?${queryParams}`);
+}
+
+function openGuidedSetup(): void {
+  showGuidedSetup = true;
+}
+
+async function handleGuidedSetupClose(): Promise<void> {
+  showGuidedSetup = false;
+  await closeWelcome();
 }
 </script>
 
@@ -207,7 +219,16 @@ function startOnboardingQueue(): void {
           <Button
             on:click={closeWelcome}>Skip</Button>
         {/if}
+        {#if guidedSetupSteps.length > 0}
+          <Button
+            class="ml-2"
+            on:click={openGuidedSetup}>Start guided setup</Button>
+        {/if}
       </div>
     </div>
   </div>
+{/if}
+
+{#if showGuidedSetup}
+  <GuidedSetup onclose={handleGuidedSetupClose} />
 {/if}
