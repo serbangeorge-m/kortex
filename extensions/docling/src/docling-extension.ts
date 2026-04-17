@@ -153,7 +153,9 @@ export class DoclingExtension {
           return;
         }
       } catch (err: unknown) {
-        console.debug(`Health check attempt ${retries + 1}/${MAX_RETRIES}:`, err);
+        if (retries % 10 === 0) {
+          console.debug(`Health check attempt ${retries + 1}/${MAX_RETRIES}:`, err);
+        }
       }
     }
     throw new Error(`Docling service did not become healthy after ${MAX_RETRIES} seconds`);
@@ -246,6 +248,16 @@ export class DoclingExtension {
   async convertDocument(docUri: api.Uri): Promise<api.Chunk[]> {
     if (!this.containerInfo) {
       throw new Error('Docling container is not running');
+    }
+
+    // If a previous health check failed, retry — the service may have recovered.
+    if (this.healthCheckError) {
+      this.healthCheckError = undefined;
+      this.readyPromise = this.waitForReady(this.containerInfo.port).catch((err: unknown) => {
+        const error = err instanceof Error ? err : new Error(String(err));
+        this.healthCheckError = error;
+        console.warn('Docling service did not become healthy:', error);
+      });
     }
 
     await this.readyPromise;

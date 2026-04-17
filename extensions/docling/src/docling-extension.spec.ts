@@ -341,8 +341,7 @@ describe('DoclingExtension', () => {
 
     test('should reject when health check ultimately fails', async () => {
       vi.useFakeTimers();
-      const originalDebug = console.debug;
-      console.debug = vi.fn();
+      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
 
       // No existing container — force launchContainer path
       vi.mocked(dockerodeMock.listContainers).mockResolvedValue([]);
@@ -373,7 +372,66 @@ describe('DoclingExtension', () => {
       expect(convertError).toBeDefined();
       expect(convertError!.message).toBe('Docling service did not become healthy after 120 seconds');
 
-      console.debug = originalDebug;
+      debugSpy.mockRestore();
+      vi.useRealTimers();
+    });
+
+    test('should retry health check and recover after previous failure', async () => {
+      vi.useFakeTimers();
+      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+
+      vi.mocked(dockerodeMock.listContainers).mockResolvedValue([]);
+
+      let healthCheckShouldSucceed = false;
+
+      vi.mocked(global.fetch).mockImplementation(async (input: string | URL | Request) => {
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+        if (url.includes('/health')) {
+          if (!healthCheckShouldSucceed) {
+            throw new Error('Connection refused');
+          }
+          return { ok: true } as Response;
+        }
+        return {
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            chunks: [{ text: 'recovered chunk' }],
+          }),
+        } as unknown as Response;
+      });
+
+      vi.mocked(Uri.file).mockReturnValue({ fsPath: '/path/to/document.pdf' } as unknown as Uri);
+      vi.mocked(openAsBlob).mockResolvedValue(new Blob(['data']));
+
+      const freshExtension = new DoclingExtension(extensionContext);
+      await freshExtension.activate();
+
+      const docUri = Uri.file('/path/to/document.pdf');
+
+      // First call — health check exhausts all retries
+      const firstPromise = freshExtension.convertDocument(docUri);
+      let firstError: Error | undefined;
+      firstPromise.catch((err: unknown) => {
+        firstError = err as Error;
+      });
+
+      await vi.advanceTimersByTimeAsync(120 * 1000);
+      expect(firstError).toBeDefined();
+      expect(firstError!.message).toBe('Docling service did not become healthy after 120 seconds');
+
+      // Service recovers
+      healthCheckShouldSucceed = true;
+
+      // Second call — should retry health check and succeed
+      const secondPromise = freshExtension.convertDocument(docUri);
+
+      // Advance past the first 1s delay in waitForReady
+      await vi.advanceTimersByTimeAsync(1000);
+
+      const chunks = await secondPromise;
+      expect(chunks).toHaveLength(1);
+
+      debugSpy.mockRestore();
       vi.useRealTimers();
     });
 
