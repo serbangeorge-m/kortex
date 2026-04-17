@@ -106,6 +106,7 @@ describe('DoclingExtension', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     console.error = originalConsoleError;
   });
 
