@@ -118,33 +118,41 @@ export class DoclingExtension {
     await container.start();
     console.log(`Container started with ID: ${container.id}`);
 
-    // Wait for the service to be healthy
-    let started = false;
-    let retries = 0;
-    while (!started && retries++ < 20) {
+    const containerInfo: DoclingContainerInfo = {
+      dockerode,
+      containerId: container.id,
+      port: containerPort,
+    };
+
+    // Health check runs in the background so activation is not blocked.
+    // On slow hosts (e.g. ARM Mac emulating x86), the Python server can take
+    // well over 20 seconds to boot — longer than the extension activation timeout.
+    this.waitForReady(containerPort).catch((err: unknown) => {
+      console.warn('Docling service did not become healthy:', err);
+    });
+
+    return containerInfo;
+  }
+
+  /**
+   * Poll the Docling health endpoint in the background.
+   * Up to 120 retries (2 minutes) to accommodate slow startup on ARM/emulated hosts.
+   */
+  private async waitForReady(port: number): Promise<void> {
+    const MAX_RETRIES = 120;
+    for (let retries = 0; retries < MAX_RETRIES; retries++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
       try {
-        const response = await fetch(`http://localhost:${containerPort}/health`);
+        const response = await fetch(`http://localhost:${port}/health`);
         if (response.ok) {
-          console.log('Docling service is healthy');
-          started = true;
-          return {
-            dockerode,
-            containerId: container.id,
-            port: containerPort,
-          };
-        } else {
-          console.warn('Docling service health check returned non-OK status');
+          console.log('Docling service is healthy and ready');
+          return;
         }
-      } catch (err) {
-        console.warn(`Health check failed: ${err}`);
-      } finally {
-        if (!started) {
-          // Wait a bit before retrying
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+      } catch {
+        // Not ready yet — keep polling
       }
     }
-    throw new Error('Failed to start Docling container');
+    console.warn(`Docling service did not become healthy after ${MAX_RETRIES} seconds`);
   }
 
   /**
