@@ -17,15 +17,18 @@
  ***********************************************************************/
 
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
-import type { Disposable } from '@openkaiden/api';
+import type { Disposable, RunError } from '@openkaiden/api';
 import { inject, injectable, preDestroy } from 'inversify';
-import { parse as parseYAML } from 'yaml';
 
 import { IPCHandle } from '/@/plugin/api.js';
+import { CliToolRegistry } from '/@/plugin/cli-tool-registry.js';
+import { TaskManager } from '/@/plugin/tasks/task-manager.js';
 import { Exec } from '/@/plugin/util/exec.js';
 import type {
   AgentWorkspaceConfiguration,
+  AgentWorkspaceCreateOptions,
   AgentWorkspaceId,
   AgentWorkspaceSummary,
 } from '/@api/agent-workspace-info.js';
@@ -43,11 +46,88 @@ export class AgentWorkspaceManager implements Disposable {
     private readonly ipcHandle: IPCHandle,
     @inject(Exec)
     private readonly exec: Exec,
+    @inject(CliToolRegistry)
+    private readonly cliToolRegistry: CliToolRegistry,
+    @inject(TaskManager)
+    private readonly taskManager: TaskManager,
   ) {}
 
-  private async execKdn<T>(args: string[]): Promise<T> {
-    const result = await this.exec.exec('kdn', ['workspace', ...args, '--output', 'json']);
-    return JSON.parse(result.stdout) as T;
+  private getCliPath(): string {
+    const tool = this.cliToolRegistry.getCliToolInfos().find(t => t.name === 'kdn');
+    if (tool?.path) {
+      return tool.path;
+    }
+    return 'kdn';
+  }
+
+  /**
+   * Extract a meaningful error message from a kdn CLI failure.
+   *
+   * When invoked with `--output json`, kdn writes structured errors to stdout
+   * as `{"error":"..."}`. This method parses that when available, otherwise
+   * falls back to the generic error message.
+   */
+  private extractCliError(err: unknown): string {
+    if (err instanceof Error && 'stdout' in err && typeof (err as RunError).stdout === 'string') {
+      try {
+        const parsed: unknown = JSON.parse((err as RunError).stdout);
+        if (typeof parsed === 'object' && parsed !== null && 'error' in parsed) {
+          const errorField = (parsed as { error: unknown }).error;
+          if (typeof errorField === 'string' && errorField) {
+            return errorField;
+          }
+        }
+      } catch {
+        // not JSON – fall through
+      }
+    }
+    return err instanceof Error ? err.message : String(err);
+  }
+
+  private async execKdn<T>(args: string[], options?: { cwd?: string }): Promise<T> {
+    const cliPath = this.getCliPath();
+    const fullArgs = ['workspace', ...args, '--output', 'json'];
+    console.log(`Executing: ${cliPath} ${fullArgs.join(' ')}`);
+    try {
+      const result = await this.exec.exec(cliPath, fullArgs, options);
+      return JSON.parse(result.stdout) as T;
+    } catch (err: unknown) {
+      const detail = this.extractCliError(err);
+      console.error(`kdn failed: ${cliPath} ${fullArgs.join(' ')} — ${detail}`);
+      throw new Error(detail);
+    }
+  }
+
+  async create(options: AgentWorkspaceCreateOptions): Promise<AgentWorkspaceId> {
+    const cliPath = this.getCliPath();
+    const runtime = options.runtime ?? 'podman';
+    const args = ['init', options.sourcePath, '--runtime', runtime, '--agent', options.agent, '--output', 'json'];
+    if (options.name) {
+      args.push('--name', options.name);
+    }
+    if (options.project) {
+      args.push('--project', options.project);
+    }
+    const suffix = options.name ? ` "${options.name}"` : '';
+    const task = this.taskManager.createTask({ title: `Creating workspace${suffix}` });
+    task.state = 'running';
+    task.status = 'in-progress';
+    console.log(`Executing: ${cliPath} ${args.join(' ')}`);
+    try {
+      const result = await this.exec.exec(cliPath, args);
+      const workspaceId = JSON.parse(result.stdout) as AgentWorkspaceId;
+      this.apiSender.send('agent-workspace-update');
+      task.status = 'success';
+      return workspaceId;
+    } catch (err: unknown) {
+      const detail = this.extractCliError(err);
+      console.error(`kdn failed: ${cliPath} ${args.join(' ')} — ${detail}`);
+      task.status = 'failure';
+      task.error = `Failed to create workspace: ${detail}`;
+      throw new Error(detail);
+    } finally {
+      task.state = 'completed';
+    }
   }
 
   async list(): Promise<AgentWorkspaceSummary[]> {
@@ -68,8 +148,8 @@ export class AgentWorkspaceManager implements Disposable {
       throw new Error(`workspace "${id}" not found. Use "workspace list" to see available workspaces.`);
     }
     try {
-      const content = await readFile(workspace.paths.configuration, 'utf-8');
-      return parseYAML(content) as AgentWorkspaceConfiguration;
+      const content = await readFile(join(workspace.paths.configuration, 'workspace.json'), 'utf-8');
+      return JSON.parse(content) as AgentWorkspaceConfiguration;
     } catch (error: unknown) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         return {} as AgentWorkspaceConfiguration;
@@ -91,6 +171,13 @@ export class AgentWorkspaceManager implements Disposable {
   }
 
   init(): void {
+    this.ipcHandle(
+      'agent-workspace:create',
+      async (_listener: unknown, options: AgentWorkspaceCreateOptions): Promise<AgentWorkspaceId> => {
+        return this.create(options);
+      },
+    );
+
     this.ipcHandle('agent-workspace:list', async (): Promise<AgentWorkspaceSummary[]> => {
       return this.list();
     });

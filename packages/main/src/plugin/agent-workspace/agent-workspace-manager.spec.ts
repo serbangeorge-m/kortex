@@ -17,21 +17,25 @@
  ***********************************************************************/
 
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
-import type { RunResult } from '@openkaiden/api';
+import type { RunError, RunResult } from '@openkaiden/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { parse as parseYAML } from 'yaml';
 
 import type { IPCHandle } from '/@/plugin/api.js';
-import type { Proxy } from '/@/plugin/proxy.js';
+import type { CliToolRegistry } from '/@/plugin/cli-tool-registry.js';
+import type { Proxy as ProxyType } from '/@/plugin/proxy.js';
+import type { TaskManager } from '/@/plugin/tasks/task-manager.js';
+import type { Task } from '/@/plugin/tasks/tasks.js';
 import { Exec } from '/@/plugin/util/exec.js';
-import type { AgentWorkspaceSummary } from '/@api/agent-workspace-info.js';
+import type { AgentWorkspaceCreateOptions, AgentWorkspaceSummary } from '/@api/agent-workspace-info.js';
 import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
+import type { CliToolInfo } from '/@api/cli-tool-info.js';
+import type { TaskState, TaskStatus } from '/@api/taskInfo.js';
 
 import { AgentWorkspaceManager } from './agent-workspace-manager.js';
 
 vi.mock(import('node:fs/promises'));
-vi.mock(import('yaml'));
 
 const TEST_SUMMARIES: AgentWorkspaceSummary[] = [
   {
@@ -41,7 +45,7 @@ const TEST_SUMMARIES: AgentWorkspaceSummary[] = [
     agent: 'coder-v1',
     state: 'stopped',
     model: 'gpt-4o',
-    paths: { source: '/tmp/ws1', configuration: '/tmp/ws1/.kaiden.yaml' },
+    paths: { source: '/tmp/ws1', configuration: '/tmp/ws1/.kaiden' },
   },
   {
     id: 'ws-2',
@@ -49,7 +53,7 @@ const TEST_SUMMARIES: AgentWorkspaceSummary[] = [
     project: 'project-beta',
     agent: 'coder-v2',
     state: 'running',
-    paths: { source: '/tmp/ws2', configuration: '/tmp/ws2/.kaiden.yaml' },
+    paths: { source: '/tmp/ws2', configuration: '/tmp/ws2/.kaiden' },
   },
 ];
 
@@ -62,20 +66,62 @@ const apiSender: ApiSenderType = {
 const ipcHandle: IPCHandle = vi.fn();
 const proxy = {
   isEnabled: vi.fn().mockReturnValue(false),
-} as unknown as Proxy;
+} as unknown as ProxyType;
 const exec = new Exec(proxy);
+const cliToolRegistry = {
+  getCliToolInfos: vi.fn().mockReturnValue([{ name: 'kdn', path: '/usr/local/bin/kdn' }]),
+} as unknown as CliToolRegistry;
+
+const mockTask = {
+  id: 'task-1',
+  name: 'mock-task',
+  started: Date.now(),
+  state: '',
+  status: '',
+  error: '',
+  cancellable: false,
+  dispose: vi.fn(),
+  onUpdate: vi.fn(),
+} as unknown as Task;
+const taskManager = {
+  createTask: vi.fn().mockReturnValue(mockTask),
+} as unknown as TaskManager;
+
+const KAIDEN_CLI_PATH = '/usr/local/bin/kdn';
 
 function mockExecResult(stdout: string): RunResult {
-  return { command: 'kdn', stdout, stderr: '' };
+  return { command: KAIDEN_CLI_PATH, stdout, stderr: '' };
+}
+
+function mockRunError(overrides: Partial<RunError> = {}): RunError {
+  const err = new Error(overrides.message ?? 'Command execution failed with exit code 1') as RunError;
+  err.exitCode = overrides.exitCode ?? 1;
+  err.command = overrides.command ?? KAIDEN_CLI_PATH;
+  err.stdout = overrides.stdout ?? '';
+  err.stderr = overrides.stderr ?? '';
+  err.cancelled = overrides.cancelled ?? false;
+  err.killed = overrides.killed ?? false;
+  return err;
 }
 
 beforeEach(() => {
   vi.resetAllMocks();
-  manager = new AgentWorkspaceManager(apiSender, ipcHandle, exec);
+  vi.mocked(cliToolRegistry.getCliToolInfos).mockReturnValue([
+    { name: 'kdn', path: KAIDEN_CLI_PATH },
+  ] as unknown as CliToolInfo[]);
+  vi.mocked(taskManager.createTask).mockReturnValue(mockTask);
+  mockTask.state = '' as TaskState;
+  mockTask.status = '' as TaskStatus;
+  mockTask.error = '';
+  manager = new AgentWorkspaceManager(apiSender, ipcHandle, exec, cliToolRegistry, taskManager);
   manager.init();
 });
 
 describe('init', () => {
+  test('registers IPC handler for create', () => {
+    expect(ipcHandle).toHaveBeenCalledWith('agent-workspace:create', expect.any(Function));
+  });
+
   test('registers IPC handler for list', () => {
     expect(ipcHandle).toHaveBeenCalledWith('agent-workspace:list', expect.any(Function));
   });
@@ -97,18 +143,150 @@ describe('init', () => {
   });
 });
 
+describe('getCliPath', () => {
+  test('falls back to kdn when no CLI tool is registered', async () => {
+    vi.mocked(cliToolRegistry.getCliToolInfos).mockReturnValue([]);
+    vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ items: [] })));
+
+    await manager.list();
+
+    expect(exec.exec).toHaveBeenCalledWith('kdn', ['workspace', 'list', '--output', 'json'], undefined);
+  });
+});
+
+describe('create', () => {
+  const defaultOptions: AgentWorkspaceCreateOptions = {
+    sourcePath: '/tmp/my-project',
+    agent: 'claude',
+    runtime: 'podman',
+  };
+
+  test('executes kdn init with required flags and returns the workspace id', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-new' })));
+
+    const result = await manager.create(defaultOptions);
+
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Executing:'));
+    expect(exec.exec).toHaveBeenCalledWith(KAIDEN_CLI_PATH, [
+      'init',
+      '/tmp/my-project',
+      '--runtime',
+      'podman',
+      '--agent',
+      'claude',
+      '--output',
+      'json',
+    ]);
+    expect(result).toEqual({ id: 'ws-new' });
+  });
+
+  test('creates a task and sets success status on completion', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-new' })));
+
+    await manager.create(defaultOptions);
+
+    expect(taskManager.createTask).toHaveBeenCalledWith({ title: 'Creating workspace' });
+    expect(mockTask.status).toBe('success');
+    expect(mockTask.state).toBe('completed');
+  });
+
+  test('sets task failure status when CLI fails', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockRejectedValue(new Error('command not found'));
+
+    await expect(manager.create(defaultOptions)).rejects.toThrow('command not found');
+
+    expect(mockTask.status).toBe('failure');
+    expect(mockTask.error).toContain('command not found');
+    expect(mockTask.state).toBe('completed');
+  });
+
+  test('extracts kdn JSON error from stdout on failure', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const runError = mockRunError({
+      stdout: JSON.stringify({ error: 'failed to create runtime instance: exit status 125' }),
+    });
+    vi.spyOn(exec, 'exec').mockRejectedValue(runError);
+
+    await expect(manager.create(defaultOptions)).rejects.toThrow('failed to create runtime instance: exit status 125');
+
+    expect(mockTask.error).toBe('Failed to create workspace: failed to create runtime instance: exit status 125');
+  });
+
+  test('includes workspace name in task title when provided', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-new' })));
+
+    await manager.create({ ...defaultOptions, name: 'my-workspace' });
+
+    expect(taskManager.createTask).toHaveBeenCalledWith({ title: 'Creating workspace "my-workspace"' });
+  });
+
+  test('defaults runtime to podman when not specified', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-new' })));
+
+    await manager.create({ sourcePath: '/tmp/my-project', agent: 'claude' });
+
+    expect(exec.exec).toHaveBeenCalledWith(KAIDEN_CLI_PATH, expect.arrayContaining(['--runtime', 'podman']));
+  });
+
+  test('includes optional name flag when provided', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-new' })));
+
+    await manager.create({ ...defaultOptions, name: 'my-workspace' });
+
+    expect(exec.exec).toHaveBeenCalledWith(KAIDEN_CLI_PATH, expect.arrayContaining(['--name', 'my-workspace']));
+  });
+
+  test('includes optional project flag when provided', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-new' })));
+
+    await manager.create({ ...defaultOptions, project: 'my-project' });
+
+    expect(exec.exec).toHaveBeenCalledWith(KAIDEN_CLI_PATH, expect.arrayContaining(['--project', 'my-project']));
+  });
+
+  test('emits agent-workspace-update event', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-new' })));
+
+    await manager.create(defaultOptions);
+
+    expect(apiSender.send).toHaveBeenCalledWith('agent-workspace-update');
+  });
+
+  test('rejects when source directory does not exist', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(exec, 'exec').mockRejectedValue(new Error('sources directory does not exist: /tmp/not-found'));
+
+    await expect(manager.create({ ...defaultOptions, sourcePath: '/tmp/not-found' })).rejects.toThrow(
+      'sources directory does not exist: /tmp/not-found',
+    );
+  });
+});
+
 describe('list', () => {
   test('executes kdn workspace list and returns items', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ items: TEST_SUMMARIES })));
 
     const result = await manager.list();
 
-    expect(exec.exec).toHaveBeenCalledWith('kdn', ['workspace', 'list', '--output', 'json']);
+    expect(exec.exec).toHaveBeenCalledWith(KAIDEN_CLI_PATH, ['workspace', 'list', '--output', 'json'], undefined);
     expect(result).toHaveLength(2);
     expect(result.map(s => s.id)).toEqual(['ws-1', 'ws-2']);
   });
 
   test('returns summaries with expected CLI fields', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ items: TEST_SUMMARIES })));
 
     const summary = (await manager.list())[0]!;
@@ -125,6 +303,7 @@ describe('list', () => {
   });
 
   test('returns summaries without model when CLI omits it', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ items: TEST_SUMMARIES })));
 
     const summary = (await manager.list())[1]!;
@@ -133,6 +312,8 @@ describe('list', () => {
   });
 
   test('rejects when CLI fails', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockRejectedValue(new Error('command not found'));
 
     await expect(manager.list()).rejects.toThrow('command not found');
@@ -141,15 +322,21 @@ describe('list', () => {
 
 describe('remove', () => {
   test('executes kdn workspace remove and returns the workspace id', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-1' })));
 
     const result = await manager.remove('ws-1');
 
-    expect(exec.exec).toHaveBeenCalledWith('kdn', ['workspace', 'remove', 'ws-1', '--output', 'json']);
+    expect(exec.exec).toHaveBeenCalledWith(
+      KAIDEN_CLI_PATH,
+      ['workspace', 'remove', 'ws-1', '--output', 'json'],
+      undefined,
+    );
     expect(result).toEqual({ id: 'ws-1' });
   });
 
   test('emits agent-workspace-update event', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-1' })));
 
     await manager.remove('ws-1');
@@ -158,6 +345,8 @@ describe('remove', () => {
   });
 
   test('rejects when CLI fails for unknown id', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockRejectedValue(new Error('workspace not found: unknown-id'));
 
     await expect(manager.remove('unknown-id')).rejects.toThrow('workspace not found: unknown-id');
@@ -165,20 +354,20 @@ describe('remove', () => {
 });
 
 describe('getConfiguration', () => {
-  test('reads YAML configuration file for the workspace', async () => {
+  test('reads JSON configuration file from workspace directory', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ items: TEST_SUMMARIES })));
-    vi.mocked(readFile).mockResolvedValue('mounts:\n  dependencies: []\n');
-    vi.mocked(parseYAML).mockReturnValue({ mounts: { dependencies: [] } });
+    vi.mocked(readFile).mockResolvedValue('{"mounts":{"dependencies":[]}}');
 
     const result = await manager.getConfiguration('ws-1');
 
-    expect(exec.exec).toHaveBeenCalledWith('kdn', ['workspace', 'list', '--output', 'json']);
-    expect(readFile).toHaveBeenCalledWith('/tmp/ws1/.kaiden.yaml', 'utf-8');
-    expect(parseYAML).toHaveBeenCalledWith('mounts:\n  dependencies: []\n');
+    expect(exec.exec).toHaveBeenCalledWith(KAIDEN_CLI_PATH, ['workspace', 'list', '--output', 'json'], undefined);
+    expect(readFile).toHaveBeenCalledWith(join('/tmp/ws1/.kaiden', 'workspace.json'), 'utf-8');
     expect(result).toEqual({ mounts: { dependencies: [] } });
   });
 
   test('throws when workspace id is not found in list', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ items: TEST_SUMMARIES })));
 
     await expect(manager.getConfiguration('unknown-id')).rejects.toThrow(
@@ -187,6 +376,7 @@ describe('getConfiguration', () => {
   });
 
   test('returns empty configuration when file does not exist', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ items: TEST_SUMMARIES })));
     const enoent = Object.assign(new Error('ENOENT: no such file'), { code: 'ENOENT' });
     vi.mocked(readFile).mockRejectedValue(enoent);
@@ -197,6 +387,7 @@ describe('getConfiguration', () => {
   });
 
   test('rejects when reading the configuration file fails with a non-ENOENT error', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ items: TEST_SUMMARIES })));
     const eacces = Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' });
     vi.mocked(readFile).mockRejectedValue(eacces);
@@ -207,15 +398,21 @@ describe('getConfiguration', () => {
 
 describe('start', () => {
   test('executes kdn workspace start and returns the workspace id', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-1' })));
 
     const result = await manager.start('ws-1');
 
-    expect(exec.exec).toHaveBeenCalledWith('kdn', ['workspace', 'start', 'ws-1', '--output', 'json']);
+    expect(exec.exec).toHaveBeenCalledWith(
+      KAIDEN_CLI_PATH,
+      ['workspace', 'start', 'ws-1', '--output', 'json'],
+      undefined,
+    );
     expect(result).toEqual({ id: 'ws-1' });
   });
 
   test('emits agent-workspace-update event', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-1' })));
 
     await manager.start('ws-1');
@@ -224,6 +421,8 @@ describe('start', () => {
   });
 
   test('rejects when CLI fails for unknown id', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockRejectedValue(new Error('workspace not found: unknown-id'));
 
     await expect(manager.start('unknown-id')).rejects.toThrow('workspace not found: unknown-id');
@@ -232,15 +431,21 @@ describe('start', () => {
 
 describe('stop', () => {
   test('executes kdn workspace stop and returns the workspace id', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-1' })));
 
     const result = await manager.stop('ws-1');
 
-    expect(exec.exec).toHaveBeenCalledWith('kdn', ['workspace', 'stop', 'ws-1', '--output', 'json']);
+    expect(exec.exec).toHaveBeenCalledWith(
+      KAIDEN_CLI_PATH,
+      ['workspace', 'stop', 'ws-1', '--output', 'json'],
+      undefined,
+    );
     expect(result).toEqual({ id: 'ws-1' });
   });
 
   test('emits agent-workspace-update event', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockResolvedValue(mockExecResult(JSON.stringify({ id: 'ws-1' })));
 
     await manager.stop('ws-1');
@@ -249,6 +454,8 @@ describe('stop', () => {
   });
 
   test('rejects when CLI fails for unknown id', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.spyOn(exec, 'exec').mockRejectedValue(new Error('workspace not found: unknown-id'));
 
     await expect(manager.stop('unknown-id')).rejects.toThrow('workspace not found: unknown-id');
