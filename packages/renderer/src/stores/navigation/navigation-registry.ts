@@ -28,6 +28,7 @@ import { createNavigationAgentWorkspacesEntry } from './navigation-registry-agen
 import { createNavigationExtensionEntry, createNavigationExtensionGroup } from './navigation-registry-extension.svelte';
 import { createNavigationMcpEntry } from './navigation-registry-mcp.svelte';
 import { createNavigationRagEntry } from './navigation-registry-rag.svelte';
+import { createNavigationSecretVaultEntry } from './navigation-registry-secret-vault.svelte';
 import { createNavigationSkillsEntry } from './navigation-registry-skills.svelte';
 
 export interface NavigationRegistryEntry {
@@ -61,17 +62,9 @@ let hiddenItems: string[] = [];
 let values: NavigationRegistryEntry[] = [];
 let initialized = false;
 const init = (): void => {
-  /*
-  Kaiden has no container or kubernetes provider connection creation, so we hide the related navigation items and only keep the ones relevant for MCP, Flows and Extensions for now.
-  values.push(createNavigationContainerEntry());
-  values.push(createNavigationPodEntry());
-  values.push(createNavigationImageEntry());
-  values.push(createNavigationVolumeEntry());
-  values.push(createNavigationNetworkEntry());
-  values.push(createNavigationKubernetesGroup());
-  */
   values.push(createNavigationAgentWorkspacesEntry());
   values.push(createNavigationMcpEntry());
+  values.push(createNavigationSecretVaultEntry());
   values.push(createNavigationSkillsEntry());
   values.push(createNavigationRagEntry());
   values.push(createNavigationExtensionEntry());

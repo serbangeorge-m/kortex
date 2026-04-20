@@ -81,6 +81,7 @@ import PodsList from './lib/pod/PodsList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import PVCDetails from './lib/pvc/PVCDetails.svelte';
 import PVCList from './lib/pvc/PVCList.svelte';
+import SecretVaultList from './lib/secret-vault/SecretVaultList.svelte';
 import ServiceDetails from './lib/service/ServiceDetails.svelte';
 import ServicesList from './lib/service/ServicesList.svelte';
 import SkillDetails from './lib/skills/SkillDetails.svelte';
@@ -237,6 +238,11 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
           <Route path="/:name/*" let:meta breadcrumb="Knowledge Database Details" navigationHint="details">
             <RAGEnvironmentDetails name={decodeURIComponent(meta.params.name)} />
           </Route>
+        </Route>
+
+        <!-- Secret Vault -->
+        <Route path="/secret-vault" breadcrumb="Secret Vault" navigationHint="root">
+          <SecretVaultList />
         </Route>
 
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
