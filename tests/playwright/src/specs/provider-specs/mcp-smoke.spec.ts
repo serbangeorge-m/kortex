@@ -54,7 +54,7 @@ test.describe('MCP Registry Management', { tag: '@smoke' }, () => {
     await editRegistriesTab.ensureRowDoesNotExist(MCP_REGISTRY_URL);
 
     await mcpPage.openInstallTab();
-    await installTab.verifyServerCountIsRestored(initialServerCount);
+    await installTab.verifyServerCountIsRestored(initialServerCount, SERVER_LIST_UPDATE_TIMEOUT);
   });
 
   test('[MCP-02] Add and remove MCP server: verify server list updates accordingly', async ({
