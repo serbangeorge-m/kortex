@@ -950,3 +950,71 @@ test('unregisterSkill should throw for skill created in extension-registered fol
   );
   expect(rm).not.toHaveBeenCalled();
 });
+
+test('init should discover skills inside symlinked directories', async () => {
+  getMock.mockReturnValue([]);
+  vi.mocked(existsSync).mockReturnValue(true);
+  vi.mocked(readdir).mockResolvedValue([
+    { name: 'symlinked-skill', isDirectory: (): boolean => false, isSymbolicLink: (): boolean => true },
+  ] as unknown as Awaited<ReturnType<typeof readdir>>);
+  vi.mocked(readFile).mockResolvedValue(validSkillMd);
+
+  const skillManager = createSkillManager();
+  await skillManager.init();
+
+  expect(skillManager.listSkills()).toHaveLength(1);
+  expect(skillManager.listSkills()[0]).toEqual(
+    expect.objectContaining({ name: 'my-test-skill', path: join(SKILLS_DIR, 'symlinked-skill') }),
+  );
+});
+
+test('init should skip entries that are neither directories nor symlinks', async () => {
+  getMock.mockReturnValue([]);
+  vi.mocked(existsSync).mockReturnValue(true);
+  vi.mocked(readdir).mockResolvedValue([
+    { name: 'regular-file.md', isDirectory: (): boolean => false, isSymbolicLink: (): boolean => false },
+  ] as unknown as Awaited<ReturnType<typeof readdir>>);
+
+  const skillManager = createSkillManager();
+  await skillManager.init();
+
+  expect(skillManager.listSkills()).toHaveLength(0);
+  expect(readFile).not.toHaveBeenCalled();
+});
+
+test('init should discover both real and symlinked skill directories in the same folder', async () => {
+  getMock.mockReturnValue([]);
+  vi.mocked(existsSync).mockReturnValue(true);
+  vi.mocked(readdir).mockResolvedValue([
+    { name: 'real-skill', isDirectory: (): boolean => true, isSymbolicLink: (): boolean => false },
+    { name: 'symlinked-skill', isDirectory: (): boolean => false, isSymbolicLink: (): boolean => true },
+  ] as unknown as Awaited<ReturnType<typeof readdir>>);
+  vi.mocked(readFile).mockResolvedValueOnce(validSkillMd).mockResolvedValueOnce(secondSkillMd);
+
+  const skillManager = createSkillManager();
+  await skillManager.init();
+
+  expect(skillManager.listSkills()).toHaveLength(2);
+  expect(skillManager.listSkills().map(s => s.path)).toEqual(
+    expect.arrayContaining([join(SKILLS_DIR, 'real-skill'), join(SKILLS_DIR, 'symlinked-skill')]),
+  );
+});
+
+test('registerSkillFolder should discover skills inside symlinked directories', async () => {
+  const EXTRA_DIR = resolve('/extra/skills');
+  // First call is existsSync(SKILLS_DIR) during init — return false to skip it.
+  // Remaining calls are existsSync(EXTRA_DIR) and existsSync(SKILL.md) — both true.
+  vi.mocked(existsSync).mockReturnValueOnce(false).mockReturnValue(true);
+  vi.mocked(readdir).mockResolvedValue([
+    { name: 'symlinked-skill', isDirectory: (): boolean => false, isSymbolicLink: (): boolean => true },
+  ] as unknown as Awaited<ReturnType<typeof readdir>>);
+  vi.mocked(readFile).mockResolvedValue(validSkillMd);
+
+  const skillManager = createSkillManager();
+  await skillManager.init();
+  skillManager.registerSkillFolder({ label: 'Extra', badge: 'Extra', baseDirectory: EXTRA_DIR });
+
+  await vi.waitFor(() => {
+    expect(skillManager.listSkills().some(s => s.path === join(EXTRA_DIR, 'symlinked-skill'))).toBe(true);
+  });
+});

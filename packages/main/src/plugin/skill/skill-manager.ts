@@ -439,7 +439,7 @@ export class SkillManager {
     try {
       const entries = await readdir(directory, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory()) {
+        if (entry.isDirectory() || entry.isSymbolicLink()) {
           folderPaths.push(join(directory, entry.name));
         }
       }
