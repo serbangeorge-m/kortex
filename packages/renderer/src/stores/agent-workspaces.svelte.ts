@@ -16,17 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { SvelteMap } from 'svelte/reactivity';
 import { type Writable, writable } from 'svelte/store';
 
 import type { AgentWorkspaceSummary } from '/@api/agent-workspace-info';
 
 import { EventStore } from './event-store';
 
-export type AgentWorkspaceStatus = 'stopped' | 'running' | 'starting' | 'stopping';
+export type AgentWorkspaceState = AgentWorkspaceSummary['state'] | 'starting' | 'stopping';
 
-export const agentWorkspaces: Writable<AgentWorkspaceSummary[]> = writable([]);
-export const agentWorkspaceStatuses = new SvelteMap<string, AgentWorkspaceStatus>();
+export const agentWorkspaces: Writable<AgentWorkspaceSummaryUI[]> = writable([]);
+
+export type AgentWorkspaceSummaryUI = Omit<AgentWorkspaceSummary, 'state'> & { state: AgentWorkspaceState };
 
 let readyToUpdate = false;
 
@@ -37,9 +37,11 @@ export async function checkForUpdate(eventName: string): Promise<boolean> {
   return readyToUpdate;
 }
 
-const listWorkspaces = (): Promise<AgentWorkspaceSummary[]> => window.listAgentWorkspaces();
+const listWorkspaces = async (): Promise<AgentWorkspaceSummaryUI[]> => {
+  return (await window.listAgentWorkspaces()) as AgentWorkspaceSummaryUI[];
+};
 
-export const agentWorkspacesEventStore = new EventStore<AgentWorkspaceSummary[]>(
+export const agentWorkspacesEventStore = new EventStore<AgentWorkspaceSummaryUI[]>(
   'agent-workspaces',
   agentWorkspaces,
   checkForUpdate,
@@ -49,25 +51,44 @@ export const agentWorkspacesEventStore = new EventStore<AgentWorkspaceSummary[]>
 );
 agentWorkspacesEventStore.setup();
 
+function setWorkspaceState(id: string, state: AgentWorkspaceState): boolean {
+  let found = false;
+  agentWorkspaces.update(workspaces => {
+    const updatedWorkspaces = workspaces.map(workspace => {
+      if (workspace.id !== id) {
+        return workspace;
+      }
+      found = true;
+      return { ...workspace, state };
+    });
+    return found ? updatedWorkspaces : workspaces;
+  });
+  return found;
+}
+
 export async function startAgentWorkspace(id: string): Promise<void> {
-  agentWorkspaceStatuses.set(id, 'starting');
+  if (!setWorkspaceState(id, 'starting')) {
+    throw new Error(`Invalid workspace id: ${id}`);
+  }
   try {
     await window.startAgentWorkspace(id);
-    agentWorkspaceStatuses.set(id, 'running');
+    setWorkspaceState(id, 'running');
   } catch (error: unknown) {
-    agentWorkspaceStatuses.set(id, 'stopped');
+    setWorkspaceState(id, 'stopped');
     console.error('Failed to start agent workspace', error);
     throw error;
   }
 }
 
 export async function stopAgentWorkspace(id: string): Promise<void> {
-  agentWorkspaceStatuses.set(id, 'stopping');
+  if (!setWorkspaceState(id, 'stopping')) {
+    throw new Error(`Invalid workspace id: ${id}`);
+  }
   try {
     await window.stopAgentWorkspace(id);
-    agentWorkspaceStatuses.set(id, 'stopped');
+    setWorkspaceState(id, 'stopped');
   } catch (error: unknown) {
-    agentWorkspaceStatuses.set(id, 'running');
+    setWorkspaceState(id, 'running');
     console.error('Failed to stop agent workspace', error);
     throw error;
   }
