@@ -25,7 +25,7 @@ import { injectable } from 'inversify';
  *
  * Tolerated errors:
  * - `statusChangedAt` additionalProperty: official registry includes this field not yet in bundled schema
- * - `repository` missing `url`: registry sometimes returns empty repository objects as placeholders
+ * - `repository` missing `url` or `source`: registry sometimes returns empty repository objects as placeholders
  * - Errors under `/server/packages`: packageArguments and other nested structures evolve independently
  */
 function isTolerableValidationError(error: {
@@ -39,7 +39,7 @@ function isTolerableValidationError(error: {
   if (
     error.keyword === 'required' &&
     error.instancePath === '/server/repository' &&
-    error.params?.missingProperty === 'url'
+    (error.params?.missingProperty === 'url' || error.params?.missingProperty === 'source')
   ) {
     return true;
   }
@@ -75,6 +75,13 @@ export class MCPSchemaValidator {
     let isValid = validator(jsonData);
 
     if (!isValid && schemaName === 'ServerResponse' && validator.errors?.every(isTolerableValidationError)) {
+      if (!suppressWarnings) {
+        const context = contextName ? ` from '${contextName}'` : '';
+        console.debug(
+          `[MCPSchemaValidator] Tolerated schema drift for '${schemaName}'${context}:`,
+          validator.errors?.map(e => e.message).join(', '),
+        );
+      }
       isValid = true;
     }
 
