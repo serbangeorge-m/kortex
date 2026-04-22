@@ -75,13 +75,6 @@ export class MCPSchemaValidator {
     let isValid = validator(jsonData);
 
     if (!isValid && schemaName === 'ServerResponse' && validator.errors?.every(isTolerableValidationError)) {
-      if (!suppressWarnings) {
-        const context = contextName ? ` from '${contextName}'` : '';
-        console.debug(
-          `[MCPSchemaValidator] Tolerated schema drift for '${schemaName}'${context}:`,
-          validator.errors?.map(e => e.message).join(', '),
-        );
-      }
       isValid = true;
     }
 

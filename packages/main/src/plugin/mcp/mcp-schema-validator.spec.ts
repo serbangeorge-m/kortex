@@ -21,7 +21,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { MCPSchemaValidator } from './mcp-schema-validator.js';
 
 const originalConsoleWarn = console.warn;
-const originalConsoleDebug = console.debug;
 
 let validator: MCPSchemaValidator;
 
@@ -29,12 +28,10 @@ beforeEach(() => {
   vi.resetAllMocks();
   validator = new MCPSchemaValidator();
   console.warn = vi.fn();
-  console.debug = vi.fn();
 });
 
 afterEach(() => {
   console.warn = originalConsoleWarn;
-  console.debug = originalConsoleDebug;
 });
 
 describe('validateSchemaData', () => {
@@ -225,7 +222,7 @@ describe('validateSchemaData', () => {
     expect(console.warn).not.toHaveBeenCalled();
   });
 
-  test('should tolerate repository as an empty object (registry placeholder) and emit debug log', () => {
+  test('should tolerate repository as an empty object (registry placeholder)', () => {
     const serverResponse = {
       server: {
         name: 'io.github.example/scrimba-teaching',
@@ -244,10 +241,6 @@ describe('validateSchemaData', () => {
 
     expect(result).toBe(true);
     expect(console.warn).not.toHaveBeenCalled();
-    expect(console.debug).toHaveBeenCalledWith(
-      expect.stringContaining('[MCPSchemaValidator] Tolerated schema drift'),
-      expect.any(String),
-    );
   });
 
   test('should validate valid ServerDetail', () => {
