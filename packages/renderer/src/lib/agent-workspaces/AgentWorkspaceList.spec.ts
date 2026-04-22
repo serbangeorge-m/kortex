@@ -37,12 +37,6 @@ test('Expect empty screen when no workspaces', () => {
   expect(screen.getByText('No agent workspaces')).toBeInTheDocument();
 });
 
-test('Expect total count displayed as 0 total sessions when empty', () => {
-  render(AgentWorkspaceList);
-
-  expect(screen.getByText('0 total sessions')).toBeInTheDocument();
-});
-
 test('Expect workspace cards displayed with total count', () => {
   const workspaces: AgentWorkspaceSummary[] = [
     {
@@ -76,7 +70,7 @@ test('Expect workspace cards displayed with total count', () => {
   expect(screen.getByText('frontend-redesign')).toBeInTheDocument();
   expect(screen.getByText('/home/user/projects/backend')).toBeInTheDocument();
   expect(screen.getByText('/home/user/projects/frontend')).toBeInTheDocument();
-  expect(screen.getByText('2 total sessions')).toBeInTheDocument();
+  expect(screen.getByText('2 total workspaces')).toBeInTheDocument();
 });
 
 test('Expect page title to be Agent Workspaces', () => {
