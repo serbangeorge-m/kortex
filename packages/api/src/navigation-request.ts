@@ -85,6 +85,8 @@ export interface NavigationParameters {
   [NavigationPage.RAG_ENVIRONMENT_DETAILS]: {
     name: string;
   };
+  [NavigationPage.SECRET_VAULT]: never;
+  [NavigationPage.SECRET_VAULT_CREATE]: never;
 }
 
 // the parameters property is optional when the NavigationParameters say it is

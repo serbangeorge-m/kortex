@@ -3,7 +3,9 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { Button, FilteredEmptyScreen, NavPage, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
 
 import NoLogIcon from '/@/lib/ui/NoLogIcon.svelte';
+import { handleNavigation } from '/@/navigation';
 import { filteredSecretVaultInfos, secretVaultCategoryFilter, secretVaultSearchPattern } from '/@/stores/secret-vault';
+import { NavigationPage } from '/@api/navigation-page';
 import type { SecretVaultInfo } from '/@api/secret-vault/secret-vault-info';
 
 import { SecretVaultDescriptionColumn } from './columns/secret-vault-columns';
@@ -69,7 +71,7 @@ const secrets: SecretVaultSelectable[] = $derived(
 );
 
 function addSecret(): void {
-  // TODO: navigate to secret creation page
+  handleNavigation({ page: NavigationPage.SECRET_VAULT_CREATE });
 }
 </script>
 

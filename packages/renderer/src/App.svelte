@@ -83,6 +83,7 @@ import PodsList from './lib/pod/PodsList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import PVCDetails from './lib/pvc/PVCDetails.svelte';
 import PVCList from './lib/pvc/PVCList.svelte';
+import SecretVaultCreate from './lib/secret-vault/SecretVaultCreate.svelte';
 import SecretVaultList from './lib/secret-vault/SecretVaultList.svelte';
 import ServiceDetails from './lib/service/ServiceDetails.svelte';
 import ServicesList from './lib/service/ServicesList.svelte';
@@ -274,8 +275,13 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         </Route>
 
         <!-- Secret Vault -->
-        <Route path="/secret-vault" breadcrumb="Secret Vault" navigationHint="root">
-          <SecretVaultList />
+        <Route path="/secret-vault/*" breadcrumb="Secret Vault" navigationHint="root">
+          <Route path="/">
+            <SecretVaultList />
+          </Route>
+          <Route path="/create" breadcrumb="Add Secret" navigationHint="details">
+            <SecretVaultCreate />
+          </Route>
         </Route>
 
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">

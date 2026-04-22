@@ -65,4 +65,6 @@ export enum NavigationPage {
   SKILLS = 'skills',
   SKILL_DETAILS = 'skill-details',
   RAG_ENVIRONMENT_DETAILS = 'rag-environment-details',
+  SECRET_VAULT = 'secret-vault',
+  SECRET_VAULT_CREATE = 'secret-vault-create',
 }
