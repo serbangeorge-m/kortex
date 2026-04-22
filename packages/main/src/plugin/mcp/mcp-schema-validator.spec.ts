@@ -115,7 +115,7 @@ describe('validateSchemaData', () => {
     expect(console.warn).toHaveBeenCalled();
   });
 
-  test('should accept ServerResponse when only server name fails bundled reverse-DNS pattern', () => {
+  test('should reject ServerResponse when server name fails bundled reverse-DNS pattern', () => {
     const serverResponse = {
       server: {
         name: 'com.github.mcp',
@@ -127,23 +127,39 @@ describe('validateSchemaData', () => {
 
     const result = validator.validateSchemaData(serverResponse, 'ServerResponse', 'test-registry');
 
-    expect(result).toBe(true);
-    expect(console.warn).not.toHaveBeenCalled();
+    expect(result).toBe(false);
+    expect(console.warn).toHaveBeenCalled();
   });
 
-  test('should tolerate volatile server fields (packages, remotes, icons) with non-conforming shapes', () => {
+  test('should reject ServerResponse with non-conforming remotes type', () => {
     const serverResponse = {
       server: {
         name: 'io.github.example/test-server',
         description: 'Test',
         version: '1.0.0',
         remotes: [{ type: 'invalid-type', url: 'https://example.com' }],
+      },
+      _meta: {},
+    };
+
+    const result = validator.validateSchemaData(serverResponse, 'ServerResponse', 'test-registry');
+
+    expect(result).toBe(false);
+    expect(console.warn).toHaveBeenCalled();
+  });
+
+  test('should tolerate errors under /server/packages path (schema drift)', () => {
+    const serverResponse = {
+      server: {
+        name: 'io.github.example/test-server',
+        description: 'Test',
+        version: '1.0.0',
         packages: [
           {
             registryType: 'npm',
             identifier: '@scope/pkg',
             transport: { type: 'stdio' },
-            runtimeArguments: [{ type: 'future-argument-kind', value: 'x' }],
+            packageArguments: [{ type: 'future-type', name: 'arg1' }],
           },
         ],
       },
@@ -381,7 +397,7 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
     expect(invalidServerNames.has('io.github.example/valid-server')).toBe(false);
   });
 
-  test('should treat pattern-only server name as valid for registry compatibility', () => {
+  test('should reject ServerResponse when server name does not match pattern', () => {
     const serverResponse = {
       server: {
         name: 'invalid-name-no-slash',
@@ -393,7 +409,7 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
 
     const result = validator.validateSchemaData(serverResponse, 'ServerResponse', 'test-registry', true);
 
-    expect(result).toBe(true);
+    expect(result).toBe(false);
   });
 
   test('should return valid for all valid servers', () => {

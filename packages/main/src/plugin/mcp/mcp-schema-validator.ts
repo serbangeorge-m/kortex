@@ -20,30 +20,33 @@ import { type components, createValidator } from '@openkaiden/mcp-registry-types
 import { injectable } from 'inversify';
 
 /**
- * Sub-paths under `server` that track the upstream MCP server.json spec and frequently
- * drift ahead of the bundled OpenAPI schema. Errors rooted at these paths are tolerated
- * so that live registry data doesn't produce noisy validation warnings.
- */
-const VOLATILE_SERVER_SUBPATHS = ['/server/packages', '/server/remotes', '/server/icons', '/server/repository'];
-
-/**
  * Determines whether a single AJV validation error can be tolerated for `ServerResponse`
- * payloads from live MCP registries. This replaces per-field payload stripping with a
- * generic, maintenance-free error filter.
+ * payloads from live MCP registries.
  *
  * Tolerated errors:
- * - `additionalProperties` at any path — live schemas add fields faster than the bundled
- *   OpenAPI tracks them (e.g. `_meta` gains `statusChangedAt`, `server` gains new keys).
- * - `pattern` on `/server/name` — third-party registries use names that don't match the
- *   bundled reverse-DNS pattern (e.g. `com.github.mcp` without a `/`).
- * - Any error under volatile sub-paths — `packages`, `remotes`, `icons`, and `repository`
- *   evolve independently and may use shapes the bundled schema hasn't adopted yet.
+ * - `statusChangedAt` additionalProperty: official registry includes this field not yet in bundled schema
+ * - `repository` missing `url`: registry sometimes returns empty repository objects as placeholders
+ * - Errors under `/server/packages`: packageArguments and other nested structures evolve independently
  */
-function isTolerableValidationError(error: { keyword?: string; instancePath?: string }): boolean {
-  if (error.keyword === 'additionalProperties') return true;
-  if (error.keyword === 'pattern' && error.instancePath === '/server/name') return true;
+function isTolerableValidationError(error: {
+  keyword?: string;
+  instancePath?: string;
+  params?: { additionalProperty?: string; missingProperty?: string };
+}): boolean {
+  if (error.keyword === 'additionalProperties' && error.params?.additionalProperty === 'statusChangedAt') {
+    return true;
+  }
+  if (
+    error.keyword === 'required' &&
+    error.instancePath === '/server/repository' &&
+    error.params?.missingProperty === 'url'
+  ) {
+    return true;
+  }
   const path = error.instancePath;
-  if (path && VOLATILE_SERVER_SUBPATHS.some(prefix => path === prefix || path.startsWith(`${prefix}/`))) return true;
+  if (path && (path === '/server/packages' || path.startsWith('/server/packages/'))) {
+    return true;
+  }
   return false;
 }
 
