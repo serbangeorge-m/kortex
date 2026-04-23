@@ -33,6 +33,7 @@ import type {
   AgentWorkspaceCreateOptions,
   AgentWorkspaceId,
   AgentWorkspaceSummary,
+  CliInfo,
 } from '/@api/agent-workspace-info.js';
 import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 
@@ -100,6 +101,25 @@ export class AgentWorkspaceManager implements Disposable {
     } catch (err: unknown) {
       const detail = this.extractCliError(err);
       console.error(`kdn failed: ${cliPath} ${fullArgs.join(' ')} — ${detail}`);
+      throw new Error(detail);
+    }
+  }
+
+  async getCliInfo(): Promise<CliInfo> {
+    const cliPath = this.getCliPath();
+    const args = ['info', '--output', 'json'];
+    console.log(`Executing: ${cliPath} ${args.join(' ')}`);
+    try {
+      const result = await this.exec.exec(cliPath, args);
+      const info: unknown = JSON.parse(result.stdout);
+      if (typeof info !== 'object' || info === null) {
+        console.warn('kdn info returned non-object, falling back to defaults', result.stdout);
+        return { version: '', agents: [], runtimes: [] };
+      }
+      return info as CliInfo;
+    } catch (err: unknown) {
+      const detail = this.extractCliError(err);
+      console.error(`kdn failed: ${cliPath} ${args.join(' ')} — ${detail}`);
       throw new Error(detail);
     }
   }
@@ -177,6 +197,10 @@ export class AgentWorkspaceManager implements Disposable {
   }
 
   init(): void {
+    this.ipcHandle('agent-workspace:getCliInfo', async (): Promise<CliInfo> => {
+      return this.getCliInfo();
+    });
+
     this.ipcHandle(
       'agent-workspace:create',
       async (_listener: unknown, options: AgentWorkspaceCreateOptions): Promise<AgentWorkspaceId> => {

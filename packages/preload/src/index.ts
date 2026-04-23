@@ -49,6 +49,7 @@ import type {
   AgentWorkspaceCreateOptions,
   AgentWorkspaceId,
   AgentWorkspaceSummary,
+  CliInfo,
 } from '/@api/agent-workspace-info';
 import type { ApiSenderType } from '/@api/api-sender/api-sender-type';
 import type { AuthenticationProviderInfo } from '/@api/authentication/authentication';
@@ -316,6 +317,11 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listPods', async (): Promise<PodInfo[]> => {
     return ipcInvoke('container-provider-registry:listPods');
+  });
+
+  // CLI Info
+  contextBridge.exposeInMainWorld('getCliInfo', async (): Promise<CliInfo> => {
+    return ipcInvoke('agent-workspace:getCliInfo');
   });
 
   // Agent Workspaces

@@ -39,6 +39,12 @@ export type AgentWorkspaceId = cliComponents['schemas']['WorkspaceId'];
 export type AgentWorkspaceConfiguration = configComponents['schemas']['WorkspaceConfiguration'];
 
 /**
+ * CLI environment info returned by `kdn info --output json`.
+ * Contains the CLI version, supported agents, and available runtimes.
+ */
+export type CliInfo = cliComponents['schemas']['Info'];
+
+/**
  * Options for creating (initializing) a new workspace via `kdn init`.
  */
 export interface AgentWorkspaceCreateOptions {
