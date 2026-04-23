@@ -33,6 +33,10 @@ export class AgentWorkspaceCreatePage extends BasePage {
   readonly submitButton: Locator;
   readonly customPathsContainer: Locator;
   readonly addPathButton: Locator;
+  readonly skillsSection: Locator;
+  readonly skillsSearchInput: Locator;
+  readonly mcpServersSection: Locator;
+  readonly mcpServersSearchInput: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -44,11 +48,21 @@ export class AgentWorkspaceCreatePage extends BasePage {
     this.agentSelector = this.page.getByRole('region', { name: 'Select Coding Agent' });
     this.fileAccessSelector = this.page.getByRole('region', { name: 'Access Level' });
     this.cancelButton = this.page.getByRole('button', { name: 'Cancel' });
-    this.submitButton = this.page.locator('button:not([aria-label])', {
-      hasText: /Start Workspace|Creating\.\.\./,
-    });
+    this.submitButton = this.page.getByTestId('submit-workspace-button').getByRole('button');
     this.customPathsContainer = this.page.getByPlaceholder('/path/to/allowed/directory').first();
     this.addPathButton = this.page.getByRole('button', { name: 'Add Another Path' });
+    this.skillsSection = this.page.locator('section').filter({ hasText: 'Skills' });
+    this.skillsSearchInput = this.page.getByPlaceholder('Search skills...');
+    this.mcpServersSection = this.page.locator('section').filter({ hasText: 'MCP Servers' });
+    this.mcpServersSearchInput = this.page.getByPlaceholder('Search MCP servers...');
+  }
+
+  async hasSkillsAvailable(): Promise<boolean> {
+    return this.skillsSection.isVisible({ timeout: 1000 }).catch(() => false);
+  }
+
+  async hasMcpServersAvailable(): Promise<boolean> {
+    return this.mcpServersSection.isVisible({ timeout: 1000 }).catch(() => false);
   }
 
   async waitForLoad(): Promise<void> {
@@ -67,8 +81,16 @@ export class AgentWorkspaceCreatePage extends BasePage {
     await this.descriptionInput.fill(desc);
   }
 
+  getAgentCard(name: string): Locator {
+    return this.agentSelector.getByLabel(name);
+  }
+
   async selectAgent(name: string): Promise<void> {
-    await this.agentSelector.getByLabel(name).click();
+    await this.getAgentCard(name).click();
+  }
+
+  async expectAgentSelected(name: string): Promise<void> {
+    await expect(this.getAgentCard(name)).toHaveAttribute('aria-pressed', 'true');
   }
 
   async selectFileAccess(level: string): Promise<void> {
