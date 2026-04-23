@@ -25,6 +25,7 @@ const originalConsoleWarn = console.warn;
 let validator: MCPSchemaValidator;
 
 beforeEach(() => {
+  vi.resetAllMocks();
   validator = new MCPSchemaValidator();
   console.warn = vi.fn();
 });
@@ -63,7 +64,6 @@ describe('validateSchemaData', () => {
             description: 'Test',
             version: '1.0.0',
           },
-          // Missing _meta field
         },
       ],
     };
@@ -86,7 +86,6 @@ describe('validateSchemaData', () => {
         description: 'Test',
         version: '1.0.0',
       },
-      // Missing _meta field
     };
 
     const result = validator.validateSchemaData(invalidServerResponse, 'ServerResponse', 'test-registry');
@@ -100,56 +99,77 @@ describe('validateSchemaData', () => {
     );
   });
 
-  test('should warn when server name does not match required pattern', () => {
-    const invalidServerResponse = {
+  test('should fail when server.description is missing even with tolerable errors present', () => {
+    const serverResponse = {
       server: {
-        name: 'invalid-name-without-slash', // Should be in format "namespace/name"
+        name: 'com.github.mcp',
+        version: '1.0.0',
+        packages: [{ registryType: 'npm', identifier: 'x', transport: { type: 'stdio' } }],
+      },
+      _meta: {},
+    };
+
+    const result = validator.validateSchemaData(serverResponse, 'ServerResponse', 'test-registry');
+
+    expect(result).toBe(false);
+    expect(console.warn).toHaveBeenCalled();
+  });
+
+  test('should reject ServerResponse when server name fails bundled reverse-DNS pattern', () => {
+    const serverResponse = {
+      server: {
+        name: 'com.github.mcp',
         description: 'Test',
         version: '1.0.0',
       },
       _meta: {},
     };
 
-    const result = validator.validateSchemaData(invalidServerResponse, 'ServerResponse', 'test-registry');
+    const result = validator.validateSchemaData(serverResponse, 'ServerResponse', 'test-registry');
 
     expect(result).toBe(false);
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining('[MCPSchemaValidator] Failed to validate data against schema'),
-      invalidServerResponse,
-      'errors:',
-      expect.arrayContaining([
-        expect.objectContaining({
-          message: expect.stringContaining('pattern'),
-        }),
-      ]),
-    );
+    expect(console.warn).toHaveBeenCalled();
   });
 
-  test('should warn when remote type is not a valid enum value', () => {
-    const invalidServerResponse = {
+  test('should reject ServerResponse with non-conforming remotes type', () => {
+    const serverResponse = {
       server: {
         name: 'io.github.example/test-server',
         description: 'Test',
         version: '1.0.0',
-        remotes: [
+        remotes: [{ type: 'invalid-type', url: 'https://example.com' }],
+      },
+      _meta: {},
+    };
+
+    const result = validator.validateSchemaData(serverResponse, 'ServerResponse', 'test-registry');
+
+    expect(result).toBe(false);
+    expect(console.warn).toHaveBeenCalled();
+  });
+
+  test('should tolerate errors under /server/packages path (schema drift)', () => {
+    const serverResponse = {
+      server: {
+        name: 'io.github.example/test-server',
+        description: 'Test',
+        version: '1.0.0',
+        packages: [
           {
-            type: 'invalid-type', // Should be 'sse' or 'streamable-http'
-            url: 'https://example.com',
+            registryType: 'npm',
+            identifier: '@scope/pkg',
+            transport: { type: 'stdio' },
+            packageArguments: [{ type: 'future-type', name: 'arg1' }],
           },
         ],
       },
       _meta: {},
     };
 
-    const result = validator.validateSchemaData(invalidServerResponse, 'ServerResponse', 'test-registry');
+    const result = validator.validateSchemaData(serverResponse, 'ServerResponse', 'test-registry');
 
-    expect(result).toBe(false);
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining('[MCPSchemaValidator] Failed to validate data against schema'),
-      invalidServerResponse,
-      'errors:',
-      expect.anything(),
-    );
+    expect(result).toBe(true);
+    expect(console.warn).not.toHaveBeenCalled();
   });
 
   test('should validate valid ServerResponse with remotes', () => {
@@ -174,6 +194,55 @@ describe('validateSchemaData', () => {
     expect(console.warn).not.toHaveBeenCalled();
   });
 
+  test('should tolerate unknown _meta fields from official registry (e.g. statusChangedAt)', () => {
+    const serverResponse = {
+      server: {
+        name: 'zone.example/registry-test',
+        description: 'Test',
+        version: '1.0.0',
+      },
+      _meta: {
+        'io.modelcontextprotocol.registry/official': {
+          status: 'active',
+          statusChangedAt: '2026-03-13T03:50:03.628037Z',
+          publishedAt: '2026-03-13T03:50:03.628037Z',
+          updatedAt: '2026-03-13T03:50:03.628037Z',
+          isLatest: true,
+        },
+      },
+    };
+
+    const result = validator.validateSchemaData(
+      serverResponse,
+      'ServerResponse',
+      'https://registry.modelcontextprotocol.io',
+    );
+
+    expect(result).toBe(true);
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  test('should tolerate repository as an empty object (registry placeholder)', () => {
+    const serverResponse = {
+      server: {
+        name: 'io.github.example/scrimba-teaching',
+        description: 'Teaching',
+        version: '2.0.0',
+        repository: {},
+      },
+      _meta: {},
+    };
+
+    const result = validator.validateSchemaData(
+      serverResponse,
+      'ServerResponse',
+      'https://registry.modelcontextprotocol.io',
+    );
+
+    expect(result).toBe(true);
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
   test('should validate valid ServerDetail', () => {
     const validServerDetail = {
       name: 'io.github.example/test-server',
@@ -190,7 +259,6 @@ describe('validateSchemaData', () => {
   test('should warn when ServerDetail is missing required fields', () => {
     const invalidServerDetail = {
       name: 'io.github.example/test-server',
-      // Missing description and version
     };
 
     const result = validator.validateSchemaData(invalidServerDetail, 'ServerDetail');
@@ -213,7 +281,6 @@ describe('validateSchemaData', () => {
             description: 'test',
             version: '1.0.0',
           },
-          // Missing required '_meta' field
         },
       ],
     };
@@ -261,13 +328,11 @@ describe('validateSchemaData', () => {
     const result = validator.validateSchemaData(validRepository, 'Repository');
 
     expect(result).toBe(true);
-    // Note: AJV may warn about unknown formats like "uri", but validation still passes
   });
 
   test('should warn on invalid Repository missing required fields', () => {
     const invalidRepository = {
       url: 'https://github.com/example/repo',
-      // Missing 'source' field
     };
 
     const result = validator.validateSchemaData(invalidRepository, 'Repository');
@@ -279,7 +344,6 @@ describe('validateSchemaData', () => {
   test('should not warn when suppressWarnings is true', () => {
     const invalidRepository = {
       url: 'https://github.com/example/repo',
-      // Missing 'source' field
     };
 
     const result = validator.validateSchemaData(invalidRepository, 'Repository', undefined, true);
@@ -294,8 +358,6 @@ describe('validateSchemaData', () => {
 
 describe('validateSchemaData with individual ServerResponse validation', () => {
   test('should identify all invalid servers when validating each ServerResponse individually', () => {
-    // This test validates each server individually (as done in mcp-registry.ts)
-    // to properly detect all invalid servers
     const servers = [
       {
         server: {
@@ -303,7 +365,6 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
           description: 'Invalid server 1',
           version: '1.0.0',
         },
-        // Missing _meta
       },
       {
         server: {
@@ -319,7 +380,6 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
           description: 'Invalid server 2',
           version: '1.0.0',
         },
-        // Missing _meta
       },
     ];
 
@@ -337,10 +397,10 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
     expect(invalidServerNames.has('io.github.example/valid-server')).toBe(false);
   });
 
-  test('should identify invalid server with bad name pattern', () => {
+  test('should reject ServerResponse when server name does not match pattern', () => {
     const serverResponse = {
       server: {
-        name: 'invalid-name-no-slash', // Invalid pattern
+        name: 'invalid-name-no-slash',
         description: 'Invalid server',
         version: '1.0.0',
       },

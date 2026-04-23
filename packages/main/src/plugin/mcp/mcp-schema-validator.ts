@@ -20,6 +20,37 @@ import { type components, createValidator } from '@openkaiden/mcp-registry-types
 import { injectable } from 'inversify';
 
 /**
+ * Determines whether a single AJV validation error can be tolerated for `ServerResponse`
+ * payloads from live MCP registries.
+ *
+ * Tolerated errors:
+ * - `statusChangedAt` additionalProperty: official registry includes this field not yet in bundled schema
+ * - `repository` missing `url` or `source`: registry sometimes returns empty repository objects as placeholders
+ * - Errors under `/server/packages`: packageArguments and other nested structures evolve independently
+ */
+function isTolerableValidationError(error: {
+  keyword?: string;
+  instancePath?: string;
+  params?: { additionalProperty?: string; missingProperty?: string };
+}): boolean {
+  if (error.keyword === 'additionalProperties' && error.params?.additionalProperty === 'statusChangedAt') {
+    return true;
+  }
+  if (
+    error.keyword === 'required' &&
+    error.instancePath === '/server/repository' &&
+    (error.params?.missingProperty === 'url' || error.params?.missingProperty === 'source')
+  ) {
+    return true;
+  }
+  const path = error.instancePath;
+  if (path && (path === '/server/packages' || path.startsWith('/server/packages/'))) {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Service for validating MCP registry data against OpenAPI schemas.
  * Uses AJV validators created from the mcp-registry-types schemas.
  */
@@ -41,7 +72,11 @@ export class MCPSchemaValidator {
     suppressWarnings: boolean = false,
   ): boolean {
     const validator = createValidator(schemaName);
-    const isValid = validator(jsonData);
+    let isValid = validator(jsonData);
+
+    if (!isValid && schemaName === 'ServerResponse' && validator.errors?.every(isTolerableValidationError)) {
+      isValid = true;
+    }
 
     if (!isValid && !suppressWarnings) {
       const context = contextName ? ` from '${contextName}'` : '';
