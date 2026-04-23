@@ -342,11 +342,9 @@ async function startWorkspace(): Promise<void> {
             </div>
             <div class="flex gap-3">
               <Button onclick={cancel}>Cancel</Button>
-              <span data-testid="submit-workspace-button">
-                <Button disabled={!sessionName.trim() || !workingDir.trim() || !selectedAgent || creating} onclick={startWorkspace}>
-                  {creating ? 'Creating...' : 'Start Workspace'}
-                </Button>
-              </span>
+              <Button disabled={!sessionName.trim() || !workingDir.trim() || !selectedAgent || creating} onclick={startWorkspace}>
+                {creating ? 'Creating...' : 'Start Workspace'}
+              </Button>
             </div>
           </div>
 

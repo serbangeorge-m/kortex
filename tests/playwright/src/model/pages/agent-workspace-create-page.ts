@@ -48,21 +48,13 @@ export class AgentWorkspaceCreatePage extends BasePage {
     this.agentSelector = this.page.getByRole('region', { name: 'Select Coding Agent' });
     this.fileAccessSelector = this.page.getByRole('region', { name: 'Access Level' });
     this.cancelButton = this.page.getByRole('button', { name: 'Cancel' });
-    this.submitButton = this.page.getByTestId('submit-workspace-button').getByRole('button');
+    this.submitButton = this.page.getByText('Start Workspace').or(this.page.getByText('Creating...'));
     this.customPathsContainer = this.page.getByPlaceholder('/path/to/allowed/directory').first();
     this.addPathButton = this.page.getByRole('button', { name: 'Add Another Path' });
     this.skillsSection = this.page.locator('section').filter({ hasText: 'Skills' });
     this.skillsSearchInput = this.page.getByPlaceholder('Search skills...');
     this.mcpServersSection = this.page.locator('section').filter({ hasText: 'MCP Servers' });
     this.mcpServersSearchInput = this.page.getByPlaceholder('Search MCP servers...');
-  }
-
-  async hasSkillsAvailable(): Promise<boolean> {
-    return this.skillsSection.isVisible({ timeout: 1000 }).catch(() => false);
-  }
-
-  async hasMcpServersAvailable(): Promise<boolean> {
-    return this.mcpServersSection.isVisible({ timeout: 1000 }).catch(() => false);
   }
 
   async waitForLoad(): Promise<void> {
