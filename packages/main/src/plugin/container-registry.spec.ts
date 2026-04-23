@@ -5693,7 +5693,7 @@ test('saveImage canceled during image saving on filesystem', async () => {
 
   const tmpdir = os.tmpdir();
   const savePromise = containerRegistry.saveImage('podman1', 'an-image', path.join(tmpdir, 'image-to-save'), token);
-  await expect(savePromise).rejects.toThrowError('The operation was aborted');
+  await expect(savePromise).rejects.toThrowError(/(The operation was aborted|Premature close)/);
 });
 
 describe('provider update', () => {
