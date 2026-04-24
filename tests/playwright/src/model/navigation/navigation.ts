@@ -22,8 +22,8 @@ import type { BasePage } from '../pages/base-page';
 import { ChatPage } from '../pages/chat-page';
 import { ExtensionsPage } from '../pages/extensions-page';
 import { FlowsPage } from '../pages/flows-page';
+import { KnowledgePage } from '../pages/knowledge-page';
 import { McpPage } from '../pages/mcp-page';
-import { RagPage } from '../pages/rag-page';
 import { SettingsPage } from '../pages/settings-page';
 import { SkillsPage } from '../pages/skills-page';
 
@@ -34,7 +34,7 @@ export class NavigationBar {
   readonly mcpLink: Locator;
   readonly flowsLink: Locator;
   readonly skillsLink: Locator;
-  readonly ragLink: Locator;
+  readonly knowledgesLink: Locator;
   readonly extensionsLink: Locator;
   readonly settingsLink: Locator;
   private readonly links: Locator[];
@@ -46,7 +46,7 @@ export class NavigationBar {
     this.mcpLink = this.navigationLocator.getByRole('link', { name: 'MCP' });
     this.flowsLink = this.navigationLocator.getByRole('link', { name: 'Flows', exact: true });
     this.skillsLink = this.navigationLocator.getByRole('link', { name: 'Skills', exact: true });
-    this.ragLink = this.navigationLocator.getByRole('link', { name: 'Knowledges', exact: true });
+    this.knowledgesLink = this.navigationLocator.getByRole('link', { name: 'Knowledges', exact: true });
     this.extensionsLink = this.navigationLocator.getByRole('link', { name: 'Extensions', exact: true });
     this.settingsLink = this.navigationLocator.getByRole('link', { name: 'Settings', exact: true });
     this.links = [
@@ -54,7 +54,7 @@ export class NavigationBar {
       this.mcpLink,
       // this.flowsLink, // Flows feature removed (PR #1319)
       this.skillsLink,
-      this.ragLink,
+      this.knowledgesLink,
       this.extensionsLink,
       this.settingsLink,
     ];
@@ -89,8 +89,8 @@ export class NavigationBar {
     return this.navigateTo(this.skillsLink, SkillsPage);
   }
 
-  async navigateToRagPage(): Promise<RagPage> {
-    return this.navigateTo(this.ragLink, RagPage);
+  async navigateToKnowledgePage(): Promise<KnowledgePage> {
+    return this.navigateTo(this.knowledgesLink, KnowledgePage);
   }
 
   async navigateToExtensionsPage(): Promise<ExtensionsPage> {

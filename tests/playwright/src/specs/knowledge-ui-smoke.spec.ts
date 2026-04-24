@@ -19,15 +19,17 @@
 import { expect, test } from '../fixtures/provider-fixtures';
 import { waitForNavigationReady } from '../utils/app-ready';
 
-test.describe('RAG page - empty state', { tag: '@smoke' }, () => {
+test.describe('Knowledge Databases page - empty state', { tag: '@smoke' }, () => {
   test.beforeEach(async ({ page }) => {
     await waitForNavigationReady(page);
   });
 
-  test('[RAG-01] RAG page shows empty state when no environments exist', async ({ workerNavigationBar }) => {
-    const ragPage = await workerNavigationBar.navigateToRagPage();
-    await expect(ragPage.heading).toBeVisible();
-    await expect(ragPage.noEnvironmentsMessage).toHaveText('No knowledge databases are currently configured.');
-    await expect(ragPage.table).not.toBeVisible();
+  test('[KDB-01] Knowledge Databases page shows empty state when no knowledge databases exist', async ({
+    workerNavigationBar,
+  }) => {
+    const knowledgePage = await workerNavigationBar.navigateToKnowledgePage();
+    await expect(knowledgePage.heading).toBeVisible();
+    await expect(knowledgePage.noEnvironmentsMessage).toHaveText('No knowledge databases are currently configured.');
+    await expect(knowledgePage.table).not.toBeVisible();
   });
 });
