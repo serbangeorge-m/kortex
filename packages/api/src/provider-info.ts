@@ -19,6 +19,7 @@
 import type {
   InferenceProviderConnectionType,
   Link,
+  LLMMetadata,
   ProviderCleanupAction,
   ProviderConnectionStatus,
   ProviderDetectionCheck,
@@ -74,6 +75,7 @@ export interface ProviderInferenceConnectionInfo {
   connectionType: 'inference';
   name: string;
   type: InferenceProviderConnectionType;
+  llmMetadata?: LLMMetadata;
   endpoint?: string;
   status: ProviderConnectionStatus;
   lifecycleMethods?: LifecycleMethod[];

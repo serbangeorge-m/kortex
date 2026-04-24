@@ -650,9 +650,14 @@ declare module '@openkaiden/api' {
 
   export type InferenceProviderConnectionType = 'cloud' | 'local' | 'self-hosted';
 
+  export interface LLMMetadata {
+    name?: string;
+  }
+
   export type InferenceProviderConnection = {
     name: string;
     type: InferenceProviderConnectionType;
+    llmMetadata?: LLMMetadata;
     endpoint?: string;
     sdk: AISDKInferenceProvider;
     credentials(): Record<string, string>;

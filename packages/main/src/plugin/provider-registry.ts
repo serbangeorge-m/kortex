@@ -792,6 +792,7 @@ export class ProviderRegistry {
         connectionType: 'inference',
         name: connection.name,
         type: connection.type,
+        llmMetadata: connection.llmMetadata,
         endpoint: connection.endpoint,
         models: connection.models,
         status: connection.status(),
