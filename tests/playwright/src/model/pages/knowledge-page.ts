@@ -20,10 +20,10 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { handleDialogIfPresent } from 'src/utils/app-ready';
 
 import { BaseTablePage } from './base-table-page';
-import { RagCreatePage } from './rag-create-page';
-import { RagDetailsPage } from './rag-details-page';
+import { KnowledgeCreatePage } from './knowledge-create-page';
+import { KnowledgeDetailsPage } from './knowledge-details-page';
 
-export class RagPage extends BaseTablePage {
+export class KnowledgePage extends BaseTablePage {
   readonly header: Locator;
   readonly heading: Locator;
   readonly noEnvironmentsMessage: Locator;
@@ -46,7 +46,7 @@ export class RagPage extends BaseTablePage {
     await expect(this.newKnowledgeBaseButton).toBeEnabled();
     await this.newKnowledgeBaseButton.click();
 
-    const createPage = new RagCreatePage(this.page);
+    const createPage = new KnowledgeCreatePage(this.page);
     await createPage.fillAndSubmit(name, vectorStoreName, embeddingModelName);
     await this.ensureRowExists(name);
   }
@@ -59,12 +59,12 @@ export class RagPage extends BaseTablePage {
     await this.ensureRowDoesNotExist(name);
   }
 
-  async openEnvironmentDetails(name: string, exact = true): Promise<RagDetailsPage> {
+  async openEnvironmentDetails(name: string, exact = true): Promise<KnowledgeDetailsPage> {
     await this.waitForLoad();
     const row = await this.getRowLocatorByName(name, exact);
     const nameButton = row.getByRole('button', { name });
     await expect(nameButton).toBeVisible();
     await nameButton.click();
-    return new RagDetailsPage(this.page, name);
+    return new KnowledgeDetailsPage(this.page, name);
   }
 }

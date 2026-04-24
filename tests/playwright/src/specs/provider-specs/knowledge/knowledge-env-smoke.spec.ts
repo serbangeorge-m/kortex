@@ -31,10 +31,10 @@ const EMBEDDING_MODEL_NAME = 'docling';
 
 test.use({ milvusConnectionName: VECTOR_STORE_NAME });
 
-test.describe('RAG provider tests', () => {
+test.describe('Knowledge Database provider tests', () => {
   test.skip(
     process.platform !== 'linux' && !process.env.PODMAN_ENABLED,
-    'RAG tests require Podman (set PODMAN_ENABLED=true on non-Linux)',
+    'Knowledge Database tests require Podman (set PODMAN_ENABLED=true on non-Linux)',
   );
 
   test.beforeEach(async ({ page }) => {
@@ -42,20 +42,20 @@ test.describe('RAG provider tests', () => {
   });
 
   test.describe
-    .serial('RAG page - UI creation', { tag: '@rag-provider' }, () => {
+    .serial('Knowledge Database page - UI creation', { tag: '@knowledge-provider' }, () => {
       const ENVIRONMENT_NAME = 'test-knowledge-base';
 
-      test('[RAG-02] Create RAG environment via UI and verify row appears', async ({
+      test('[KDB-02] Create knowledge database via UI and verify row appears', async ({
         milvusSetup: vectorStoreName,
         workerNavigationBar,
       }) => {
-        const ragPage = await workerNavigationBar.navigateToRagPage();
-        await ragPage.createEnvironment(ENVIRONMENT_NAME, vectorStoreName, EMBEDDING_MODEL_NAME);
+        const knowledgePage = await workerNavigationBar.navigateToKnowledgePage();
+        await knowledgePage.createEnvironment(ENVIRONMENT_NAME, vectorStoreName, EMBEDDING_MODEL_NAME);
       });
 
-      test('[RAG-03] Details page shows all tabs and Sources tab has zero files', async ({ workerNavigationBar }) => {
-        const ragPage = await workerNavigationBar.navigateToRagPage();
-        const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
+      test('[KDB-03] Details page shows all tabs and Sources tab has zero files', async ({ workerNavigationBar }) => {
+        const knowledgePage = await workerNavigationBar.navigateToKnowledgePage();
+        const detailsPage = await knowledgePage.openEnvironmentDetails(ENVIRONMENT_NAME);
         await detailsPage.waitForLoad();
 
         await expect(detailsPage.heading).toContainText(ENVIRONMENT_NAME);
@@ -68,12 +68,12 @@ test.describe('RAG provider tests', () => {
         await expect(detailsPage.uploadedFilesHeader).toContainText('0');
       });
 
-      test('[RAG-04] Upload a file and verify it appears in Sources tab', async ({
+      test('[KDB-04] Upload a file and verify it appears in Sources tab', async ({
         workerElectronApp,
         workerNavigationBar,
       }) => {
-        const ragPage = await workerNavigationBar.navigateToRagPage();
-        const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
+        const knowledgePage = await workerNavigationBar.navigateToKnowledgePage();
+        const detailsPage = await knowledgePage.openEnvironmentDetails(ENVIRONMENT_NAME);
         await detailsPage.waitForLoad();
         await detailsPage.switchToSourcesTab();
 
@@ -84,9 +84,9 @@ test.describe('RAG provider tests', () => {
         await expect(detailsPage.getUploadedFileRow('test-doc.pdf')).toContainText('pending');
       });
 
-      test('[RAG-05] Delete RAG environment from details page', async ({ workerNavigationBar }) => {
-        const ragPage = await workerNavigationBar.navigateToRagPage();
-        const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
+      test('[KDB-05] Delete knowledge database from details page', async ({ workerNavigationBar }) => {
+        const knowledgePage = await workerNavigationBar.navigateToKnowledgePage();
+        const detailsPage = await knowledgePage.openEnvironmentDetails(ENVIRONMENT_NAME);
         await detailsPage.waitForLoad();
 
         const listPage = await detailsPage.deleteEnvironment();
@@ -96,11 +96,11 @@ test.describe('RAG provider tests', () => {
     });
 
   test.describe
-    .serial('RAG Pipeline with Milvus', { tag: '@rag-provider' }, () => {
+    .serial('Knowledge Database Pipeline with Milvus', { tag: '@knowledge-provider' }, () => {
       const ENVIRONMENT_NAME = 'connected-knowledge-base';
       const EXPECTED_COLLECTION_NAME = 'connected_knowledge_base';
 
-      test('[RAG-06] Milvus connection is visible in Settings Resources', async ({
+      test('[KDB-06] Milvus connection is visible in Settings Resources', async ({
         milvusSetup: _milvusSetup,
         workerNavigationBar,
       }) => {
@@ -115,20 +115,20 @@ test.describe('RAG provider tests', () => {
         await expect(connection).toBeVisible();
       });
 
-      test('[RAG-07] Create RAG environment via UI and verify it appears', async ({
+      test('[KDB-07] Create knowledge database via UI and verify it appears', async ({
         milvusSetup: vectorStoreName,
         workerNavigationBar,
       }) => {
-        const ragPage = await workerNavigationBar.navigateToRagPage();
-        await ragPage.createEnvironment(ENVIRONMENT_NAME, vectorStoreName, EMBEDDING_MODEL_NAME);
+        const knowledgePage = await workerNavigationBar.navigateToKnowledgePage();
+        await knowledgePage.createEnvironment(ENVIRONMENT_NAME, vectorStoreName, EMBEDDING_MODEL_NAME);
       });
 
-      test('[RAG-08] Details page shows Milvus info in Summary and VectorStore tabs', async ({
+      test('[KDB-08] Details page shows Milvus info in Summary and VectorStore tabs', async ({
         milvusSetup: vectorStoreName,
         workerNavigationBar,
       }) => {
-        const ragPage = await workerNavigationBar.navigateToRagPage();
-        const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
+        const knowledgePage = await workerNavigationBar.navigateToKnowledgePage();
+        const detailsPage = await knowledgePage.openEnvironmentDetails(ENVIRONMENT_NAME);
         await detailsPage.waitForLoad();
 
         await detailsPage.switchToSummaryTab();
@@ -143,9 +143,9 @@ test.describe('RAG provider tests', () => {
         });
       });
 
-      test('[RAG-09] Delete RAG environment from details page', async ({ workerNavigationBar }) => {
-        const ragPage = await workerNavigationBar.navigateToRagPage();
-        const detailsPage = await ragPage.openEnvironmentDetails(ENVIRONMENT_NAME);
+      test('[KDB-09] Delete knowledge database from details page', async ({ workerNavigationBar }) => {
+        const knowledgePage = await workerNavigationBar.navigateToKnowledgePage();
+        const detailsPage = await knowledgePage.openEnvironmentDetails(ENVIRONMENT_NAME);
         await detailsPage.waitForLoad();
 
         const listPage = await detailsPage.deleteEnvironment();

@@ -20,9 +20,9 @@ import { type ElectronApplication, expect, type Locator, type Page } from '@play
 import { handleDialogIfPresent, withMockedFileDialog } from 'src/utils/app-ready';
 
 import { BasePage } from './base-page';
-import { RagPage } from './rag-page';
+import { KnowledgePage } from './knowledge-page';
 
-export class RagDetailsPage extends BasePage {
+export class KnowledgeDetailsPage extends BasePage {
   readonly environmentName: string;
   readonly header: Locator;
   readonly heading: Locator;
@@ -100,17 +100,17 @@ export class RagDetailsPage extends BasePage {
     return this.tabContentRegion.getByLabel(label, { exact: true });
   }
 
-  async deleteEnvironment(): Promise<RagPage> {
+  async deleteEnvironment(): Promise<KnowledgePage> {
     await expect(this.deleteButton).toBeEnabled();
     await this.deleteButton.click();
     await handleDialogIfPresent(this.page);
     return this.closeDetailsPage();
   }
 
-  async closeDetailsPage(): Promise<RagPage> {
+  async closeDetailsPage(): Promise<KnowledgePage> {
     await expect(this.closeDetailsPageButton).toBeEnabled();
     await this.closeDetailsPageButton.click();
-    return new RagPage(this.page);
+    return new KnowledgePage(this.page);
   }
 
   private async switchTab(tabLink: Locator): Promise<void> {

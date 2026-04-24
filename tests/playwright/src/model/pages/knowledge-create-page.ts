@@ -21,7 +21,7 @@ import { TIMEOUTS } from 'src/model/core/types';
 
 import { BasePage } from './base-page';
 
-export class RagCreatePage extends BasePage {
+export class KnowledgeCreatePage extends BasePage {
   readonly modal: Locator;
   readonly heading: Locator;
   readonly nameInputField: Locator;

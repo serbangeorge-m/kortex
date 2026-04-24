@@ -192,7 +192,7 @@ export const test = base.extend<ElectronFixtures, WorkerFixtures>({
       } catch (error) {
         if (!created) {
           console.warn(
-            `Milvus setup skipped: no container engine available. Start Podman or Docker to run RAG tests. (${error})`,
+            `Milvus setup skipped: no container engine available. Start Podman or Docker to run Knowledge Database tests. (${error})`,
           );
           await use('');
           return;

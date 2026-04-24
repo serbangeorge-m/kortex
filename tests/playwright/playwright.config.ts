@@ -33,7 +33,7 @@ if (ramaLamaAvailable) {
 }
 
 if (podmanAvailable) {
-  console.log('Podman enabled - running RAG tests');
+  console.log('Podman enabled - running Knowledge Database tests');
 }
 
 const config: PlaywrightTestConfig & {
@@ -112,8 +112,8 @@ const config: PlaywrightTestConfig & {
         : ['**/*'], // Skip all if RamaLama is not running
     },
     {
-      name: 'RAG',
-      testMatch: ['**/provider-specs/rag/*.spec.ts'],
+      name: 'Knowledge-Database',
+      testMatch: ['**/provider-specs/knowledge/*.spec.ts'],
       testIgnore: podmanAvailable ? [] : ['**/*'], // Skip all if Podman is not available
     },
   ],
