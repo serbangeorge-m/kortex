@@ -108,6 +108,10 @@ export class DoclingExtension {
         'ai.openkaiden.docling.port': `${containerPort}`,
       },
       Image: DOCLING_IMAGE,
+      // Single worker required: LocalOrchestrator stores tasks in per-worker memory.
+      // Multiple workers cause 404 "Task result not found" on internal polls.
+      // See https://github.com/docling-project/docling-serve/issues/467
+      Env: ['UVICORN_WORKERS=1'],
       HostConfig: {
         AutoRemove: true,
         PortBindings: {
