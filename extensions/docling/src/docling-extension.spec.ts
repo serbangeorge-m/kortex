@@ -390,6 +390,20 @@ describe('DoclingExtension', () => {
       expect(result.containerId).toBe('test-container-id');
     });
 
+    test('should set UVICORN_WORKERS=1 to avoid multi-worker task routing issues', async () => {
+      vi.mocked(global.fetch).mockResolvedValue({
+        ok: true,
+      } as Response);
+
+      await doclingExtension.launchContainer(containerExtensionAPI);
+
+      expect(dockerodeMock.createContainer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          Env: expect.arrayContaining(['UVICORN_WORKERS=1']),
+        }),
+      );
+    });
+
     test('should pull image if not available', async () => {
       // Mock image not found
       vi.mocked(imageMock.inspect).mockRejectedValue(new Error('Image not found'));
