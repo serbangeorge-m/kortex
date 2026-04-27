@@ -24,18 +24,14 @@ import { injectable } from 'inversify';
  * payloads from live MCP registries.
  *
  * Tolerated errors:
- * - `statusChangedAt` additionalProperty: official registry includes this field not yet in bundled schema
  * - `repository` missing `url` or `source`: registry sometimes returns empty repository objects as placeholders
  * - Errors under `/server/packages`: packageArguments and other nested structures evolve independently
  */
 function isTolerableValidationError(error: {
   keyword?: string;
   instancePath?: string;
-  params?: { additionalProperty?: string; missingProperty?: string };
+  params?: { missingProperty?: string };
 }): boolean {
-  if (error.keyword === 'additionalProperties' && error.params?.additionalProperty === 'statusChangedAt') {
-    return true;
-  }
   if (
     error.keyword === 'required' &&
     error.instancePath === '/server/repository' &&
@@ -56,6 +52,17 @@ function isTolerableValidationError(error: {
  */
 @injectable()
 export class MCPSchemaValidator {
+  #validatorCache = new Map<string, ReturnType<typeof createValidator>>();
+
+  #getValidator(schemaName: string): ReturnType<typeof createValidator> {
+    let validator = this.#validatorCache.get(schemaName);
+    if (!validator) {
+      validator = createValidator(schemaName);
+      this.#validatorCache.set(schemaName, validator);
+    }
+    return validator;
+  }
+
   /**
    * Validates JSON data against a specified schema component.
    *
@@ -71,7 +78,7 @@ export class MCPSchemaValidator {
     contextName?: string,
     suppressWarnings: boolean = false,
   ): boolean {
-    const validator = createValidator(schemaName);
+    const validator = this.#getValidator(schemaName);
     let isValid = validator(jsonData);
 
     if (!isValid && schemaName === 'ServerResponse' && validator.errors?.every(isTolerableValidationError)) {

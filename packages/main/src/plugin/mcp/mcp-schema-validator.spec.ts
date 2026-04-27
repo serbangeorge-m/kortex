@@ -55,15 +55,14 @@ describe('validateSchemaData', () => {
     expect(console.warn).not.toHaveBeenCalled();
   });
 
-  test('should warn on invalid ServerList missing required fields', () => {
+  test('should warn on invalid ServerList missing required server fields', () => {
     const invalidServerList = {
       servers: [
         {
           server: {
             name: 'io.github.example/test-server',
-            description: 'Test',
-            version: '1.0.0',
           },
+          _meta: {},
         },
       ],
     };
@@ -79,13 +78,9 @@ describe('validateSchemaData', () => {
     );
   });
 
-  test('should warn on ServerResponse missing _meta field', () => {
+  test('should warn on ServerResponse missing server field', () => {
     const invalidServerResponse = {
-      server: {
-        name: 'io.github.example/test-server',
-        description: 'Test',
-        version: '1.0.0',
-      },
+      _meta: {},
     };
 
     const result = validator.validateSchemaData(invalidServerResponse, 'ServerResponse', 'test-registry');
@@ -189,34 +184,6 @@ describe('validateSchemaData', () => {
     };
 
     const result = validator.validateSchemaData(validServerResponse, 'ServerResponse', 'test-registry');
-
-    expect(result).toBe(true);
-    expect(console.warn).not.toHaveBeenCalled();
-  });
-
-  test('should tolerate unknown _meta fields from official registry (e.g. statusChangedAt)', () => {
-    const serverResponse = {
-      server: {
-        name: 'zone.example/registry-test',
-        description: 'Test',
-        version: '1.0.0',
-      },
-      _meta: {
-        'io.modelcontextprotocol.registry/official': {
-          status: 'active',
-          statusChangedAt: '2026-03-13T03:50:03.628037Z',
-          publishedAt: '2026-03-13T03:50:03.628037Z',
-          updatedAt: '2026-03-13T03:50:03.628037Z',
-          isLatest: true,
-        },
-      },
-    };
-
-    const result = validator.validateSchemaData(
-      serverResponse,
-      'ServerResponse',
-      'https://registry.modelcontextprotocol.io',
-    );
 
     expect(result).toBe(true);
     expect(console.warn).not.toHaveBeenCalled();
@@ -362,9 +329,9 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
       {
         server: {
           name: 'io.github.example/invalid-server-1',
-          description: 'Invalid server 1',
           version: '1.0.0',
         },
+        _meta: {},
       },
       {
         server: {
@@ -377,9 +344,9 @@ describe('validateSchemaData with individual ServerResponse validation', () => {
       {
         server: {
           name: 'io.github.example/invalid-server-2',
-          description: 'Invalid server 2',
           version: '1.0.0',
         },
+        _meta: {},
       },
     ];
 
